@@ -1,0 +1,5 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/mnt/nfs/homes/sasaicic/webserv'
+c++ -Wall -Wextra -Werror -o webserv obj/webserv.d obj/obj/webserv.o
+make: Leaving directory '/mnt/nfs/homes/sasaicic/webserv'
+ 
