@@ -1,8 +1,6 @@
-#include "foo.h"
 #include <iostream>
 
-int main()
+int main(void)
 {
-    std::cout << STR << std::endl;
     return (0);   
 }
