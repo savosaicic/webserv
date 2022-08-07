@@ -1,0 +1,7 @@
+*.swp
+obj/
+dep/
+*.o
+webserv
+.DS_Store
+.vscode
