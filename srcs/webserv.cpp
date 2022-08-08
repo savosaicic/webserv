@@ -1,6 +1,11 @@
 #include <iostream>
+#include "HTTPServer.hpp"
 
 int main(void)
 {
-    return (0);   
+	HTTPServer	server;
+
+	server.start();
+
+    return (0);
 }

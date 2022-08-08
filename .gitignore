@@ -5,3 +5,4 @@ dep/
 webserv
 .DS_Store
 .vscode
+compile_flags.txt

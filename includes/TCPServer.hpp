@@ -6,45 +6,31 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 16:48:18 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/08/05 16:48:20 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/08/08 14:24:43 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TCPSERVER_HPP
 # define TCPSERVER_HPP
 
+# include "SocketServer.hpp"
+# include "TCPConnection.hpp"
+# include "utils.hpp"
 # include <vector>
 
-class	TCPConnection
-{
-	public:
-		TCPConnection();
-		TCPConnection(TCPConnection const &src);
-		~TCPConnection();
-
-		void	recv();
-		void	send();
-		void	shutdown();
-		void	close();
-
-	private:
-		int		_fd;
-		short	_io_events;
-};
-
-class	TCPServer
+class	TCPServer : public SocketServer
 {
 	public:
 		TCPServer();
 		TCPServer(TCPServer const &src);
 		~TCPServer();
 
-		void	start();
+		void	listen(int port, SA_IN addr);
 		void	accept();
-		void	stop();
+		void	close_listener();
 
 	private:
-		std::vector<TCPConnection>	_connection;
+		std::vector<TCPConnection>	_connections;
 };
 
 #endif

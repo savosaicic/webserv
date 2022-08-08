@@ -6,7 +6,7 @@
 #    By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/08/08 09:31:01 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/08/08 14:12:35 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@ NAME := webserv
 CXX := c++
 CPPFLAGS := -Iincludes
 CXXFLAGS := -std=c++98 -Wall -Wextra -Werror
-SRCS := webserv.cpp
+SRCS := SocketServer.cpp TCPServer.cpp HTTPServer.cpp TCPConnection.cpp \
+		webserv.cpp debug.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
@@ -40,7 +41,7 @@ endif
 %.d: %.cpp
 	$(CXX) $(CPPFLAGS) -MM -MF $(DEPDIR)/$@ $<
 
-debug: CXXFLAGS += -g
+debug: CXXFLAGS += -g -DDEBUG=1
 debug: $(NAME)
 
 $(OBJS): | $(OBJDIR)

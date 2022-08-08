@@ -5,9 +5,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
- 
 
-# Make data base, printed on Sat Aug  6 12:35:06 2022
+# Make data base, printed on Mon Aug  8 11:13:53 2022
 
 # Variables
 
@@ -27,6 +26,8 @@ XDG_SESSION_TYPE = x11
 VSCODE_LOG_NATIVE = false
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
+# makefile (from 'Makefile', line 15)
+CPPFLAGS := -Iincludes
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
@@ -45,10 +46,8 @@ VTE_VERSION = 6003
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
 _ = /bin/code
-# makefile (from 'Makefile', line 15)
-CFLAGS = -I includes
 # environment
-JOURNAL_STREAM = 9:2111775
+JOURNAL_STREAM = 9:993729
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile (from 'Makefile', line 1)
@@ -60,7 +59,7 @@ GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/terminator.desktop
 # 'override' directive
 GNUMAKEFLAGS := 
 # makefile (from 'Makefile', line 16)
-CXXFLAGS = -Wall -Wextra -Werror
+CXXFLAGS := -std=c++98 -Wall -Wextra -Werror
 # environment
 MANDATORY_PATH = /usr/share/gconf/ubuntu.mandatory.path
 # environment
@@ -70,17 +69,17 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/39302/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # makefile (from 'Makefile', line 18)
-OBJS = $(SRCS:.cpp=.o)
+OBJS := webserv.o
 # environment
-MANAGERPID = 345561
+MANAGERPID = 158739
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/39302/vscode-ipc-800351ee-5293-44df-a383-025eac164b3e.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/39302/vscode-ipc-f8ed4969-b27d-4521-a893-fa9d4567dbdb.sock
 # environment
 VSCODE_CWD = /mnt/nfs/homes/sasaicic/webserv
 # environment
-XDG_SESSION_PATH = /org/freedesktop/DisplayManager/Session3
+XDG_SESSION_PATH = /org/freedesktop/DisplayManager/Session1
 # environment
-KRB5CCNAME = FILE:/tmp/krb5cc_39302_EdRRLO
+KRB5CCNAME = FILE:/tmp/krb5cc_39302_CghJy3
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
@@ -90,7 +89,7 @@ GPG_AGENT_INFO = /run/user/39302/gnupg/S.gpg-agent:0:1
 # environment
 LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
-SESSION_MANAGER = local/e2r9p7.clusters.42paris.fr:@/tmp/.ICE-unix/345964,unix/e2r9p7.clusters.42paris.fr:/tmp/.ICE-unix/345964
+SESSION_MANAGER = local/e1r8p7.clusters.42paris.fr:@/tmp/.ICE-unix/159274,unix/e1r8p7.clusters.42paris.fr:/tmp/.ICE-unix/159274
 # environment
 XDG_RUNTIME_DIR = /run/user/39302
 # environment
@@ -100,7 +99,7 @@ VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = fad00274e4934658bd85c2bd93020d1a
+INVOCATION_ID = 25d608e275784f359c2889747a8cdd47
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -114,7 +113,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/39302/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 348066
+GIO_LAUNCHED_DESKTOP_FILE_PID = 161856
 # automatic
 %F = $(notdir $%)
 # environment
@@ -126,7 +125,7 @@ PWD = /mnt/nfs/homes/sasaicic/webserv
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 345926
+SSH_AGENT_PID = 159238
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -164,7 +163,7 @@ MAKECMDGOALS := all
 # environment
 QT_IM_MODULE = ibus
 # makefile (from 'Makefile', line 17)
-SRCS = webserv.cpp
+SRCS := webserv.cpp
 # environment
 SHLVL = 2
 # environment
@@ -187,8 +186,6 @@ LESS = -R
 MAKE_COMMAND := make
 # environment
 OLDPWD = /mnt/nfs/homes/sasaicic
-# environment
-TERMINATOR_DBUS_PATH = /net/tenshu/Terminator2
 # default
 .VARIABLES := 
 # automatic
@@ -218,13 +215,13 @@ DEFAULTS_PATH = /usr/share/gconf/ubuntu.default.path
 # default
 MAKEFILES := 
 # makefile (from 'Makefile', line 21)
-DEPDIR = dep
+DEPDIR := dep
 # automatic
 <F = $(notdir $<)
 # makefile (from 'Makefile', line 20)
-OBJDIR = obj
+OBJDIR := obj
 # makefile (from 'Makefile', line 14)
-CXX = c++
+CXX := c++
 # environment
 EDITOR = nvim
 # environment
@@ -236,9 +233,9 @@ GJS_DEBUG_TOPICS = JS ERROR;JS LOG
 # automatic
 ^F = $(notdir $^)
 # makefile (from 'Makefile', line 19)
-DEPS = $(SRCS:.cpp=.d) 
-# default
-SUFFIXES := 
+DEPS := webserv.d 
+# makefile (from 'Makefile', line 22)
+SUFFIXES :=  .d
 # environment
 CHROME_DESKTOP = code-url-handler.desktop
 # default
@@ -246,7 +243,7 @@ CHROME_DESKTOP = code-url-handler.desktop
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # makefile (from 'Makefile', line 13)
-NAME = webserv
+NAME := webserv
 # default
 .RECIPEPREFIX := 
 # environment
@@ -254,15 +251,13 @@ LANG = C
 # environment
 TERM = xterm-256color
 # environment
-TERMINATOR_DBUS_NAME = net.tenshu.Terminator21a9d5db22c73a993ff0b42f64b396873
-# environment
 DOCKER_HOST = unix:///run/user/39302/docker.sock
 # environment
-VSCODE_PID = 360472
+VSCODE_PID = 203319
 # environment
-TERMINATOR_UUID = urn:uuid:a5ed04e4-29d8-47dc-ae67-7b4698092016
+TERMINATOR_UUID = urn:uuid:957bae3a-59a3-477a-a50a-881af5071193
 # variable set hash-table stats:
-# Load=125/1024=12%, Rehash=0, Collisions=23/168=14%
+# Load=123/1024=12%, Rehash=0, Collisions=27/174=16%
 
 # Pattern-specific Variable Values
 
@@ -270,27 +265,33 @@ TERMINATOR_UUID = urn:uuid:a5ed04e4-29d8-47dc-ae67-7b4698092016
 
 # Directories
 
-# obj (device 59, inode 40704636): 3 files, no impossibilities so far.
-# . (device 59, inode 40610698): 9 files, no impossibilities.
-# dep: could not be stat'd.
-# srcs (device 59, inode 43521604): 3 files, no impossibilities so far.
+# obj (device 55, inode 40603996): No files, no impossibilities so far.
+# . (device 55, inode 40610698): 13 files, no impossibilities.
+# dep (device 0, inode 0): No files, 1 impossibilities.
+# srcs/dep: could not be stat'd.
+# srcs (device 55, inode 43521604): 3 files, no impossibilities so far.
 
-# 15 files, no impossibilities in 4 directories.
+# 16 files, 1 impossibilities in 5 directories.
 
 # Implicit Rules
 
-%.d: %.cpp
-#  recipe to execute (from 'Makefile', line 33):
-	
-
- 
 %.o: %.cpp
-#  recipe to execute (from 'Makefile', line 36):
-	$(CXX) $(CFLAGS) $(CXXFLAGS) -c $< -o $(OBJDIR)/$@
+#  recipe to execute (from 'Makefile', line 34):
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $(OBJDIR)/$@
+
+%.d: %.cpp
+ 
+#  recipe to execute (from 'Makefile', line 41):
+	$(CXX) $(CPPFLAGS) -MM -MF $(DEPDIR)/$@ $<
 
 # 2 implicit rules, 0 (0.0%) terminal.
 
 # Files
+
+webserv.o: | obj
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 all: webserv
 #  Phony target (prerequisite of .PHONY).
@@ -300,36 +301,19 @@ all: webserv
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
-# Load=0/32=0%, Rehash=0, Collisions=0/6=0%
+# Load=0/32=0%, Rehash=0, Collisions=0/4=0%
 
-webserv: webserv.d obj/webserv.o
+webserv: webserv.d webserv.o
 #  Implicit rule search has not been done.
-#  Implicit/static pattern stem: ''
-#  Last modified 2022-08-06 12:32:27.290747653
+#  Last modified 2022-08-08 10:36:58.044251003
 #  File has been updated.
 #  Needs to be updated (-q is set).
-# automatic
-# @ := webserv
-# automatic
-# % := 
-# automatic
-# * := 
-# automatic
-# + := webserv.d obj/webserv.o
-# automatic
-# | := 
-# automatic
-# < := webserv.d
-# automatic
-# ^ := webserv.d obj/webserv.o
-# automatic
-# ? := webserv.d
 # variable set hash-table stats:
-# Load=8/32=25%, Rehash=0, Collisions=1/16=6%
-#  recipe to execute (from 'Makefile', line 30):
-	$(CXX) $(CXXFLAGS) -o $@ $(addprefix $(OBJDIR)/, $^)
+# Load=0/32=0%, Rehash=0, Collisions=0/4=0%
+#  recipe to execute (from 'Makefile', line 31):
+	$(CXX) $(CXXFLAGS) -o $@ $(addprefix $(OBJDIR)/, $(OBJS))
 
-.PHONY: all clean fclean re
+.PHONY: all debug test clean fclean re
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -343,33 +327,68 @@ webserv: webserv.d obj/webserv.o
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-06 12:34:40.215545304
+#  Last modified 2022-08-08 10:37:19.098378103
 #  File has been updated.
 #  Successfully updated.
 
-obj/webserv.o: srcs/webserv.cpp | obj
-#  Implicit rule search has been done.
-#  Implicit/static pattern stem: 'webserv'
-#  Last modified 2022-08-06 12:32:27.202747126
+# makefile (from 'Makefile', line 43)
+debug: CXXFLAGS += -g
+debug: webserv
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/2=0%
+
+test: webserv
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 57):
+	./run_tests.sh
+
+dep:
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: ''
+#  File does not exist.
 #  File has been updated.
-#  Successfully updated.
-#  recipe to execute (from 'Makefile', line 36):
-	$(CXX) $(CFLAGS) $(CXXFLAGS) -c $< -o $(OBJDIR)/$@
+#  Needs to be updated (-q is set).
+# automatic
+# @ := dep
+# automatic
+# % := 
+# automatic
+# * := 
+# automatic
+# + := 
+# automatic
+# | := 
+# automatic
+# < := 
+# automatic
+# ^ := 
+# automatic
+# ? := 
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=1/12=8%
+#  recipe to execute (from 'Makefile', line 54):
+	mkdir -p $(DEPDIR)
 
 fclean: clean
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 47):
+#  recipe to execute (from 'Makefile', line 63):
 	$(RM) $(NAME)
 
 obj:
 #  Implicit rule search has not been done.
-#  Last modified 2022-08-06 12:32:27.203747132
-#  File has been updated.
-#  Successfully updated.
-#  recipe to execute (from 'Makefile', line 41):
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 49):
 	mkdir -p $(OBJDIR)
 
 # Not a target:
@@ -381,7 +400,7 @@ obj:
 # Not a target:
 srcs/webserv.cpp:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-06 12:32:10.99564989
+#  Last modified 2022-08-08 10:46:45.75479893
 #  File has been updated.
 #  Successfully updated.
 
@@ -396,20 +415,29 @@ clean:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 44):
-	rm -rf $(OBJDIR)
+#  recipe to execute (from 'Makefile', line 60):
+	rm -rf $(OBJDIR) $(DEPDIR)
 
-webserv.d: srcs/webserv.cpp
+webserv.d: srcs/webserv.cpp | dep
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'webserv'
-#  Last modified 2514-05-30 03:53:03.107374182
+#  File does not exist.
 #  File has been updated.
-#  Successfully updated.
-#  recipe to execute (from 'Makefile', line 33):
-	
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/4=0%
+#  recipe to execute (from 'Makefile', line 41):
+	$(CXX) $(CPPFLAGS) -MM -MF $(DEPDIR)/$@ $<
+
+# Not a target:
+dep/webserv.d:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
 
 # files hash-table stats:
-# Load=13/1024=1%, Rehash=0, Collisions=0/64=0%
+# Load=17/1024=2%, Rehash=0, Collisions=0/70=0%
 # VPATH Search Paths
 
 vpath %.cpp srcs
@@ -420,12 +448,12 @@ vpath %.d dep
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 27 / storage = 212 B / avg = 7 B
-# current buf: size = 8162 B / used = 212 B / count = 27 / avg = 7 B
+# strcache buffers: 1 (0) / strings = 35 / storage = 296 B / avg = 8 B
+# current buf: size = 8162 B / used = 296 B / count = 35 / avg = 8 B
 
-# strcache performance: lookups = 76 / hit rate = 64%
+# strcache performance: lookups = 92 / hit rate = 61%
 # hash-table stats:
-# Load=27/8192=0%, Rehash=0, Collisions=3/76=4%
-# Finished Make data base on Sat Aug  6 12:35:06 2022
+# Load=35/8192=0%, Rehash=0, Collisions=2/92=2%
+# Finished Make data base on Mon Aug  8 11:13:53 2022
 
  
