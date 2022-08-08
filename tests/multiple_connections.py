@@ -3,15 +3,16 @@ import threading
 import time
 import random 
 import os
+import sys
 
 address = '127.0.0.1'
-port = 80
 
-def test_connection():
+def test_connection(port = int(sys.argv[1])):
     s = socket.socket()
     try:
         s.connect((address, port))
         time.sleep(random.uniform(0.1, 5.2)) 
+        s.send('GET /')
     except Exception as e:
         print("%s:%d:%s" % (address, port, e))
         os._exit(1)

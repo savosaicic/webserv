@@ -1,12 +1,12 @@
 import socket
 import threading
 import time
+import sys
 import os
 
 address = '127.0.0.1'
-port = 80
 
-def test_connection():
+def test_connection(port):
     s = socket.socket()
     try:
         s.connect((address, port))
@@ -17,4 +17,4 @@ def test_connection():
     finally:
         s.close()
 
-test_connection()
+test_connection(int(sys.argv[1]))

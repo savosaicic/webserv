@@ -6,7 +6,7 @@
 #    By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/08/05 16:48:14 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/08/08 09:31:01 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,6 +53,9 @@ $(DEPS): | $(DEPDIR)
 $(DEPDIR):
 	mkdir -p $(DEPDIR)
 
+test: $(NAME)
+	./run_tests.sh
+
 clean:
 	rm -rf $(OBJDIR) $(DEPDIR)
 
@@ -61,4 +64,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all debug clean fclean re
+.PHONY: all debug test clean fclean re
