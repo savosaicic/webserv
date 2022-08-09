@@ -18,7 +18,7 @@ SocketServer::SocketServer(int domain, int type, int protocol) :
 
 SocketServer::~SocketServer()
 {
-	this->close();
+//	this->close();
 }
 
 void	SocketServer::bind(const int port)
@@ -41,7 +41,7 @@ void	SocketServer::bind(const int port)
 	hints.ai_flags = AI_PASSIVE;
 
 	(void)port;
-	status = getaddrinfo(NULL, /*ITOA(port)*/"12345", &hints, &servinfo);
+	status = getaddrinfo(NULL, /*ITOA(port)*/"8042", &hints, &servinfo);
 	if (status != 0)
 		throw ws_exception(error_message("getaddrinfo()", gai_strerror(status)));
 
@@ -61,7 +61,7 @@ void	SocketServer::listen()
 
 void	SocketServer::close()
 {
-	if (_fd < 0)
+	if (_fd > -1)
 	{
 		::close(_fd);
 		_fd = -1;
