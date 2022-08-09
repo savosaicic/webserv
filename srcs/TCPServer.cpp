@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "TCPConnection.hpp"
 #include "utils.hpp"
 #include <stdexcept>
 #include <string>
@@ -43,11 +44,19 @@ void	TCPServer::accept()
 	{
 		throw std::runtime_error(std::string(strerror(errno)));
 	}
-
-	
 	_connections.push_back(TCPConnection(newfd, client_addr));
-	
 #ifdef DEBUG
 	accepted_connection_from((char *)&client_addr.sin_addr);
 #endif
+}
+
+void	TCPServer::close()
+{
+	std::vector<TCPConnection>::iterator	it;
+
+	for (it = _connections.begin(); it != _connections.end(); ++it)
+	{
+		(*it).close();
+	}
+	SocketServer::close();
 }

@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 16:48:18 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/08/08 14:24:43 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/08/09 08:49:04 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class	TCPServer : public SocketServer
 
 		void	listen(int port, SA_IN addr);
 		void	accept();
-		void	close_listener();
+		void	close();
 
 	private:
 		std::vector<TCPConnection>	_connections;

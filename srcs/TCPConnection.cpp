@@ -16,14 +16,13 @@ TCPConnection::TCPConnection(int connection_fd, const SA_IN &addr) : _fd(connect
 	(void)_addr;
 }
 
-TCPConnection::TCPConnection(const TCPConnection &src)
+TCPConnection::TCPConnection(const TCPConnection &src) : _fd(src._fd)
 {
-	(void)src;
 }
 
 TCPConnection::~TCPConnection()
 {
-	this->close();
+//	this->close();
 }
 
 void	TCPConnection::close()
@@ -31,5 +30,6 @@ void	TCPConnection::close()
 	if (_fd > -1)
 	{
 		::close(_fd);
+		_fd = -1;
 	}
 }

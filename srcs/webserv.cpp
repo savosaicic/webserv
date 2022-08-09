@@ -14,8 +14,12 @@ int main(void)
 	}
 	catch (const std::exception &e)
 	{
+		server.close();
 		std::cerr << e.what() << std::endl;
 	}
+
+	server.close();
+
 
 	return (0);
 }
