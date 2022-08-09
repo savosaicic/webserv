@@ -1,4 +1,5 @@
 #include "SocketServer.hpp"
+#include <cerrno>
 #include <unistd.h>
 #include <exception>
 #include <string.h>
@@ -7,6 +8,8 @@
 #include <iostream>
 #include "utils.hpp"
 #include "config.hpp"
+
+#include <stdexcept>
 
 SocketServer::SocketServer(int domain, int type, int protocol) :
 	_fd(-1), _domain(domain), _type(type), _protocol(protocol)
@@ -30,7 +33,7 @@ void	SocketServer::bind(const int port)
 	// Maybe create the socket in a member funtion create()
 	_fd = socket(_domain, _type, _protocol);
 	if (_fd < 0)
-		throw std::exception();
+		throw ws_exception(error_message("socket()", strerror(errno)));
 	
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = _domain;
@@ -40,14 +43,12 @@ void	SocketServer::bind(const int port)
 	(void)port;
 	status = getaddrinfo(NULL, /*ITOA(port)*/"12345", &hints, &servinfo);
 	if (status != 0)
-	{
-		std::exception(/* gai_strerror(status) */);
-	}
+		throw ws_exception(error_message("getaddrinfo()", gai_strerror(status)));
 
 	if (::bind(_fd, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
 	{
 		freeaddrinfo(servinfo);
-		throw std::exception(/*perror("")*/);
+		throw ws_exception(error_message("bind()", strerror(errno)));
 	}
 	freeaddrinfo(servinfo);
 }
@@ -55,10 +56,7 @@ void	SocketServer::bind(const int port)
 void	SocketServer::listen()
 {
 	if (::listen(_fd, BACKLOG) == -1)
-	{
-		perror("listen() failed");
-		throw std::exception();
-	}
+		throw ws_exception(error_message("listen()", strerror(errno)));
 }
 
 void	SocketServer::close()

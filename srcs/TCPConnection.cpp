@@ -1,4 +1,5 @@
 #include "TCPConnection.hpp"
+#include <iostream>
 #include <unistd.h>
 
 TCPConnection::TCPConnection() : _fd(-1)

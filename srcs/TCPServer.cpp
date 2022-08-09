@@ -1,4 +1,5 @@
 #include "TCPServer.hpp"
+#include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -46,7 +47,7 @@ void	TCPServer::accept()
 	
 	_connections.push_back(TCPConnection(newfd, client_addr));
 	
-	#ifdef DEBUG
+#ifdef DEBUG
 	accepted_connection_from((char *)&client_addr.sin_addr);
-	#endif
+#endif
 }
