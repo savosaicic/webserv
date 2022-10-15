@@ -6,7 +6,7 @@
 #    By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/15 11:47:03 by savosaicic       ###   ########.fr        #
+#    Updated: 2022/10/15 12:42:46 by savosaicic       ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,6 +43,9 @@ endif
 
 debug: CXXFLAGS += -g -DDEBUG=1
 debug: $(NAME)
+
+end_to_end: $(NAME)
+	HARNESS_OPTIONS=c ./tests/run_tests.pl ./tests
 
 $(OBJS): | $(OBJDIR)
 
