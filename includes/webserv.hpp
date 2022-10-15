@@ -1,30 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPServer.cpp                                     :+:      :+:    :+:   */
+/*   webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
+/*   By: savosaicic <sasaicic@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/08 10:48:45 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/08/09 08:07:02 by sasaicic         ###   ########.fr       */
+/*   Created: 2022/10/15 10:44:41 by savosaicic        #+#    #+#             */
+/*   Updated: 2022/10/15 11:47:35 by savosaicic       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "HTTPServer.hpp"
-#include "TCPServer.hpp"
-#include <iostream>
+#ifndef WEBSERV_HPP
+#define WEBSERV_HPP
 
-HTTPServer::HTTPServer()
-{
-}
+#define HELLO_WORLD "Hello World!"
 
-HTTPServer::~HTTPServer()
-{
-}
-
-void	HTTPServer::start()
-{
-	this->listen(_port, _serveraddr);
-	
-	this->accept();
-}	
+#endif

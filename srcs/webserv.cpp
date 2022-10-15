@@ -1,25 +1,19 @@
-#include <exception>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: savosaicic <sasaicic@student.42.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
+/*   Updated: 2022/10/15 11:47:20 by savosaicic       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <iostream>
-#include <ostream>
-#include "HTTPServer.hpp"
-#include "utils.hpp"
+#include <webserv.hpp>
 
-int main(void)
-{
-	HTTPServer	server;
-
-	try
-	{
-		server.start();
-	}
-	catch (const std::exception &e)
-	{
-		server.close();
-		std::cerr << e.what() << std::endl;
-	}
-
-	server.close();
-
-
+int	main(void) {
+	std::cout << HELLO_WORLD << std::endl;
 	return (0);
 }
