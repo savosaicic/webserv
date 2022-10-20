@@ -6,7 +6,7 @@
 #    By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/15 12:42:46 by savosaicic       ###   ########.fr        #
+#    Updated: 2022/10/20 13:23:53 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,7 +45,10 @@ debug: CXXFLAGS += -g -DDEBUG=1
 debug: $(NAME)
 
 end_to_end: $(NAME)
-	HARNESS_OPTIONS=c ./tests/run_tests.pl ./tests
+	@ HARNESS_OPTIONS=c WEBSERV_EXE_PATH=$(PWD)/webserv \
+		PERLLIB=$(PERLIB):$(PWD)/tests/lib \
+		PERLLIB5=$(PERLIB5):$(PWD)/tests/lib \
+					./tests/run_tests.pl ./tests
 
 $(OBJS): | $(OBJDIR)
 
