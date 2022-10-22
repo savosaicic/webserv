@@ -6,7 +6,7 @@
 #    By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/20 13:23:53 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/10/22 08:19:12 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,6 @@ $(NAME): $(DEPS) $(OBJS)
 
 %.d: %.cpp
 	$(CXX) $(CPPFLAGS) -MM -MF $(DEPDIR)/$@ $<
-
 
 ifneq "$(MAKECMDGOALS)" "clean"
  -include $(addprefix $(DEPDIR)/, $(DEPS))
