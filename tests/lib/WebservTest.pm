@@ -174,6 +174,122 @@ sub start_proc {
 	0;
 }
 
+sub handle_tcp_echo {
+	my $self = shift;
+	my $t = shift;
+	my $EOL = "\015\012";
+	my $BLANK = $EOL x 2;
+	my $host = "127.0.0.1";
+
+	my @request = $t->{REQUEST};
+	my @response = $t->{RESPONSE};
+	my $slow = defined $t->{SLOWREQUEST};
+	my $is_debug = $ENV{"TRACE_HTTP"};
+
+	my $remote =
+		IO::Socket::INET->new(
+			Proto    => "tcp",
+			PeerAddr => $host,
+			PeerPort => $self->{PORT});
+
+	if (not defined $remote) {
+		diag("\nconnect failed: $!");
+		return -1;
+	}
+
+	$remote->autoflush(1);
+
+	if (!$slow) {
+		diag("\nFIRST ONE") if $is_debug;
+		diag("\nsending request header to ".$host.":".$self->{PORT}) if $is_debug;
+		foreach(@request) {
+			# pipeline requests
+			s/\r//g;
+			s/\n/$EOL/g;
+
+			print $remote $_.$BLANK;
+			diag("\n<< ".$_) if $is_debug;
+		}
+		# I've stopped writing data
+		shutdown($remote, 1);
+	} else {
+		diag("\SENDING request header to ".$host.":".$self->{PORT}) if $is_debug;
+		foreach(@request) {
+			# pipeline requests
+			chomp;
+			s/\r//g;
+			s/\n/$EOL/g;
+
+			print $remote $_;
+			diag("<< ".$_."\n") if $is_debug;
+			select(undef, undef, undef, 0.0001);
+			print $remote "\015";
+			select(undef, undef, undef, 0.0001);
+			print $remote "\012";
+			select(undef, undef, undef, 0.0001);
+			print $remote "\015";
+			select(undef, undef, undef, 0.0001);
+			print $remote "\012";
+			select(undef, undef, undef, 0.0001);
+		}
+
+	}
+	diag("\n... done") if $is_debug;
+
+	my $lines = "";
+
+	diag("\nreceiving response") if $is_debug;
+	# read everything
+	while(<$remote>) {
+		$lines .= $_;
+		diag(">> ".$_) if $is_debug;
+	}
+	diag("\n... done") if $is_debug;
+
+	close $remote;
+
+	my $full_response = $lines;
+
+	if ($full_response eq $response[0]) {
+		return 0;
+	}
+
+	return -1;
+}
+
+sub handle_tcp_connection {
+	
+	my $self = shift;
+	# my $t = shift;
+	my $host = "127.0.0.1";
+
+	my $is_debug = $ENV{"TRACE_HTTP"};
+
+	my $remote =
+		IO::Socket::INET->new(
+			Proto    => "tcp",
+			PeerAddr => $host,
+			PeerPort => $self->{PORT});
+
+	if (not defined $remote) {
+		diag("\nconnect failed: $!");
+		return -1;
+	}
+	$remote->autoflush(1);
+	
+	my $buf;
+	my $bytes_read = $remote->sysread($buf, 8);
+	if (not defined $bytes_read) {
+    	diag("\nerror on the socket");
+	}
+	elsif ($bytes_read == 0) {
+		$remote->close();
+		return 0;
+	}
+	close($remote);
+	return -1;
+}
+
 sub handle_http {
 	my $self = shift;
 	my $t = shift;
