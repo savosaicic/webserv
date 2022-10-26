@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/25 16:55:32 by abiju-du         ###   ########.fr        #
+#    Updated: 2022/10/26 16:38:37 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,8 +21,9 @@ DEPS := $(SRCS:.cpp=.d)
 OBJDIR := obj
 DEPDIR := dep
 SUFFIXES += .d
+UT_PATH := tests/unit_test
 
-vpath %.cpp srcs
+vpath %.cpp srcs tests/unit_test
 vpath %.o $(OBJDIR)
 vpath %.d $(DEPDIR)
 
@@ -50,6 +51,10 @@ end_to_end: $(NAME)
 		PERLLIB5=$(PERLIB5):$(PWD)/tests/lib \
 					./tests/run_tests.pl ./tests
 
+unit_test:
+	make -C $(UT_PATH) SOURCES=$(filter-out webserv.cpp, $(SRCS))
+	./$(UT_PATH)/unit_test
+
 $(OBJS): | $(OBJDIR)
 
 $(OBJDIR):
@@ -59,9 +64,6 @@ $(DEPS): | $(DEPDIR)
 
 $(DEPDIR):
 	mkdir -p $(DEPDIR)
-
-test: $(NAME)
-	./run_tests.sh
 
 clean:
 	rm -rf $(OBJDIR) $(DEPDIR)
