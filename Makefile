@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/27 09:38:48 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/10/27 14:40:35 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,6 +54,9 @@ end_to_end: $(NAME)
 unit_test:
 	make -C $(UT_PATH)
 	./$(UT_PATH)/unit_tests
+
+unit_test:
+	make -C $(UT_PATH) SOURCES=$(filter-out webserv.cpp, $(SRCS))
 
 $(OBJS): | $(OBJDIR)
 

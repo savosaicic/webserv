@@ -11,13 +11,17 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <cstdio>
+#include <sys/epoll.h>
+
+#define MAX_EVENT 10
+#define EPOLL_TIMEOUT 500
 
 class TCPListener
 {
-private:
+    int _epfd;
     std::vector<std::pair<int, const char*> > _fd_port_list;
 
-public:
+	public:
     TCPListener();
     ~TCPListener();
     // TCPListener operator=(const TCPListener &rhs);
@@ -25,8 +29,9 @@ public:
 
     void bind(const char* ip, const char *port);
     void listen();
-
-    void incoming();
+		void incoming();
+		bool isListener(int fd);
+	
 };
 
 #endif

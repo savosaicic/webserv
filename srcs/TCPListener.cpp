@@ -1,6 +1,10 @@
 #include <TCPListener.hpp>
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
-TCPListener::TCPListener()
+TCPListener::TCPListener() : _epfd(-1)
 {
 }
 
@@ -46,21 +50,68 @@ void TCPListener::bind(const char* ip, const char* port)
 
 void TCPListener::listen()
 {
+    struct epoll_event events;
+
     if (_fd_port_list.begin() == _fd_port_list.end())
         throw std::runtime_error("No socket to listen on");
+
+    memset(&events, 0, sizeof(events));
+    events.events = EPOLLIN;
+    _epfd = epoll_create1(0);
+    if (_epfd == -1)
+        throw std::runtime_error("epoll_create1() failed");
+
     for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin(); it != _fd_port_list.end(); ++it)
     {
         if (::listen(it->first, 10) == -1)
             throw std::runtime_error("listen() failed");
+				events.data.fd = it->first;
+        if (epoll_ctl(_epfd, EPOLL_CTL_ADD, it->first, &events) == -1)
+        {
+            // close fds added in epoll list
+            throw std::runtime_error("epoll_ctl() failed");
+        }
     }
-    struct sockaddr address;
-    socklen_t address_len;
-    int a = ::accept(_fd_port_list.begin()->first, &address, &address_len);
-    sleep(1);
-    close(a);
+}
+
+bool TCPListener::isListener(int fd)
+{
+    for (fd_port_t::iterator it = _fd_port_list.begin();
+				it != _fd_port_list.end(); ++it)
+		{
+			if (fd == it->first)
+				return true;
+		}
+		return false;
 }
 
 void TCPListener::incoming()
 {
+	int ready_fd_count;
+  struct epoll_event events[MAX_EVENT];
+	struct sockaddr_in client_addr;
+	socklen_t addr_len;
+	int fd;
 
+	fd = 0;
+	memset(&events, 0, sizeof(events));
+  ready_fd_count = epoll_wait(_epfd, &events[0], MAX_EVENT, EPOLL_TIMEOUT);
+		
+	for(int i = 0; i < ready_fd_count; i++)
+	{
+		fd = events[i].data.fd;	
+		if (isListener(fd))
+		{
+			int client = accept(fd, (sockaddr*)&client_addr, &addr_len);
+			
+			char *str = inet_ntoa(client_addr.sin_addr);
+			std::cout << "Accepted: " << str << '\n';
+			close(client);
+			//new connection and accept() and create stream and set the corresponding event 
+		}
+		else
+		{
+			//
+		}
+	}
 }
