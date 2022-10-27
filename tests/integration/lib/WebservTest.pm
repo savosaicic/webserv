@@ -2,8 +2,10 @@ package WebservTest;
 
 use strict;
 use IO::Socket ();
+use IO::Select;
 use Test::More; # diag()
 use Socket;
+use threads;
 use Cwd 'abs_path';
 
 sub find_program {
@@ -174,6 +176,24 @@ sub start_proc {
 	0;
 }
 
+sub multiple_tcp_connection {
+	my $self = shift;
+  my @ports = @_;
+	my $host = "127.0.0.1";
+
+	my $is_debug = $ENV{"TRACE_HTTP"};
+
+  for (@ports) {
+    print "launching threads with $_ port\n";
+    my $thr = threads->create(\&tcp_connection, $_);
+    my $ReturnData = $thr->join();
+    if ($ReturnData == -1) {
+      return -1;
+    }
+  }
+  return 0;
+}
+
 sub handle_tcp_echo {
 	my $self = shift;
 	my $t = shift;
@@ -254,6 +274,46 @@ sub handle_tcp_echo {
 		return 0;
 	}
 
+	return -1;
+}
+
+sub tcp_connection {
+	my $port = shift;
+	my $host = "127.0.0.1";
+	my $is_debug = $ENV{"TRACE_HTTP"};
+
+	my $remote =
+		IO::Socket::INET->new(
+			Proto    => "tcp",
+			PeerAddr => $host,
+			PeerPort => $port);
+
+	if (not defined $remote) {
+		diag("\nconnect failed: $!");
+		return -1;
+	}
+	$remote->autoflush(1);
+
+  my $select = IO::Select->new();
+  $select->add($remote);
+  my @ready = $select->can_read(3);
+  if (!@ready) {
+    $select->remove($remote);
+    close($remote);
+    return -1;
+  }
+  $select->remove($remote);
+	
+	my $buf;
+	my $bytes_read = $remote->sysread($buf, 8);
+	if (not defined $bytes_read) {
+    	diag("\nerror on the socket");
+	}
+	elsif ($bytes_read == 0) {
+		$remote->close();
+		return 0;
+	}
+	close($remote);
 	return -1;
 }
 
