@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/26 16:38:37 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/10/27 09:38:48 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,11 +49,11 @@ end_to_end: $(NAME)
 	@ HARNESS_OPTIONS=c WEBSERV_EXE_PATH=$(PWD)/webserv \
 		PERLLIB=$(PERLIB):$(PWD)/tests/lib \
 		PERLLIB5=$(PERLIB5):$(PWD)/tests/lib \
-					./tests/run_tests.pl ./tests
+					./tests/integration/run_tests.pl ./tests/integration
 
 unit_test:
-	make -C $(UT_PATH) SOURCES=$(filter-out webserv.cpp, $(SRCS))
-	./$(UT_PATH)/unit_test
+	make -C $(UT_PATH)
+	./$(UT_PATH)/unit_tests
 
 $(OBJS): | $(OBJDIR)
 

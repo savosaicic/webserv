@@ -8,4 +8,5 @@ webserv
 compile_flags.txt
 .nfs*
 tags
-unit_tester
+unit_tests
+*.a
