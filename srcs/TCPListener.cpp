@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <utility>
 
 TCPListener::TCPListener() : _epfd(-1)
 {
@@ -76,7 +77,7 @@ void TCPListener::listen()
 
 bool TCPListener::isListener(int fd)
 {
-    for (fd_port_t::iterator it = _fd_port_list.begin();
+    for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin();
 				it != _fd_port_list.end(); ++it)
 		{
 			if (fd == it->first)
