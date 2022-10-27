@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+         #
+#    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/22 08:19:12 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/10/27 09:38:48 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,14 +14,16 @@ NAME := webserv
 CXX := c++
 CPPFLAGS := -Iincludes
 CXXFLAGS := -std=c++98 -Wall -Wextra -Werror
-SRCS := webserv.cpp
+SRCS := webserv.cpp \
+		TCPListener.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
 DEPDIR := dep
 SUFFIXES += .d
+UT_PATH := tests/unit_test
 
-vpath %.cpp srcs
+vpath %.cpp srcs tests/unit_test
 vpath %.o $(OBJDIR)
 vpath %.d $(DEPDIR)
 
@@ -47,7 +49,11 @@ end_to_end: $(NAME)
 	@ HARNESS_OPTIONS=c WEBSERV_EXE_PATH=$(PWD)/webserv \
 		PERLLIB=$(PERLIB):$(PWD)/tests/lib \
 		PERLLIB5=$(PERLIB5):$(PWD)/tests/lib \
-					./tests/run_tests.pl ./tests
+					./tests/integration/run_tests.pl ./tests/integration
+
+unit_test:
+	make -C $(UT_PATH)
+	./$(UT_PATH)/unit_tests
 
 $(OBJS): | $(OBJDIR)
 
@@ -58,9 +64,6 @@ $(DEPS): | $(DEPDIR)
 
 $(DEPDIR):
 	mkdir -p $(DEPDIR)
-
-test: $(NAME)
-	./run_tests.sh
 
 clean:
 	rm -rf $(OBJDIR) $(DEPDIR)
