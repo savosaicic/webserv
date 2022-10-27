@@ -12,7 +12,10 @@ my $t;
 #ok($tf->start_proc == 0, "Starting webserv") or die();
 $tf->{PORT} = 8080;
 
-ok($tf->handle_tcp_connection() == 0, 'Valid TCP connection') or die();
+#ok($tf->handle_tcp_connection() == 0, 'Valid TCP connection') or die();
+
+my @ports = (8080..8081);
+ok($tf->multiple_tcp_connection(@ports) == 0, 'Valid mutiple TCP connection') or die();
 
 #$t->{REQUEST}  = "Bonjour Monde";
 #$t->{RESPONSE}  = "Bonjour Monde\r\n\r\n";
