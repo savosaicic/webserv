@@ -115,4 +115,4 @@ unit_tests.o : $(USER_DIR)/unit_tests.cc $(GMOCK_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/unit_tests.cc
 
 unit_tests : unit_tests.o $(GTEST_LIBS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(GTEST_LIB_DIR) -lgmock -lpthread $^ -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
