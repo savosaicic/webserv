@@ -6,7 +6,7 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
-/*   Updated: 2022/10/25 18:21:07 by abiju-du         ###   ########.fr       */
+/*   Updated: 2022/10/27 09:41:40 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ int	main(void)
 
 	tcp.bind("0.0.0.0", "8080");
 	tcp.listen();
+	while (1)
+		tcp.incoming();
 
 	return (0);
 }
