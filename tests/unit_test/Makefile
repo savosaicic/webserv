@@ -27,7 +27,7 @@ GTEST_LIB_DIR = googletest/build/lib
 GMOCK_DIR = googletest/googlemock
 
 # Where to find user code.
-USER_DIR = ./srcstests/unit_test/Makefile
+USER_DIR = ./srcs
 
 # Flags passed to the preprocessor.
 # Set Google Test and Google Mock's header directories as system
