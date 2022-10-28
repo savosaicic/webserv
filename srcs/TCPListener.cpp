@@ -17,7 +17,7 @@ void TCPListener::bind(const char* ip, const char* port)
 {
     struct addrinfo hints;
     struct addrinfo *result, *rp;
-    int yes = 1;
+    int sock_optval = 1;
 
     if (!ip || !port)
         throw std::invalid_argument("TCPListener::bind: ip or port is NULL");
@@ -35,7 +35,7 @@ void TCPListener::bind(const char* ip, const char* port)
         int fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (fd == -1)
             continue;
-        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &sock_optval, sizeof(sock_optval)) == -1)
             throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
         if (::bind(fd, rp->ai_addr, rp->ai_addrlen) == 0)
         {
@@ -107,7 +107,8 @@ void TCPListener::incoming()
 			
 			char *str = inet_ntoa(client_addr.sin_addr);
 			std::cout << "Accepted: " << str << '\n';
-			close(client);
+			//close(client);
+			(void)client;
 			//new connection and accept() and create stream and set the corresponding event 
 		}
 		else

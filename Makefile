@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/27 14:40:35 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/10/28 11:00:04 by abiju-du         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,8 +47,8 @@ debug: $(NAME)
 
 end_to_end: $(NAME)
 	@ HARNESS_OPTIONS=c WEBSERV_EXE_PATH=$(PWD)/webserv \
-		PERLLIB=$(PERLIB):$(PWD)/tests/lib \
-		PERLLIB5=$(PERLIB5):$(PWD)/tests/lib \
+		PERLLIB=$(PERLIB):$(PWD)/tests/integration/lib \
+		PERLLIB5=$(PERLIB5):$(PWD)/tests/integration/lib \
 					./tests/integration/run_tests.pl ./tests/integration
 
 unit_test:
