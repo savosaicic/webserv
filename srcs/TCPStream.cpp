@@ -6,20 +6,26 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/10/28 12:00:05 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/10/28 19:08:05 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <TCPStream.hpp>
 
-#include <arpa/inet.h>
 #include <sys/epoll.h>
+#include <netinet/ip.h>
 #include <string>
 #include <stdexcept>
+#include <iostream>
 
-TCPStream::TCPStream(int fd, sockaddr_in data): _fd(fd), _data(data), _event(-1), _message("")
+TCPStream::TCPStream(): _fd(-1), _event(-1), _message("")
 {
 	
+}
+
+TCPStream::TCPStream(int fd, sockaddr_in data, int event): _fd(fd), _data(data), _event(event), _message("")
+{
+	std::cout << "File descriptor: " << fd << '\n';
 }
 
 TCPStream::~TCPStream()
@@ -29,6 +35,8 @@ TCPStream::~TCPStream()
 
 TCPStream &TCPStream::operator=(const TCPStream &rhs)
 {
+	_fd = rhs._fd;
+	_data = rhs._data;
 	_event = rhs._event;
 	_message = rhs._message;
 
@@ -37,11 +45,13 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 
 TCPStream::TCPStream(const TCPStream &src)
 {
+	_fd = src._fd;
+	_data = src._data;
 	_event = src._event;
 	_message = src._message;
 }
 
-void TCPStream::setEvent(int event)
+void TCPStream::setEvent(const int event)
 {
 	if (event == EPOLLIN || event == EPOLLOUT)
 	_event = event;
@@ -49,7 +59,40 @@ void TCPStream::setEvent(int event)
 		throw std::invalid_argument("Only use EPOLLIN or EPOLLOUT");
 }
 
-void TCPStream::setMessage(std::string message)
+void TCPStream::setMessage(const std::string &message)
 {
 	_message = message;
+}
+
+
+int TCPStream::getFd() const
+{
+	return (_fd);
+}
+sockaddr_in TCPStream::getData() const
+{
+	return (_data);
+}
+
+int TCPStream::getEvent() const
+{
+	return (_event);
+}
+
+std::string TCPStream::getMessage() const
+{
+	return (_message);
+}
+
+std::ostream &operator<<(std::ostream &out, const TCPStream &stream)
+{
+	out << "Client fd: " << stream.getFd() << ", Event: ";
+	if (stream.getEvent() == EPOLLIN)
+		out << " EPOLLIN ";
+	if (stream.getEvent() == EPOLLOUT)
+		out << " EPOLLOUT ";
+	out << ", Message: " << stream.getMessage();
+	out << ", Data: \n- Port: " << (uint16_t)ntohs((stream.getData()).sin_port);
+	out << "\n- Address: " << inet_ntoa(stream.getData().sin_addr) << '\n';
+	return (out);
 }

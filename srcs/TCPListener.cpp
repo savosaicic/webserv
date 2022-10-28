@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <utility>
+#include <TCPStream.hpp>
 
 TCPListener::TCPListener() : _epfd(-1)
 {
@@ -67,6 +68,7 @@ void TCPListener::listen()
         if (::listen(it->first, 10) == -1)
             throw std::runtime_error("listen() failed");
 				events.data.fd = it->first;
+				events.events = EPOLLIN;
         if (epoll_ctl(_epfd, EPOLL_CTL_ADD, it->first, &events) == -1)
         {
             // close fds added in epoll list
@@ -86,12 +88,13 @@ bool TCPListener::isListener(int fd)
 		return false;
 }
 
-void TCPListener::incoming()
+	std::vector<TCPStream> TCPListener::incoming()
 {
 	int ready_fd_count;
   struct epoll_event events[MAX_EVENT];
 	struct sockaddr_in client_addr;
-	socklen_t addr_len;
+	socklen_t addr_len = sizeof(client_addr);
+	std::vector<TCPStream> stream_vect;
 	int fd;
 
 	fd = 0;
@@ -103,10 +106,19 @@ void TCPListener::incoming()
 		fd = events[i].data.fd;	
 		if (isListener(fd))
 		{
+			memset(&client_addr, 0, sizeof(client_addr));
 			int client = accept(fd, (sockaddr*)&client_addr, &addr_len);
 			
 			char *str = inet_ntoa(client_addr.sin_addr);
 			std::cout << "Accepted: " << str << '\n';
+
+			TCPStream cool = TCPStream(client, (*(sockaddr_in*)&client_addr), EPOLLIN);
+
+			std::cout << cool;
+
+			stream_vect.push_back(cool);
+
+			std::cout << stream_vect.at(0);
 			close(client);
 			//new connection and accept() and create stream and set the corresponding event 
 		}
@@ -115,4 +127,5 @@ void TCPListener::incoming()
 			//
 		}
 	}
+	return (stream_vect);
 }

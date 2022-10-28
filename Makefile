@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/27 16:38:36 by abiju-du         ###   ########.fr        #
+#    Updated: 2022/10/28 14:40:51 by lefendie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,8 @@ CXX := c++
 CPPFLAGS := -Iincludes
 CXXFLAGS := -std=c++98 -Wall -Wextra -Werror
 SRCS := webserv.cpp \
-		TCPListener.cpp
+		TCPListener.cpp \
+		TCPStream.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
