@@ -1,4 +1,5 @@
 *.swp
+*.sw*
 obj/
 dep/
 *.o
@@ -10,3 +11,4 @@ compile_flags.txt
 tags
 unit_tests
 *.a
+build
