@@ -6,32 +6,27 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
-/*   Updated: 2022/11/01 09:42:06 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/01 17:09:46 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <webserv.hpp>
 #include <TCPListener.hpp>
+#include <vector>
 
 #include "Config.hpp"
 
 int	main(void) 
 {
-//	// HTTPServer	server;
-//
-//	// server.start();
-//
-//	TCPListener	tcp;
-//
-//	tcp.bind("0.0.0.0", "8080");
-//	tcp.listen();
-//	while (1)
-//		tcp.incoming();
+	TCPListener	tcp;
 
-  Config  conf;
+	std::vector<TCPStream> stream_vect;
 
-  conf.parseConfigFile("Makefile");
+	tcp.bind("0.0.0.0", "8080");
+	tcp.listen();
+	while (1)
+		stream_vect = tcp.incoming();
 
 	return (0);
 }
