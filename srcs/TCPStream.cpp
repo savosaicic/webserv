@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/10/28 19:08:05 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/01 15:47:20 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@
 #include <stdexcept>
 #include <iostream>
 
-TCPStream::TCPStream(): _fd(-1), _event(-1), _message("")
+TCPStream::TCPStream(): _fd(-1), _event(0)
 {
 	
 }
 
-TCPStream::TCPStream(int fd, sockaddr_in data, int event): _fd(fd), _data(data), _event(event), _message("")
+TCPStream::TCPStream(int fd, IPAddress data, uint32_t event): _fd(fd), _data(data), _event(event)
 {
 	std::cout << "File descriptor: " << fd << '\n';
 }
@@ -43,15 +43,11 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	return (*this);
 }
 
-TCPStream::TCPStream(const TCPStream &src)
+TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _data(src._data), _event(src._event), _message(src._message)
 {
-	_fd = src._fd;
-	_data = src._data;
-	_event = src._event;
-	_message = src._message;
 }
 
-void TCPStream::setEvent(const int event)
+void TCPStream::setEvent(const uint32_t event)
 {
 	if (event == EPOLLIN || event == EPOLLOUT)
 	_event = event;
@@ -69,12 +65,12 @@ int TCPStream::getFd() const
 {
 	return (_fd);
 }
-sockaddr_in TCPStream::getData() const
+IPAddress TCPStream::getData() const
 {
 	return (_data);
 }
 
-int TCPStream::getEvent() const
+uint32_t TCPStream::getEvent() const
 {
 	return (_event);
 }
@@ -92,7 +88,7 @@ std::ostream &operator<<(std::ostream &out, const TCPStream &stream)
 	if (stream.getEvent() == EPOLLOUT)
 		out << " EPOLLOUT ";
 	out << ", Message: " << stream.getMessage();
-	out << ", Data: \n- Port: " << (uint16_t)ntohs((stream.getData()).sin_port);
-	out << "\n- Address: " << inet_ntoa(stream.getData().sin_addr) << '\n';
+//	out << ", Data: \n- Port: " << (uint16_t)ntohs((stream.getData()).sin_port);
+//	out << "\n- Address: " << inet_ntoa(stream.getData().sin_addr) << '\n';
 	return (out);
 }

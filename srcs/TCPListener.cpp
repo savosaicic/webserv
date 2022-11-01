@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <utility>
+#include <stdint.h>
 #include <TCPStream.hpp>
 
 TCPListener::TCPListener() : _epfd(-1)
@@ -109,16 +110,11 @@ bool TCPListener::isListener(int fd)
 			memset(&client_addr, 0, sizeof(client_addr));
 			int client = accept(fd, (sockaddr*)&client_addr, &addr_len);
 			
-			char *str = inet_ntoa(client_addr.sin_addr);
-			std::cout << "Accepted: " << str << '\n';
+			//IPAddress client_addr;
+			//TCPStream stream = TCPStream(client, client_addr, events[i].events);
+			//std::cout << stream;
+			//stream_vect.push_back(stream);
 
-			TCPStream cool = TCPStream(client, (*(sockaddr_in*)&client_addr), EPOLLIN);
-
-			std::cout << cool;
-
-			stream_vect.push_back(cool);
-
-			std::cout << stream_vect.at(0);
 			close(client);
 			//new connection and accept() and create stream and set the corresponding event 
 		}
