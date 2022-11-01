@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/27 16:38:36 by abiju-du         ###   ########.fr        #
+#    Updated: 2022/11/01 11:01:28 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,10 @@ DEPS := $(SRCS:.cpp=.d)
 OBJDIR := obj
 DEPDIR := dep
 SUFFIXES += .d
-UT_PATH := tests/unit_test
+UNIT_TEST_DIR := tests/unit
+UNIT_TESTS := $(wildcard $(UNIT_TEST_DIR)/*.cpp)
+UNIT_TEST_BUILD_DIR := build/test/unit
+ALL_UNIT_TESTS := $(UNIT_TEST_BUILD_DIR)/all_tests
 
 vpath %.cpp srcs tests/unit_test
 vpath %.o $(OBJDIR)
@@ -51,9 +54,14 @@ end_to_end: $(NAME)
 		PERLLIB5=$(PERLIB5):$(PWD)/tests/lib \
 					./tests/integration/run_tests.pl ./tests/integration
 
-unit_test:
-	make -C $(UT_PATH)
-	./$(UT_PATH)/unit_tests
+unit_test: $(ALL_UNIT_TESTS)
+	./$<
+
+$(ALL_UNIT_TESTS): $(UNIT_TESTS) $(SRCS)
+	bash support/test/unit/make.sh
+
+$(UNIT_TEST_BUILD_DIR)%_tests: $(UNIT_TEST_DIR)/%.cpp
+	bash support/test/unit/make.sh
 
 $(OBJS): | $(OBJDIR)
 
@@ -66,10 +74,10 @@ $(DEPDIR):
 	mkdir -p $(DEPDIR)
 
 clean:
-	rm -rf $(OBJDIR) $(DEPDIR)
+	rm -rf $(OBJDIR) $(DEPDIR) build
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) -rf $(NAME)
 
 re: fclean all
 
