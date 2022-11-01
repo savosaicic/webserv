@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/27 16:32:18 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 09:41:30 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/01 11:27:33 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,6 @@
 #include <sstream>
 #include <stdint.h>
 #include <string>
-
-const std::string _createErrorPage(const uint16_t code, const std::string& msg)
-{
-  std::ostringstream  ss;
-
-  ss << "<html><head><title>" << code << " " << msg
-    << "</title></head><body><center><h1>" << code
-    << " " << msg <<"</h1></center></body></html>";
-  return ss.str();
-}
 
 VirtualServer::VirtualServer() : _client_max_body_size(DEFAULT_CLIENT_BODY_SIZE)
 {
@@ -119,4 +109,15 @@ void  VirtualServer::addErrorPage(const uint16_t error_num,
 void  VirtualServer::setClientMaxBodySize(const uint64_t size)
 {
   _client_max_body_size = size;
+}
+
+const std::string
+VirtualServer::_createErrorPage(const uint16_t code, const std::string& msg)
+{
+  std::ostringstream  ss;
+
+  ss << "<html><head><title>" << code << " " << msg
+    << "</title></head><body><center><h1>" << code
+    << " " << msg <<"</h1></center></body></html>";
+  return ss.str();
 }

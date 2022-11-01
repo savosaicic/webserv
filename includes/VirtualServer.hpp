@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/27 16:27:03 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/10/28 18:00:41 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/01 11:28:11 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,11 @@ class VirtualServer
         void  setStatusCode(const uint16_t code);
         void  setRedirectionOn();
     };
+
+   private:
+    const std::string _createErrorPage(const uint16_t code,
+        const std::string& msg);
   
-   };
+};
 
 #endif
