@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 15:15:57 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 16:23:01 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/01 17:01:03 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ class IPAddress
 
     IPAddress&  operator=(const IPAddress& rhs);
 
-    std::string str();
-    sockaddr    addr();
-    socklen_t   addrlen();
+    const std::string toStr() const;
+    const sockaddr    addr() const;
+    socklen_t   addrlen() const;
 
     bool  isDefined() const;
 

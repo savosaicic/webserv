@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 15:16:57 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 16:22:59 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/01 17:01:04 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ IPAddress::IPAddress(const IPAddress& src) : _addr(src._addr),
 {
 }
 
-IPAddress::IPAddress(const struct sockaddr addr, socklen_t addrlen) : _addr(addr), _addrlen(addrlen), _defined(true)
+IPAddress::IPAddress(const struct sockaddr addr, socklen_t addrlen)
+  : _addr(addr), _addrlen(addrlen), _defined(true)
 {
 }
 
@@ -47,7 +48,7 @@ IPAddress&  IPAddress::operator=(const IPAddress& rhs)
   return *this;
 }
 
-std::string IPAddress::str()
+const std::string IPAddress::toStr() const
 {
   char host[512];
   char service[32];
@@ -65,12 +66,12 @@ std::string IPAddress::str()
   return std::string(host); 
 }
 
-sockaddr    IPAddress::addr()
+const sockaddr    IPAddress::addr() const
 {
   return _addr;
 }
 
-socklen_t    IPAddress::addrlen()
+socklen_t    IPAddress::addrlen() const
 {
   return _addrlen;
 }
