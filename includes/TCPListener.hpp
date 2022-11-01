@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <cstdio>
 #include <sys/epoll.h>
+#include <TCPStream.hpp>
 
 #define MAX_EVENT 10
 #define EPOLL_TIMEOUT 500
@@ -29,7 +30,7 @@ class TCPListener
 
     void bind(const char* ip, const char *port);
     void listen();
-		void incoming();
+		std::vector<TCPStream> incoming();
 		bool isListener(int fd);
 	
 };
