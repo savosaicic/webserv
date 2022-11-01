@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/11/01 16:51:55 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/11/01 17:08:44 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,9 @@ CPPFLAGS := -Iincludes
 CXXFLAGS := -std=c++98 -Wall -Wextra -Werror
 SRCS := webserv.cpp \
 		TCPListener.cpp \
+		Config.cpp \
+		VirtualServer.cpp \
+		Location.cpp \
 		IPAdress.cpp \
 		TCPStream.cpp
 OBJS := $(SRCS:.cpp=.o)
@@ -28,7 +31,7 @@ UNIT_TESTS := $(wildcard $(UNIT_TEST_DIR)/*.cpp)
 UNIT_TEST_BUILD_DIR := build/test/unit
 ALL_UNIT_TESTS := $(UNIT_TEST_BUILD_DIR)/all_tests
 
-vpath %.cpp srcs tests/unit_test
+vpath %.cpp srcs
 vpath %.o $(OBJDIR)
 vpath %.d $(DEPDIR)
 

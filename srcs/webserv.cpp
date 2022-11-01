@@ -6,7 +6,7 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
-/*   Updated: 2022/10/28 16:46:59 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/01 17:09:46 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,10 @@
 #include <TCPListener.hpp>
 #include <vector>
 
+#include "Config.hpp"
+
 int	main(void) 
 {
-	// HTTPServer	server;
-
-	// server.start();
-
 	TCPListener	tcp;
 
 	std::vector<TCPStream> stream_vect;
