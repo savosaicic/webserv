@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/10/27 14:40:35 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/10/28 18:04:25 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,10 @@ CXX := c++
 CPPFLAGS := -Iincludes
 CXXFLAGS := -std=c++98 -Wall -Wextra -Werror
 SRCS := webserv.cpp \
-		TCPListener.cpp
+		TCPListener.cpp \
+		Config.cpp\
+		VirtualServer.cpp\
+		Location.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
@@ -54,9 +57,6 @@ end_to_end: $(NAME)
 unit_test:
 	make -C $(UT_PATH)
 	./$(UT_PATH)/unit_tests
-
-unit_test:
-	make -C $(UT_PATH) SOURCES=$(filter-out webserv.cpp, $(SRCS))
 
 $(OBJS): | $(OBJDIR)
 
