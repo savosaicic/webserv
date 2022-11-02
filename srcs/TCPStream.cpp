@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/01 16:45:55 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/02 08:44:14 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@
 #include <stdexcept>
 #include <iostream>
 
-TCPStream::TCPStream(): _fd(-1), _event(0)
+TCPStream::TCPStream(): _fd(-1), _events(0), _triggered_events(0)
 {
-	
 }
 
-TCPStream::TCPStream(const int fd, const IPAddress& data, const uint32_t event): _fd(fd), _data(data), _event(event)
+TCPStream::TCPStream(const int fd, const uint32_t events)
+  : _fd(fd), _ip(fd), _events(events), _triggered_events(0)
 {
 }
 
@@ -36,24 +36,29 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	if (this != &rhs)
 	{
 		_fd = rhs._fd;
-		_data = rhs._data;
-		_event = rhs._event;
+		_ip = rhs._ip;
+		_events = rhs._events;
+		_triggered_events = rhs._triggered_events;
 		_message = rhs._message;
 	}
 
 	return (*this);
 }
 
-TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _data(src._data), _event(src._event), _message(src._message)
+TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _ip(src._ip),
+  _events(src._events), _triggered_events(src._triggered_events),
+  _message(src._message)
 {
 }
 
-void TCPStream::setEvent(const uint32_t event)
+void TCPStream::registerEvent(const uint32_t event)
 {
-	if (event == EPOLLIN || event == EPOLLOUT)
-	_event = event;
-	else
-		throw std::invalid_argument("Only use EPOLLIN or EPOLLOUT");
+  _events |= event;
+}
+
+void  TCPStream::resetEvents()
+{
+  _events = 0;
 }
 
 void TCPStream::setMessage(const std::string &message)
@@ -61,19 +66,19 @@ void TCPStream::setMessage(const std::string &message)
 	_message = message;
 }
 
-
 int TCPStream::getFd() const
 {
 	return (_fd);
 }
-const IPAddress& TCPStream::getData() const
+
+const IPAddress& TCPStream::getIPAddr() const
 {
-	return (_data);
+	return (_ip);
 }
 
-uint32_t TCPStream::getEvent() const
+uint32_t TCPStream::triggeredEvents() const
 {
-	return (_event);
+	return _triggered_events;
 }
 
 const std::string& TCPStream::getMessage() const
@@ -83,10 +88,11 @@ const std::string& TCPStream::getMessage() const
 
 std::ostream &operator<<(std::ostream &out, const TCPStream &stream)
 {
-	out << "Client fd: " << stream.getFd() << ", Event: ";
-	if (stream.getEvent() == EPOLLIN)
+	out << "Client fd: " << stream.getFd()
+    << ", IPAddress: " << stream.getIPAddr().toStr() << ", Event: ";
+	if (stream.triggeredEvents() & EPOLLIN)
 		out << " EPOLLIN ";
-	if (stream.getEvent() == EPOLLOUT)
+	if (stream.triggeredEvents() & EPOLLOUT)
 		out << " EPOLLOUT ";
 	out << ", Message: " << stream.getMessage();
 //	out << ", Data: \n- Port: " << (uint16_t)ntohs((stream.getData()).sin_port);
