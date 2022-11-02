@@ -6,12 +6,14 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 15:16:57 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 17:01:04 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/02 07:50:17 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IPAddress.hpp"
+#include <cerrno>
 #include <cstring>
+#include <iostream>
 #include <string>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -26,6 +28,18 @@ IPAddress::IPAddress() : _defined(false)
 IPAddress::IPAddress(const IPAddress& src) : _addr(src._addr),
   _defined(src._defined)
 {
+}
+
+IPAddress::IPAddress(int fd)
+{
+  memset(&_addr, 0, sizeof(_addr));
+  memset(&_addrlen, 0, sizeof(_addrlen));
+  if (getpeername(fd, &_addr, &_addrlen) != 0)
+  {
+    std::cerr << std::strerror(errno) << std::endl;
+    throw std::runtime_error("Failed to construct IPAddress");
+  }
+  _defined = true;
 }
 
 IPAddress::IPAddress(const struct sockaddr addr, socklen_t addrlen)
