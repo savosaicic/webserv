@@ -21,12 +21,14 @@ class TCPListener
 {
     int _epfd;
     std::vector<std::pair<int, const char*> > _fd_port_list;
+    std::vector<TCPStream>  _connected_client;
 
 	public:
     TCPListener();
+    TCPListener(const TCPListener &src);
     ~TCPListener();
-    // TCPListener operator=(const TCPListener &rhs);
-    // TCPListener(const TCPListener &src);
+
+    TCPListener operator=(const TCPListener &rhs);
 
     void bind(const char* ip, const char *port);
     void listen();

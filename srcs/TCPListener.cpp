@@ -11,8 +11,24 @@ TCPListener::TCPListener() : _epfd(-1)
 {
 }
 
+TCPListener::TCPListener(const TCPListener &src) : _epfd(src._epfd),
+  _fd_port_list(src._fd_port_list), _connected_client(src._connected_client)
+{
+}
+
 TCPListener::~TCPListener()
 {
+}
+
+TCPListener TCPListener::operator=(const TCPListener &rhs)
+{
+  if (this != &rhs)
+  {
+    _epfd = rhs._epfd;
+    _fd_port_list = rhs._fd_port_list;
+    _connected_client = rhs._connected_client;
+  }
+  return *this;
 }
 
 void TCPListener::bind(const char* ip, const char* port)
