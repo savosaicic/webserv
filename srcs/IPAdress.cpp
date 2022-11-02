@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 15:16:57 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/02 07:50:17 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/02 09:13:12 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,15 @@ IPAddress::IPAddress(const IPAddress& src) : _addr(src._addr),
 {
 }
 
-IPAddress::IPAddress(int fd)
+IPAddress::IPAddress(int fd, socklen_t addrlen)
 {
   memset(&_addr, 0, sizeof(_addr));
-  memset(&_addrlen, 0, sizeof(_addrlen));
-  if (getpeername(fd, &_addr, &_addrlen) != 0)
+  if (getpeername(fd, &_addr, &addrlen) != 0)
   {
     std::cerr << std::strerror(errno) << std::endl;
     throw std::runtime_error("Failed to construct IPAddress");
   }
+  _addrlen = addrlen;
   _defined = true;
 }
 

@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/02 08:44:14 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/02 09:15:16 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,14 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <sys/socket.h>
 
 TCPStream::TCPStream(): _fd(-1), _events(0), _triggered_events(0)
 {
 }
 
-TCPStream::TCPStream(const int fd, const uint32_t events)
-  : _fd(fd), _ip(fd), _events(events), _triggered_events(0)
+TCPStream::TCPStream(const int fd, socklen_t addrlen, const uint32_t events)
+  : _fd(fd), _ip(fd, addrlen), _events(events), _triggered_events(0)
 {
 }
 

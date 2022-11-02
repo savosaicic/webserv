@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/02 08:44:00 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/02 09:14:52 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <string>
 #include <iostream>
+#include <sys/socket.h>
 #include "IPAddress.hpp"
 
 class TCPStream
@@ -30,7 +31,7 @@ class TCPStream
 	
 	public:
 		TCPStream();
-		TCPStream(const int fd, const uint32_t events);
+		TCPStream(const int fd, socklen_t addrlen, const uint32_t events);
 		~TCPStream();
 		TCPStream& operator=(const TCPStream& rhs);
 		TCPStream(const TCPStream& src);
