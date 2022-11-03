@@ -6,7 +6,7 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
-/*   Updated: 2022/11/03 08:26:48 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/03 16:22:32 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <sys/epoll.h>
 #include <webserv.hpp>
 #include <TCPListener.hpp>
+#include "TCPStreamManager.hpp"
 #include <vector>
 
 #include "Config.hpp"
@@ -45,19 +46,17 @@ void  handle_connection(TCPListener& listener, TCPStream& stream)
 
 int	main(void)
 {
-	typedef std::vector<std::vector<TCPStream>::iterator>::iterator stream_iterator;
-
 	TCPListener	tcp;
 
-	std::vector<std::vector<TCPStream>::iterator> stream_vect;
+	std::vector<TCPStreamManager::iterator> incoming_streams;
 
 	tcp.bind("0.0.0.0", "8080");
 	tcp.listen();
 	while (1)
   {
-		stream_vect = tcp.incoming();
-    for (stream_iterator stream = stream_vect.begin();
-        stream != stream_vect.end(); ++stream)
+		incoming_streams = tcp.incoming();
+    for (std::vector<TCPStreamManager::iterator>::iterator stream = incoming_streams.begin();
+        stream != incoming_streams.end(); ++stream)
     {
       handle_connection(tcp, *stream->base());
     }

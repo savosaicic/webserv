@@ -11,12 +11,12 @@
 #include <TCPStream.hpp>
 #include <vector>
 
-TCPListener::TCPListener() : _epfd(-1)
+TCPListener::TCPListener() : _epfd(-1), _streams_manager(_epfd, *this)
 {
 }
 
 TCPListener::TCPListener(const TCPListener &src) : _epfd(src._epfd),
-  _fd_port_list(src._fd_port_list), _connected_client(src._connected_client)
+  _fd_port_list(src._fd_port_list), _streams_manager(src._streams_manager)
 {
 }
 
@@ -30,7 +30,7 @@ TCPListener TCPListener::operator=(const TCPListener &rhs)
   {
     _epfd = rhs._epfd;
     _fd_port_list = rhs._fd_port_list;
-    _connected_client = rhs._connected_client;
+    _streams_manager = rhs._streams_manager;
   }
   return *this;
 }
@@ -109,7 +109,7 @@ bool TCPListener::isListener(int fd)
 		return false;
 }
 
-std::vector<std::vector<TCPStream>::iterator>  TCPListener::incoming()
+std::vector<TCPStreamManager::iterator>  TCPListener::incoming()
 {
   struct epoll_event  events[MAX_EVENT];
 	struct sockaddr     client_addr;
@@ -119,7 +119,7 @@ std::vector<std::vector<TCPStream>::iterator>  TCPListener::incoming()
   memset(&events, 0, sizeof(events));
   ready = epoll_wait(_epfd, &events[0], MAX_EVENT, EPOLL_TIMEOUT);
 
-  std::vector<std::vector<TCPStream>::iterator> incoming_connection;
+  std::vector<TCPStreamManager::iterator> incoming_connection;
 
 	for(int i = 0; i < ready; i++)
 	{
@@ -136,16 +136,13 @@ std::vector<std::vector<TCPStream>::iterator>  TCPListener::incoming()
       event.events = EPOLLIN;
       epoll_ctl(_epfd, EPOLL_CTL_ADD, client, &event);
 
-      _connected_client.push_back(TCPStream(client, addrlen, EPOLLIN));
+      _streams_manager.addClient(TCPStream(client, addrlen, EPOLLIN));
 		}
 		else
 		{
-      std::vector<TCPStream>::iterator it = _findClient(fd);
-      if (it != _connected_client.end())
-      {
-        it->setTriggeredEvents(events[i].events);
-			  incoming_connection.push_back(it);
-      }
+      TCPStreamManager::iterator it = _streams_manager.getByFd(fd);
+      it->setTriggeredEvents(events[i].events);
+	    incoming_connection.push_back(it);
 		}
 	}
 	return incoming_connection;
@@ -153,64 +150,16 @@ std::vector<std::vector<TCPStream>::iterator>  TCPListener::incoming()
 
 void  TCPListener::dropClient(const TCPStream& client)
 {
-  typedef std::vector<TCPStream>::iterator  stream_iterator;
-
-  stream_iterator it = std::find(_connected_client.begin(),
-      _connected_client.end(), client);
-  if (it != _connected_client.end())
-  {
-    epoll_ctl(_epfd, EPOLL_CTL_DEL, it->getFd(), NULL);
-    close(it->getFd());
-    _connected_client.erase(it);
-  }
+  _streams_manager.dropClient(client);
 }
 
 void  TCPListener::registerClientEvent(TCPStream& client, const uint32_t event)
 {
-  typedef std::vector<TCPStream>::iterator  stream_iterator;
-
-  stream_iterator it = std::find(_connected_client.begin(),
-      _connected_client.end(), client);
-  if (it != _connected_client.end())
-  {
-    struct epoll_event  events;
-    memset(&events, 0, sizeof(events));
-
-    it->registerEvent(event);
-
-    events.data.fd = it->getFd();
-    events.events = it->getRegisteredEvents();
-    epoll_ctl(_epfd, EPOLL_CTL_MOD, it->getFd(), &events);
-  }
+  _streams_manager.registerClientEvent(client, event);
 }
 
 void  TCPListener::unRegisterClientEvent(TCPStream& client,
     const uint32_t event)
 {
-  typedef std::vector<TCPStream>::iterator  stream_iterator;
-
-  stream_iterator it = std::find(_connected_client.begin(),
-      _connected_client.end(), client);
-  if (it != _connected_client.end())
-  {
-    struct epoll_event  events;
-    memset(&events, 0, sizeof(events));
-
-    it->unRegisterEvent(event);
-
-    events.data.fd = it->getFd();
-    events.events = it->getRegisteredEvents();
-    epoll_ctl(_epfd, EPOLL_CTL_MOD, it->getFd(), &events);
-  }
-}
-
-std::vector<TCPStream>::iterator  TCPListener::_findClient(int fd)
-{
-  std::vector<TCPStream>::iterator it(_connected_client.begin());
-  for (; it != _connected_client.end(); ++it)
-  {
-    if (it->getFd() == fd)
-      break;
-  }
-  return it;
+  _streams_manager.unRegisterClientEvent(client, event);
 }
