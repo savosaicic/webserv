@@ -1,11 +1,15 @@
 #include <TCPListener.hpp>
+#include <algorithm>
 #include <iostream>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #include <utility>
 #include <stdint.h>
 #include <TCPStream.hpp>
+#include <vector>
 
 TCPListener::TCPListener() : _epfd(-1)
 {
@@ -105,39 +109,108 @@ bool TCPListener::isListener(int fd)
 		return false;
 }
 
-	std::vector<TCPStream> TCPListener::incoming()
+std::vector<std::vector<TCPStream>::iterator>  TCPListener::incoming()
 {
-	int ready_fd_count;
-  struct epoll_event events[MAX_EVENT];
-	struct sockaddr_in client_addr;
-	socklen_t addr_len = sizeof(client_addr);
-	std::vector<TCPStream> stream_vect;
-	int fd;
+  struct epoll_event  events[MAX_EVENT];
+	struct sockaddr     client_addr;
+	socklen_t           addrlen;
+  int                 ready;
 
-	fd = 0;
-	memset(&events, 0, sizeof(events));
-  ready_fd_count = epoll_wait(_epfd, &events[0], MAX_EVENT, EPOLL_TIMEOUT);
-		
-	for(int i = 0; i < ready_fd_count; i++)
+  memset(&events, 0, sizeof(events));
+  ready = epoll_wait(_epfd, &events[0], MAX_EVENT, EPOLL_TIMEOUT);
+
+  std::vector<std::vector<TCPStream>::iterator> incoming_connection;
+
+	for(int i = 0; i < ready; i++)
 	{
-		fd = events[i].data.fd;	
+		int fd = events[i].data.fd;
 		if (isListener(fd))
 		{
 			memset(&client_addr, 0, sizeof(client_addr));
-			int client = accept(fd, (sockaddr*)&client_addr, &addr_len);
-			
-			//IPAddress client_addr;
-			//TCPStream stream = TCPStream(client, client_addr, events[i].events);
-			//std::cout << stream;
-			//stream_vect.push_back(stream);
+      addrlen = sizeof(client_addr);
+			int client = accept(fd, &client_addr, &addrlen);
 
-			close(client);
-			//new connection and accept() and create stream and set the corresponding event 
+      struct epoll_event  event;
+			memset(&event, 0, sizeof(event));
+      event.data.fd = client;
+      event.events = EPOLLIN;
+      epoll_ctl(_epfd, EPOLL_CTL_ADD, client, &event);
+
+      _connected_client.push_back(TCPStream(client, addrlen, EPOLLIN));
 		}
 		else
 		{
-			//
+      std::vector<TCPStream>::iterator it = _findClient(fd);
+      if (it != _connected_client.end())
+      {
+        it->setTriggeredEvents(events[i].events);
+			  incoming_connection.push_back(it);
+      }
 		}
 	}
-	return (stream_vect);
+	return incoming_connection;
+}
+
+void  TCPListener::dropClient(const TCPStream& client)
+{
+  typedef std::vector<TCPStream>::iterator  stream_iterator;
+
+  stream_iterator it = std::find(_connected_client.begin(),
+      _connected_client.end(), client);
+  if (it != _connected_client.end())
+  {
+    epoll_ctl(_epfd, EPOLL_CTL_DEL, it->getFd(), NULL);
+    close(it->getFd());
+    _connected_client.erase(it);
+  }
+}
+
+void  TCPListener::registerClientEvent(TCPStream& client, const uint32_t event)
+{
+  typedef std::vector<TCPStream>::iterator  stream_iterator;
+
+  stream_iterator it = std::find(_connected_client.begin(),
+      _connected_client.end(), client);
+  if (it != _connected_client.end())
+  {
+    struct epoll_event  events;
+    memset(&events, 0, sizeof(events));
+
+    it->registerEvent(event);
+
+    events.data.fd = it->getFd();
+    events.events = it->getRegisteredEvents();
+    epoll_ctl(_epfd, EPOLL_CTL_MOD, it->getFd(), &events);
+  }
+}
+
+void  TCPListener::unRegisterClientEvent(TCPStream& client,
+    const uint32_t event)
+{
+  typedef std::vector<TCPStream>::iterator  stream_iterator;
+
+  stream_iterator it = std::find(_connected_client.begin(),
+      _connected_client.end(), client);
+  if (it != _connected_client.end())
+  {
+    struct epoll_event  events;
+    memset(&events, 0, sizeof(events));
+
+    it->unRegisterEvent(event);
+
+    events.data.fd = it->getFd();
+    events.events = it->getRegisteredEvents();
+    epoll_ctl(_epfd, EPOLL_CTL_MOD, it->getFd(), &events);
+  }
+}
+
+std::vector<TCPStream>::iterator  TCPListener::_findClient(int fd)
+{
+  std::vector<TCPStream>::iterator it(_connected_client.begin());
+  for (; it != _connected_client.end(); ++it)
+  {
+    if (it->getFd() == fd)
+      break;
+  }
+  return it;
 }

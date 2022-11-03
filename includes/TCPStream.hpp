@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/02 09:14:52 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/02 15:56:22 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ class TCPStream
 		IPAddress _ip;
 		uint32_t _events;
 		uint32_t _triggered_events;
-		std::string _message;
+		std::string _in_msg;
+		std::string _out_msg;
 		int _port;
 	
 	public:
@@ -37,14 +38,24 @@ class TCPStream
 		TCPStream(const TCPStream& src);
 		
 		void registerEvent(const uint32_t events);
+		void unRegisterEvent(const uint32_t events);
 		void resetEvents();
-		void setMessage(const std::string &message);
+		void setTriggeredEvents(const uint32_t events);
 
 		int getFd() const;
 		const IPAddress& getIPAddr() const;
 		uint32_t triggeredEvents() const;
-		const std::string& getMessage() const;
+    uint32_t getRegisteredEvents() const;
+		const std::string& getInMessage() const;
+		const std::string& getOutMessage() const;
 
+    void  clearInMessage();
+    void  clearOutMessage();
+
+    int read();
+    int write(const std::string& str);
+
+    bool  operator==(const TCPStream& rhs);
 };
 
 std::ostream &operator<<(std::ostream &out, const TCPStream &stream);

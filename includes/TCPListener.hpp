@@ -32,8 +32,15 @@ class TCPListener
 
     void bind(const char* ip, const char *port);
     void listen();
-		std::vector<TCPStream> incoming();
+    std::vector<std::vector<TCPStream>::iterator> incoming();
 		bool isListener(int fd);
+
+    void  dropClient(const TCPStream& client);
+    void  registerClientEvent(TCPStream& client, const uint32_t event);
+    void  unRegisterClientEvent(TCPStream& client, const uint32_t event);
+
+  private:
+    std::vector<TCPStream>::iterator  _findClient(int fd);
 	
 };
 
