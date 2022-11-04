@@ -1,7 +1,7 @@
 #ifndef TCP_STREAM_MANAGER_HPP
 #define TCP_STREAM_MANAGER_HPP
 
-#include <vector>
+#include <map>
 #include "TCPStream.hpp"
 
 class TCPListener;
@@ -9,7 +9,7 @@ class TCPListener;
 class TCPStreamManager
 {
   public:
-    typedef std::vector<TCPStream>    container_type;
+    typedef std::map<int, TCPStream>  container_type;
     typedef container_type::iterator  iterator;
 
   private:

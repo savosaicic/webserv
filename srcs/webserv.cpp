@@ -6,7 +6,7 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
-/*   Updated: 2022/11/03 16:22:32 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/04 16:45:24 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,12 @@ void  handle_connection(TCPListener& listener, TCPStream& stream)
     else
     {
       std::cout << "message receive: " << stream.getInMessage() << std::endl;
-      // listener.unRegisterClientEvent(stream, EPOLLIN);
       listener.registerClientEvent(stream, EPOLLOUT);
     }
   }
   else if (stream.triggeredEvents() & EPOLLOUT)
   {
-    //stream.write(stream.getInMessage());
-    stream.write("hello world");
-    std::cout << stream.getInMessage() << "drop client\n";
+    stream.write("HTTP/1.1 200 Ok\r\n\r\n");
     listener.dropClient(stream);
   }
 }
@@ -55,12 +52,11 @@ int	main(void)
 	while (1)
   {
 		incoming_streams = tcp.incoming();
-    for (std::vector<TCPStreamManager::iterator>::iterator stream = incoming_streams.begin();
-        stream != incoming_streams.end(); ++stream)
+    for (std::vector<TCPStreamManager::iterator>::iterator stream =
+        incoming_streams.begin(); stream != incoming_streams.end(); ++stream)
     {
-      handle_connection(tcp, *stream->base());
+      handle_connection(tcp, (*stream)->second);
     }
   }
-
-	return (0);
+	return 0;
 }

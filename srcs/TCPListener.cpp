@@ -141,7 +141,7 @@ std::vector<TCPStreamManager::iterator>  TCPListener::incoming()
 		else
 		{
       TCPStreamManager::iterator it = _streams_manager.getByFd(fd);
-      it->setTriggeredEvents(events[i].events);
+      it->second.setTriggeredEvents(events[i].events);
 	    incoming_connection.push_back(it);
 		}
 	}
