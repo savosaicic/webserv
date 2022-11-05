@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/11/01 17:08:44 by sasaicic         ###   ########.fr        #
+#    Updated: 2022/11/03 14:15:59 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,8 @@ SRCS := webserv.cpp \
 		VirtualServer.cpp \
 		Location.cpp \
 		IPAdress.cpp \
-		TCPStream.cpp
+		TCPStream.cpp \
+		TCPStreamManager.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
