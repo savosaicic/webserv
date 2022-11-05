@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/02 15:56:22 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/05 08:43:21 by savosaicic       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ class TCPStream
 	
 	public:
 		TCPStream();
-		TCPStream(const int fd, socklen_t addrlen, const uint32_t events);
+		TCPStream(const int fd, struct sockaddr addr,
+				const socklen_t addrlen, const uint32_t events);
 		~TCPStream();
 		TCPStream& operator=(const TCPStream& rhs);
 		TCPStream(const TCPStream& src);

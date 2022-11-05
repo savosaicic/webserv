@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/02 16:12:32 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/05 07:49:43 by savosaicic       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@ TCPStream::TCPStream(): _fd(-1), _events(0), _triggered_events(0)
 {
 }
 
-TCPStream::TCPStream(const int fd, socklen_t addrlen, const uint32_t events)
-  : _fd(fd), _ip(fd, addrlen), _events(events), _triggered_events(0)
+TCPStream::TCPStream(const int fd, const struct sockaddr addr,
+		const socklen_t addrlen, const uint32_t events)
+  : _fd(fd), _ip(addr, addrlen), _events(events), _triggered_events(0)
 {
 }
 

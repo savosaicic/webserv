@@ -37,76 +37,76 @@ TCPListener TCPListener::operator=(const TCPListener &rhs)
 
 void TCPListener::bind(const char* ip, const char* port)
 {
-    struct addrinfo hints;
-    struct addrinfo *result, *rp;
-    int yes = 1;
+	struct addrinfo hints;
+	struct addrinfo *result, *rp;
+	int yes = 1;
 
-    if (!ip || !port)
-        throw std::invalid_argument("TCPListener::bind: ip or port is NULL");
+	if (!ip || !port)
+		throw std::invalid_argument("TCPListener::bind: ip or port is NULL");
 
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_NUMERICHOST;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_NUMERICHOST;
 
-    if (getaddrinfo(ip, port, &hints, &result) != 0)
-        throw std::runtime_error("getaddrinfo() failed");
-    
-    for (rp = result; rp != NULL; rp = rp->ai_next)
-    {
-        int fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (fd == -1)
-            continue;
-        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
-            throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
-        if (::bind(fd, rp->ai_addr, rp->ai_addrlen) == 0)
-        {
-            _fd_port_list.push_back(std::make_pair(fd, port));
-            break;
-        }
-        ::close(fd);
-    }
-    if (!rp)
-        throw std::runtime_error("bind() failed");
-    freeaddrinfo(result);
+	if (getaddrinfo(ip, port, &hints, &result) != 0)
+		throw std::runtime_error("getaddrinfo() failed");
+
+	for (rp = result; rp != NULL; rp = rp->ai_next)
+	{
+		int fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+		if (fd == -1)
+			continue;
+		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+			throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
+		if (::bind(fd, rp->ai_addr, rp->ai_addrlen) == 0)
+		{
+			_fd_port_list.push_back(std::make_pair(fd, port));
+			break;
+		}
+		::close(fd);
+	}
+	if (!rp)
+		throw std::runtime_error("bind() failed");
+	freeaddrinfo(result);
 }
 
 void TCPListener::listen()
 {
-    struct epoll_event events;
+	struct epoll_event events;
 
-    if (_fd_port_list.begin() == _fd_port_list.end())
-        throw std::runtime_error("No socket to listen on");
+	if (_fd_port_list.begin() == _fd_port_list.end())
+		throw std::runtime_error("No socket to listen on");
 
-    memset(&events, 0, sizeof(events));
-    events.events = EPOLLIN;
-    _epfd = epoll_create1(0);
-    if (_epfd == -1)
-        throw std::runtime_error("epoll_create1() failed");
+	memset(&events, 0, sizeof(events));
+	events.events = EPOLLIN;
+	_epfd = epoll_create1(0);
+	if (_epfd == -1)
+		throw std::runtime_error("epoll_create1() failed");
 
-    for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin(); it != _fd_port_list.end(); ++it)
-    {
-        if (::listen(it->first, 10) == -1)
-            throw std::runtime_error("listen() failed");
-				events.data.fd = it->first;
-				events.events = EPOLLIN;
-        if (epoll_ctl(_epfd, EPOLL_CTL_ADD, it->first, &events) == -1)
-        {
-            // close fds added in epoll list
-            throw std::runtime_error("epoll_ctl() failed");
-        }
-    }
+	for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin(); it != _fd_port_list.end(); ++it)
+	{
+		if (::listen(it->first, 10) == -1)
+			throw std::runtime_error("listen() failed");
+		events.data.fd = it->first;
+		events.events = EPOLLIN;
+		if (epoll_ctl(_epfd, EPOLL_CTL_ADD, it->first, &events) == -1)
+		{
+			// close fds added in epoll list
+			throw std::runtime_error("epoll_ctl() failed");
+		}
+	}
 }
 
 bool TCPListener::isListener(int fd)
 {
-    for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin();
-				it != _fd_port_list.end(); ++it)
-		{
-			if (fd == it->first)
-				return true;
-		}
-		return false;
+	for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin();
+			it != _fd_port_list.end(); ++it)
+	{
+		if (fd == it->first)
+			return true;
+	}
+	return false;
 }
 
 std::vector<TCPStreamManager::iterator>  TCPListener::incoming()
@@ -136,7 +136,7 @@ std::vector<TCPStreamManager::iterator>  TCPListener::incoming()
       event.events = EPOLLIN;
       epoll_ctl(_epfd, EPOLL_CTL_ADD, client, &event);
 
-      _streams_manager.addClient(TCPStream(client, addrlen, EPOLLIN));
+      _streams_manager.addClient(TCPStream(client, client_addr, addrlen, EPOLLIN));
 		}
 		else
 		{
