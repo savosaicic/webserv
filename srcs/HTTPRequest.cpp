@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/03 09:05:08 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/05 10:11:32 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,53 @@
 #include <vector>
 #include <utility>
 #include <map>
+#include <cstdlib>
 
-HTTPRequest::HTTPRequest(method_t _method, std::string _uri, std::pair<int, int> _http_version): _method(_method),  _uri(_uri),  _http_version(_http_version)
+HTTPRequest::HTTPRequest(std::string raw_request)
 {
+	std::string temp;
+	temp = raw_request.substr(0, raw_request.find(" "));
+	_method = extractMethod(temp);
+
+	raw_request.erase(raw_request.find(" ")); 
+	_uri = raw_request.substr(0, raw_request.find(" "));
+	raw_request.erase(raw_request.find(" ")); 
+
+	extractHTTPVersion(raw_request);
+	temp = raw_request.substr(0, raw_request.find("\r\n"));
 	return ;
 }
+
+method_t HTTPRequest::extractMethod(std::string method)
+{
+	int ret;
+
+	if (method == "GET")
+		ret = GET;
+	else if (method == "POST")
+		ret = POST;
+	else if (method == "DELETE")
+		ret = DELETE;
+	return ((method_t)ret);
+}
+
+void HTTPRequest::extractHTTPVersion(std::string httpVersion)
+{
+	std::pair<int, int> ret;
+	int i = 0;
+	int first;
+	int second;
+
+	while (!isdigit(httpVersion.at(i)))
+		i++;
+	first = ::atoi((httpVersion.substr(i, httpVersion.find("."))).c_str());
+
+	while (!isdigit(httpVersion.at(i)))
+		i++;
+	second = ::atoi((httpVersion.substr(i, httpVersion.find("."))).c_str());
+	_http_version = std::make_pair(first, second);
+}
+
 
 HTTPRequest::~HTTPRequest(void)
 {
@@ -45,6 +87,19 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& inst)
 	_raw_request = inst._raw_request;
 	_header_list = inst._header_list;
 	return (*this);
+}
+
+std::map<std::string, std::string>::iterator HTTPRequest::getHeaderContent(const std::string& header_title)
+{
+	std::map<std::string, std::string>::iterator it;
+
+	it = _header_list.find(header_title);
+	return (it);
+}
+
+bool isComplete()
+{
+		
 }
 
 method_t	HTTPRequest::getMethod(void) const
