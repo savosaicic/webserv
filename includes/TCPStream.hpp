@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/01 16:43:39 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/05 08:43:21 by savosaicic       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,33 +16,47 @@
 #include <arpa/inet.h>
 #include <string>
 #include <iostream>
-
-class IPAddress{};
+#include <sys/socket.h>
+#include "IPAddress.hpp"
 
 class TCPStream
 {
 	private:
 		int _fd;
-		IPAddress _data;
-		uint32_t _event;
-		std::string _message;
+		IPAddress _ip;
+		uint32_t _events;
+		uint32_t _triggered_events;
+		std::string _in_msg;
+		std::string _out_msg;
 		int _port;
 	
 	public:
 		TCPStream();
-		TCPStream(const int fd, const IPAddress& data, const uint32_t event);
+		TCPStream(const int fd, struct sockaddr addr,
+				const socklen_t addrlen, const uint32_t events);
 		~TCPStream();
 		TCPStream& operator=(const TCPStream& rhs);
 		TCPStream(const TCPStream& src);
 		
-		void setEvent(const uint32_t event);
-		void setMessage(const std::string &message);
+		void registerEvent(const uint32_t events);
+		void unRegisterEvent(const uint32_t events);
+		void resetEvents();
+		void setTriggeredEvents(const uint32_t events);
 
 		int getFd() const;
-		const IPAddress& getData() const;
-		uint32_t getEvent() const;
-		const std::string& getMessage() const;
+		const IPAddress& getIPAddr() const;
+		uint32_t triggeredEvents() const;
+    uint32_t getRegisteredEvents() const;
+		const std::string& getInMessage() const;
+		const std::string& getOutMessage() const;
 
+    void  clearInMessage();
+    void  clearOutMessage();
+
+    int read();
+    int write(const std::string& str);
+
+    bool  operator==(const TCPStream& rhs);
 };
 
 std::ostream &operator<<(std::ostream &out, const TCPStream &stream);

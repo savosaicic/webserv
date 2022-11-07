@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/01 16:45:55 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/05 07:49:43 by savosaicic       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,17 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <cstring>
 
-TCPStream::TCPStream(): _fd(-1), _event(0)
+TCPStream::TCPStream(): _fd(-1), _events(0), _triggered_events(0)
 {
-	
 }
 
-TCPStream::TCPStream(const int fd, const IPAddress& data, const uint32_t event): _fd(fd), _data(data), _event(event)
+TCPStream::TCPStream(const int fd, const struct sockaddr addr,
+		const socklen_t addrlen, const uint32_t events)
+  : _fd(fd), _ip(addr, addrlen), _events(events), _triggered_events(0)
 {
 }
 
@@ -36,59 +40,123 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	if (this != &rhs)
 	{
 		_fd = rhs._fd;
-		_data = rhs._data;
-		_event = rhs._event;
-		_message = rhs._message;
+		_ip = rhs._ip;
+		_events = rhs._events;
+		_triggered_events = rhs._triggered_events;
+		_in_msg = rhs._in_msg;
+		_out_msg = rhs._out_msg;
 	}
 
 	return (*this);
 }
 
-TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _data(src._data), _event(src._event), _message(src._message)
+TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _ip(src._ip),
+  _events(src._events), _triggered_events(src._triggered_events),
+  _in_msg(src._in_msg), _out_msg(src._out_msg)
 {
 }
 
-void TCPStream::setEvent(const uint32_t event)
+void TCPStream::registerEvent(const uint32_t event)
 {
-	if (event == EPOLLIN || event == EPOLLOUT)
-	_event = event;
-	else
-		throw std::invalid_argument("Only use EPOLLIN or EPOLLOUT");
+  _events |= event;
 }
 
-void TCPStream::setMessage(const std::string &message)
+void TCPStream::unRegisterEvent(const uint32_t event)
 {
-	_message = message;
+  _events &= ~event;
 }
 
+void  TCPStream::resetEvents()
+{
+  _events = 0;
+}
+
+void  TCPStream::setTriggeredEvents(const uint32_t events)
+{
+  _triggered_events = events;
+}
 
 int TCPStream::getFd() const
 {
 	return (_fd);
 }
-const IPAddress& TCPStream::getData() const
+
+const IPAddress& TCPStream::getIPAddr() const
 {
-	return (_data);
+	return (_ip);
 }
 
-uint32_t TCPStream::getEvent() const
+uint32_t TCPStream::triggeredEvents() const
 {
-	return (_event);
+	return _triggered_events;
 }
 
-const std::string& TCPStream::getMessage() const
+uint32_t TCPStream::getRegisteredEvents() const
 {
-	return (_message);
+  return _events;
+}
+
+const std::string& TCPStream::getInMessage() const
+{
+	return _in_msg;
+}
+
+void  TCPStream::clearInMessage()
+{
+	_in_msg.clear();
+}
+
+void  TCPStream::clearOutMessage()
+{
+	_out_msg.clear();
+}
+
+const std::string& TCPStream::getOutMessage() const
+{
+	return _out_msg;
+}
+
+int TCPStream::read()
+{
+  char  buffer[8192];
+  int   bytes_read;
+
+  memset(&buffer, 0, sizeof(buffer));
+  bytes_read = recv(_fd, &buffer, sizeof(buffer), 0);
+  _in_msg.append(buffer);
+  _triggered_events &= ~EPOLLIN;
+  return bytes_read;
+}
+
+int TCPStream::write(const std::string& str)
+{
+  const char  *buffer;
+  int len;
+  int bytes_sent = 0;
+
+  buffer = str.c_str();
+  len = strlen(buffer);
+  while (bytes_sent < len)
+  {
+    bytes_sent += send(_fd, buffer + bytes_sent, len - bytes_sent, 0);
+  }
+  _triggered_events &= ~EPOLLOUT;
+  return bytes_sent;
+}
+
+bool  TCPStream::operator==(const TCPStream& rhs)
+{
+  return _fd == rhs._fd;
 }
 
 std::ostream &operator<<(std::ostream &out, const TCPStream &stream)
 {
-	out << "Client fd: " << stream.getFd() << ", Event: ";
-	if (stream.getEvent() == EPOLLIN)
+	out << "Client fd: " << stream.getFd()
+    << ", IPAddress: " << stream.getIPAddr().toStr() << ", Event: ";
+	if (stream.triggeredEvents() & EPOLLIN)
 		out << " EPOLLIN ";
-	if (stream.getEvent() == EPOLLOUT)
+	if (stream.triggeredEvents() & EPOLLOUT)
 		out << " EPOLLOUT ";
-	out << ", Message: " << stream.getMessage();
 //	out << ", Data: \n- Port: " << (uint16_t)ntohs((stream.getData()).sin_port);
 //	out << "\n- Address: " << inet_ntoa(stream.getData().sin_addr) << '\n';
 	return (out);

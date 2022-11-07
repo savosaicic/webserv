@@ -6,12 +6,14 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 15:16:57 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 17:01:04 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/05 08:45:22 by savosaicic       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IPAddress.hpp"
+#include <cerrno>
 #include <cstring>
+#include <iostream>
 #include <string>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -24,11 +26,11 @@ IPAddress::IPAddress() : _defined(false)
 }
 
 IPAddress::IPAddress(const IPAddress& src) : _addr(src._addr),
-  _defined(src._defined)
+	_addrlen(src._addrlen), _defined(src._defined)
 {
 }
 
-IPAddress::IPAddress(const struct sockaddr addr, socklen_t addrlen)
+IPAddress::IPAddress(const struct sockaddr addr, const socklen_t addrlen)
   : _addr(addr), _addrlen(addrlen), _defined(true)
 {
 }
@@ -50,14 +52,14 @@ IPAddress&  IPAddress::operator=(const IPAddress& rhs)
 
 const std::string IPAddress::toStr() const
 {
-  char host[512];
-  char service[32];
+  char host[NI_MAXHOST];
+  char service[NI_MAXSERV];
 
   memset(&host, 0, sizeof(host));
   memset(&service, 0, sizeof(service));
 
   int ret = getnameinfo(&_addr, _addrlen, &host[0],
-      sizeof(host), &service[0], sizeof(service), 0);
+      sizeof(host), &service[0], sizeof(service), NI_NUMERICSERV);
   if (ret != 0)
   {
     printf("error %s\n", gai_strerror(ret));

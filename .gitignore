@@ -12,3 +12,5 @@ tags
 unit_tests
 *.a
 build
+.vagrant/
+Vagrantfile
