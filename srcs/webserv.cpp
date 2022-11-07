@@ -6,7 +6,7 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
-/*   Updated: 2022/11/04 16:45:24 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/05 08:53:52 by savosaicic       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,9 @@ void  handle_connection(TCPListener& listener, TCPStream& stream)
     }
     else
     {
-      std::cout << "message receive: " << stream.getInMessage() << std::endl;
+      std::cout << "recived from: " << stream.getIPAddr().toStr()
+				<< ": " << std::endl;
+      std::cout << stream.getInMessage() << std::endl << std::endl;
       listener.registerClientEvent(stream, EPOLLOUT);
     }
   }
