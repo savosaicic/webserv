@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Config.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/27 16:31:11 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 09:17:12 by sasaicic         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Config.hpp"
 #include <iostream>
 #include <fstream>
@@ -21,10 +9,11 @@
 #include <string>
 
 
-Config::Config()
+Config::Config() : _defined(false)
 {}
 
-Config::Config(const Config& src) : _server_list(src._server_list)
+Config::Config(const Config& src) : _defined(src._defined),
+  _server_list(src._server_list)
 {}
 
 Config::~Config()
@@ -34,6 +23,7 @@ Config& Config::operator=(const Config& rhs)
 {
   if (this != &rhs)
   {
+    _defined = rhs._defined;
     _server_list = rhs._server_list;
   }
   return *this;
@@ -53,14 +43,26 @@ void  Config::parseConfigFile(const char* filename)
 
   while (std::getline(file, line))
   {
-    std::cout << line << std::endl;
+    //std::cout << line << std::endl;
   }
-  std::cout << "........................" << std::endl;
+  std::cout << "Config file reading done..." << std::endl;
 
   VirtualServer server;
   server.addErrorPage(404, "404.html");
-  server.setListeningHost("hostname");
+  server.setListeningHost("0.0.0.0");
   server.setListeningPort("9090");
 
   _server_list.push_back(server);
+
+  _defined = true;
+}
+
+const std::vector<VirtualServer>& Config::getServerList()
+{
+  return _server_list;
+}
+
+bool  Config::isDefined()
+{
+  return _defined;
 }

@@ -11,7 +11,9 @@ SRCS := webserv.cpp \
 		TCPStream.cpp \
 		HTTPRequest.cpp \
 		TCPStreamManager.cpp \
-		CGIRequest.cpp
+		CGIRequest.cpp \
+		HTTPServer.cpp \
+
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
@@ -41,7 +43,7 @@ ifneq "$(MAKECMDGOALS)" "clean"
  -include $(addprefix $(DEPDIR)/, $(DEPS))
 endif
 
-debug: CXXFLAGS += -g -DDEBUG=1
+debug: CXXFLAGS += -g -DDEBUG=1 -DWS_DEBUG=1
 debug: $(NAME)
 
 end_to_end: $(NAME)

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/27 16:26:04 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 09:28:51 by sasaicic         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
@@ -20,6 +8,7 @@
 class Config
 {
   private:
+    bool  _defined;
     std::vector<VirtualServer>  _server_list;
 
   public:
@@ -36,6 +25,10 @@ class Config
     // - a server_name (From http request header `Host`)
     const VirtualServer&  getServer(const char* port,
         const std::string& hostname) const;
+
+    const std::vector<VirtualServer>& getServerList();
+
+    bool  isDefined();
 };
 
 #endif

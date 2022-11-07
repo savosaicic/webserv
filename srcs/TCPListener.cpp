@@ -84,10 +84,14 @@ void TCPListener::listen()
 	if (_epfd == -1)
 		throw std::runtime_error("epoll_create1() failed");
 
-	for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin(); it != _fd_port_list.end(); ++it)
+	for (std::vector<std::pair<int, const char*> >::iterator it
+      = _fd_port_list.begin(); it != _fd_port_list.end(); ++it)
 	{
 		if (::listen(it->first, 10) == -1)
 			throw std::runtime_error("listen() failed");
+#ifdef WS_DEBUG
+    std::cerr << "Listening on port: " << it->second << std::endl;
+#endif
 		events.data.fd = it->first;
 		events.events = EPOLLIN;
 		if (epoll_ctl(_epfd, EPOLL_CTL_ADD, it->first, &events) == -1)
