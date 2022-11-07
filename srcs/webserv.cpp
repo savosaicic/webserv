@@ -1,3 +1,5 @@
+#include <csignal>
+#include <exception>
 #include <iostream>
 #include <sys/epoll.h>
 #include <TCPListener.hpp>
@@ -6,6 +8,16 @@
 #include <vector>
 #include "Config.hpp"
 #include <HTTPServer.hpp>
+#include <signal.h>
+#include <ws_syscall_error.hpp>
+
+volatile sig_atomic_t listening = true;
+
+void  sigint_handler(int signal)
+{
+  if (signal == SIGINT)
+    listening = false;
+}
 
 int	main(void)
 {
