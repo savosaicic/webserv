@@ -6,8 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:15 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/05 10:11:30 by lefendie         ###   ########.fr       */
-/*                                                                            */
+/*   Updated: 2022/11/07 09:34:04 by lefendie         ###   ########.fr       */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUEST_H
@@ -19,12 +18,9 @@
 #include <utility>
 #include <list>
 #include <map>
+#include <VirtualServer.hpp>
 
 typedef int method_t ;
-
-#define GET 1
-#define POST 2
-#define DELETE 3
 
 class HTTPRequest
 {
@@ -37,7 +33,8 @@ class HTTPRequest
 		std::string _body;
 
 		method_t extractMethod(std::string method);
-		void extractHTTPVersion(std::string httpVersion);
+		void extractVersion(std::string httpVersion);
+		void extractHeaderMap(std::string request);
 	public:
 		HTTPRequest(std::string raw_request);
 		~HTTPRequest(void);
@@ -61,4 +58,7 @@ class HTTPRequest
 		void	setRawRequest(std::string raw_request);
 		void	setHeaderList(std::map<std::string, std::string> header_list);
 };
+
+std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream);
+
 #endif

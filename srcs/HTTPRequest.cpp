@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/05 10:11:32 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/07 10:23:52 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include <utility>
 #include <map>
 #include <cstdlib>
+#include <sstream>
+#include <VirtualServer.hpp>
 
 HTTPRequest::HTTPRequest(std::string raw_request)
 {
@@ -22,13 +24,32 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 	temp = raw_request.substr(0, raw_request.find(" "));
 	_method = extractMethod(temp);
 
-	raw_request.erase(raw_request.find(" ")); 
+	//raw_request.erase(raw_request.find(" ")); 
+	raw_request = raw_request.substr(raw_request.find_first_of(" \t")+1);
 	_uri = raw_request.substr(0, raw_request.find(" "));
-	raw_request.erase(raw_request.find(" ")); 
+	raw_request = raw_request.substr(raw_request.find_first_of(" \t")+1);
 
-	extractHTTPVersion(raw_request);
-	temp = raw_request.substr(0, raw_request.find("\r\n"));
+	extractVersion(raw_request);
+	//temp = raw_request.substr(0, raw_request.find("\r\n"));
+	raw_request = raw_request.substr(raw_request.find_first_of("\n")+1);
+	extractHeaderMap(raw_request);
 	return ;
+}
+
+void HTTPRequest::extractHeaderMap(std::string request)
+{
+	std::stringstream ss;
+	std::string temp;
+	std::pair<std::string, std::string> current;
+
+	ss << request;
+
+	while (std::getline(ss, temp) && !temp.empty() && temp.compare("\n"))
+	{
+		current.first = temp.substr(0, temp.find(":"));
+		current.second = temp.substr(temp.find(":")+1, temp.length());
+		_header_list.insert(current);
+	}
 }
 
 method_t HTTPRequest::extractMethod(std::string method)
@@ -36,15 +57,17 @@ method_t HTTPRequest::extractMethod(std::string method)
 	int ret;
 
 	if (method == "GET")
-		ret = GET;
+		ret = 1;
 	else if (method == "POST")
-		ret = POST;
+		ret = 2;
 	else if (method == "DELETE")
-		ret = DELETE;
+		ret = 3;
 	return ((method_t)ret);
 }
 
-void HTTPRequest::extractHTTPVersion(std::string httpVersion)
+
+
+void HTTPRequest::extractVersion(std::string httpVersion)
 {
 	std::pair<int, int> ret;
 	int i = 0;
@@ -97,10 +120,10 @@ std::map<std::string, std::string>::iterator HTTPRequest::getHeaderContent(const
 	return (it);
 }
 
-bool isComplete()
-{
-		
-}
+//bool isComplete()
+//{
+//		
+//}
 
 method_t	HTTPRequest::getMethod(void) const
 {
@@ -160,4 +183,21 @@ void	HTTPRequest::setRawRequest(std::string raw_request)
 void	HTTPRequest::setHeaderList(std::map<std::string, std::string> header_list)
 {
 		_header_list = header_list;
+}
+
+
+std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
+{
+	out << "raw_request: " << stream.getRawRequest() << std::endl;
+	out << "method: " << stream.getMethod() << std::endl;
+	out << "uri: " << stream.getUri() << std::endl;
+
+	out << "version: " << stream.getHttpVersion().first << '.' << stream.getHttpVersion().second << std::endl;
+	out << "Header list:" << std::endl;
+	std::map<std::string, std::string> header_list = stream.getHeader_list();
+	for(std::map<std::string, std::string>::iterator it = header_list.begin();it != header_list.end(); it++)
+	{
+		out << "- " << it->first << ":" << it->second << std::endl;
+	}
+	return out;
 }
