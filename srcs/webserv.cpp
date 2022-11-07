@@ -1,36 +1,11 @@
 #include <iostream>
 #include <sys/epoll.h>
-#include <webserv.hpp>
 #include <TCPListener.hpp>
 #include <HTTPRequest.hpp>
 #include "TCPStreamManager.hpp"
 #include <vector>
-
 #include "Config.hpp"
-
-void  handle_connection(TCPListener& listener, TCPStream& stream)
-{
-  if (stream.triggeredEvents() & EPOLLIN)
-  {
-    if (stream.read() == 0)
-    {
-      std::cout << "disconnected client" << std::endl;
-      listener.dropClient(stream);
-    }
-    else
-    {
-      std::cout << "recived from: " << stream.getIPAddr().toStr()
-				<< ": " << std::endl;
-      std::cout << stream.getInMessage() << std::endl << std::endl;
-      listener.registerClientEvent(stream, EPOLLOUT);
-    }
-  }
-  else if (stream.triggeredEvents() & EPOLLOUT)
-  {
-    stream.write("HTTP/1.1 200 Ok\r\n\r\n");
-    listener.dropClient(stream);
-  }
-}
+#include <HTTPServer.hpp>
 
 int	main(void)
 {
