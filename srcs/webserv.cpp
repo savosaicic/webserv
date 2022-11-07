@@ -1,3 +1,5 @@
+#include <csignal>
+#include <exception>
 #include <iostream>
 #include <sys/epoll.h>
 #include <TCPListener.hpp>
@@ -6,6 +8,16 @@
 #include <vector>
 #include "Config.hpp"
 #include <HTTPServer.hpp>
+#include <signal.h>
+#include <ws_syscall_error.hpp>
+
+volatile sig_atomic_t listening = true;
+
+void  sigint_handler(int signal)
+{
+  if (signal == SIGINT)
+    listening = false;
+}
 
 int	main(void)
 {
@@ -13,6 +25,13 @@ int	main(void)
 
   try
   {
+    struct sigaction  sa;
+    sa.sa_handler = &sigint_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGINT, &sa, NULL) != 0)
+      throw ws_syscall_error("sigaction()");
+
     http.config().parseConfigFile("Makefile");
     http.start();
   }

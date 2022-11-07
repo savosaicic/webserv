@@ -5,6 +5,9 @@
 #include <TCPListener.hpp>
 #include <Config.hpp>
 #include <string>
+#include <signal.h>
+
+extern volatile sig_atomic_t listening;
 
 class HTTPServer
 {

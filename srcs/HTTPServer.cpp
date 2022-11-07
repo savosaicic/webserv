@@ -75,7 +75,7 @@ void HTTPServer::start()
   std::vector<TCPStreamManager::iterator> incoming_streams;
 
   _init();
-  while (true)
+  while (listening)
   {
     incoming_streams = _listener.incoming();
     for (std::vector<TCPStreamManager::iterator>::iterator stream =
