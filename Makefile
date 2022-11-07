@@ -6,7 +6,7 @@
 #    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/11/07 11:54:01 by lefendie         ###   ########.fr        #
+#    Updated: 2022/11/09 09:27:52 by sasaicic         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ SRCS := webserv.cpp \
 		IPAdress.cpp \
 		TCPStream.cpp \
 		HTTPRequest.cpp \
-		TCPStreamManager.cpp
+		TCPStreamManager.cpp \
+		HTTPServer.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
@@ -52,7 +53,7 @@ ifneq "$(MAKECMDGOALS)" "clean"
  -include $(addprefix $(DEPDIR)/, $(DEPS))
 endif
 
-debug: CXXFLAGS += -g -DDEBUG=1
+debug: CXXFLAGS += -g -DDEBUG=1 -DWS_DEBUG=1
 debug: $(NAME)
 
 end_to_end: $(NAME)

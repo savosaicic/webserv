@@ -1,61 +1,25 @@
 #include <iostream>
 #include <sys/epoll.h>
-#include <webserv.hpp>
 #include <TCPListener.hpp>
 #include <HTTPRequest.hpp>
 #include "TCPStreamManager.hpp"
 #include <vector>
-
 #include "Config.hpp"
-
-void  handle_connection(TCPListener& listener, TCPStream& stream)
-{
-  if (stream.triggeredEvents() & EPOLLIN)
-  {
-    if (stream.read() == 0)
-    {
-      std::cout << "disconnected client" << std::endl;
-      listener.dropClient(stream);
-    }
-    else
-    {
-      std::cout << "recived from: " << stream.getIPAddr().toStr()
-				<< ": " << std::endl;
-      std::cout << stream.getInMessage() << std::endl << std::endl;
-      listener.registerClientEvent(stream, EPOLLOUT);
-    }
-  }
-  else if (stream.triggeredEvents() & EPOLLOUT)
-  {
-    stream.write("HTTP/1.1 200 Ok\r\n\r\n");
-    listener.dropClient(stream);
-  }
-}
+#include <HTTPServer.hpp>
 
 int	main(void)
 {
-//	TCPListener	tcp;
-//
-//	std::vector<TCPStreamManager::iterator> incoming_streams;
-//
-//	tcp.bind("0.0.0.0", "8080");
-//	tcp.listen();
-//	while (1)
-//  {
-//		incoming_streams = tcp.incoming();
-//    for (std::vector<TCPStreamManager::iterator>::iterator stream =
-//        incoming_streams.begin(); stream != incoming_streams.end(); ++stream)
-//    {
-//      handle_connection(tcp, (*stream)->second);
-//    }
-//  }
-	HTTPRequest raw("GET /software/htp/cics/index.html HTTP/1.0 \r\nAccept-Language: \nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
+	HTTPServer	http;
 
-	//HTTPRequest raw1("POST                           /software/htp/cics/index.html                     HTTP/1.2\nAccept-Language: fr                     ,                        de\nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
+  try
+  {
+    http.config().parseConfigFile("Makefile");
+    http.start();
+  }
+  catch (const std::exception& e)
+  {
+    std::cerr << e.what() << std::endl;
+  }
 
-	std::cout << raw << std::endl;
-	//std::cout << raw1 << std::endl;
-	//
-
-	std::cout << raw.getHeaderContent("Accept-Language") << std::endl;
+	return 0;
 }
