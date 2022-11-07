@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:15 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/07 09:34:04 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/07 11:11:22 by lefendie         ###   ########.fr       */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUEST_H
@@ -29,7 +29,7 @@ class HTTPRequest
 		method_t _method;
 		std::string _uri;
 		std::pair<int, int> _http_version;
-		std::map<std::string, std::string> _header_list;
+		std::map<std::string, std::string> _header_map;
 		std::string _body;
 
 		method_t extractMethod(std::string method);
@@ -49,14 +49,8 @@ class HTTPRequest
 		const std::pair<int, int>&	getHttpVersion(void) const; 
 		const std::string&	getBody(void) const; 
 		const std::string&	getRawRequest(void) const; 
-		const std::map<std::string, std::string>&	getHeader_list(void) const; 
+		const std::map<std::string, std::string>&	getHeaderMap(void) const; 
 
-		void	setMethod(method_t method);
-		void	setUri(std::string uri);
-		void	setHttpVersion(std::pair<int, int> http_version);
-		void	setBody(std::string body);
-		void	setRawRequest(std::string raw_request);
-		void	setHeaderList(std::map<std::string, std::string> header_list);
 };
 
 std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream);

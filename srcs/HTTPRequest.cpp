@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/07 10:23:52 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/07 11:17:34 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,10 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 	std::string temp;
 	temp = raw_request.substr(0, raw_request.find(" "));
 	_method = extractMethod(temp);
-
-	//raw_request.erase(raw_request.find(" ")); 
 	raw_request = raw_request.substr(raw_request.find_first_of(" \t")+1);
 	_uri = raw_request.substr(0, raw_request.find(" "));
 	raw_request = raw_request.substr(raw_request.find_first_of(" \t")+1);
-
 	extractVersion(raw_request);
-	//temp = raw_request.substr(0, raw_request.find("\r\n"));
 	raw_request = raw_request.substr(raw_request.find_first_of("\n")+1);
 	extractHeaderMap(raw_request);
 	return ;
@@ -48,24 +44,22 @@ void HTTPRequest::extractHeaderMap(std::string request)
 	{
 		current.first = temp.substr(0, temp.find(":"));
 		current.second = temp.substr(temp.find(":")+1, temp.length());
-		_header_list.insert(current);
+		_header_map.insert(current);
 	}
 }
 
 method_t HTTPRequest::extractMethod(std::string method)
 {
-	int ret;
+	method_t ret;
 
 	if (method == "GET")
-		ret = 1;
+		ret = 0;
 	else if (method == "POST")
-		ret = 2;
+		ret = 1;
 	else if (method == "DELETE")
-		ret = 3;
-	return ((method_t)ret);
+		ret = 2;
+	return (ret);
 }
-
-
 
 void HTTPRequest::extractVersion(std::string httpVersion)
 {
@@ -97,7 +91,7 @@ HTTPRequest::HTTPRequest(const HTTPRequest& inst)
 	_http_version = inst._http_version;
 	_body = inst._body;
 	_raw_request = inst._raw_request;
-	_header_list = inst._header_list;
+	_header_map = inst._header_map;
 }
 
 HTTPRequest& HTTPRequest::operator=(const HTTPRequest& inst)
@@ -108,7 +102,7 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& inst)
 	_http_version = inst._http_version;
 	_body = inst._body;
 	_raw_request = inst._raw_request;
-	_header_list = inst._header_list;
+	_header_map = inst._header_map;
 	return (*this);
 }
 
@@ -116,14 +110,22 @@ std::map<std::string, std::string>::iterator HTTPRequest::getHeaderContent(const
 {
 	std::map<std::string, std::string>::iterator it;
 
-	it = _header_list.find(header_title);
+	it = _header_map.find(header_title);
 	return (it);
 }
 
-//bool isComplete()
-//{
-//		
-//}
+bool HTTPRequest::isComplete()
+{
+	bool essential_empty = _uri.empty() || _uri.empty() || _http_version.first == 0;
+	if (_method == 0 && essential_empty)
+		return (false);
+	else if (_method == 1 && (essential_empty || _body.empty()))
+		return (false);
+	else if (_method == 2 && essential_empty)
+		return (false);
+	return (true);
+		
+}
 
 method_t	HTTPRequest::getMethod(void) const
 {
@@ -150,41 +152,10 @@ const std::string&	HTTPRequest::getRawRequest(void) const
 		return (_raw_request);
 }
 
-const std::map<std::string, std::string>&	HTTPRequest::getHeader_list(void) const
+const std::map<std::string, std::string>&	HTTPRequest::getHeaderMap(void) const
 {
-		return (_header_list);
+		return (_header_map);
 }
-
-void	HTTPRequest::setMethod(method_t method)
-{
-		_method = method;
-}
-
-void	HTTPRequest::setUri(std::string uri)
-{
-		_uri = uri;
-}
-
-void	HTTPRequest::setHttpVersion(std::pair<int, int> http_version)
-{
-		_http_version = http_version;
-}
-
-void	HTTPRequest::setBody(std::string body)
-{
-		_body = body;
-}
-
-void	HTTPRequest::setRawRequest(std::string raw_request)
-{
-		_raw_request = raw_request;
-}
-
-void	HTTPRequest::setHeaderList(std::map<std::string, std::string> header_list)
-{
-		_header_list = header_list;
-}
-
 
 std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 {
@@ -194,10 +165,8 @@ std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 
 	out << "version: " << stream.getHttpVersion().first << '.' << stream.getHttpVersion().second << std::endl;
 	out << "Header list:" << std::endl;
-	std::map<std::string, std::string> header_list = stream.getHeader_list();
-	for(std::map<std::string, std::string>::iterator it = header_list.begin();it != header_list.end(); it++)
-	{
+	std::map<std::string, std::string> header_map = stream.getHeaderMap();
+	for(std::map<std::string, std::string>::iterator it = header_map.begin();it != header_map.end(); it++)
 		out << "- " << it->first << ":" << it->second << std::endl;
-	}
 	return out;
 }
