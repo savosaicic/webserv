@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:15 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/07 11:11:22 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/07 11:47:42 by lefendie         ###   ########.fr       */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUEST_H
@@ -21,6 +21,7 @@
 #include <VirtualServer.hpp>
 
 typedef int method_t ;
+typedef std::map<std::string, std::string> headerMap_t;
 
 class HTTPRequest
 {
@@ -29,19 +30,20 @@ class HTTPRequest
 		method_t _method;
 		std::string _uri;
 		std::pair<int, int> _http_version;
-		std::map<std::string, std::string> _header_map;
+		headerMap_t _header_map;
 		std::string _body;
 
 		method_t extractMethod(std::string method);
 		void extractVersion(std::string httpVersion);
 		void extractHeaderMap(std::string request);
+
 	public:
 		HTTPRequest(std::string raw_request);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& inst);
 		HTTPRequest& operator=(const HTTPRequest& inst);
 
-		std::map<std::string, std::string>::iterator getHeaderContent(const std::string& header_title);
+		headerMap_t::iterator getHeaderContent(const std::string& header_title);
 		bool isComplete();
 
 		method_t	getMethod(void) const; 
@@ -49,7 +51,7 @@ class HTTPRequest
 		const std::pair<int, int>&	getHttpVersion(void) const; 
 		const std::string&	getBody(void) const; 
 		const std::string&	getRawRequest(void) const; 
-		const std::map<std::string, std::string>&	getHeaderMap(void) const; 
+		const headerMap_t&	getHeaderMap(void) const; 
 
 };
 

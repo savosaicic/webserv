@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/07 11:17:34 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/07 11:48:11 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,9 +106,9 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& inst)
 	return (*this);
 }
 
-std::map<std::string, std::string>::iterator HTTPRequest::getHeaderContent(const std::string& header_title)
+headerMap_t::iterator HTTPRequest::getHeaderContent(const std::string& header_title)
 {
-	std::map<std::string, std::string>::iterator it;
+	headerMap_t::iterator it;
 
 	it = _header_map.find(header_title);
 	return (it);
@@ -152,21 +152,20 @@ const std::string&	HTTPRequest::getRawRequest(void) const
 		return (_raw_request);
 }
 
-const std::map<std::string, std::string>&	HTTPRequest::getHeaderMap(void) const
+const headerMap_t&	HTTPRequest::getHeaderMap(void) const
 {
 		return (_header_map);
 }
 
 std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 {
-	out << "raw_request: " << stream.getRawRequest() << std::endl;
 	out << "method: " << stream.getMethod() << std::endl;
 	out << "uri: " << stream.getUri() << std::endl;
 
 	out << "version: " << stream.getHttpVersion().first << '.' << stream.getHttpVersion().second << std::endl;
 	out << "Header list:" << std::endl;
-	std::map<std::string, std::string> header_map = stream.getHeaderMap();
-	for(std::map<std::string, std::string>::iterator it = header_map.begin();it != header_map.end(); it++)
+	headerMap_t header_map = stream.getHeaderMap();
+	for(headerMap_t::iterator it = header_map.begin();it != header_map.end(); it++)
 		out << "- " << it->first << ":" << it->second << std::endl;
 	return out;
 }
