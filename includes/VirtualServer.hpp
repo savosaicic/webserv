@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/27 16:27:03 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 11:28:11 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/08 09:26:57 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "HTTPRequest.hpp"
 
 class VirtualServer
 {
@@ -69,7 +70,6 @@ class VirtualServer
 
         std::vector<std::string>  _index_list;
 
-        enum method_t {GET = 0, POST, DELETE};
         std::vector<method_t>     _allowed_method_list;
 
       public:

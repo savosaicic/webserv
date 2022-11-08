@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/07 11:48:11 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/08 09:54:57 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 	_uri = raw_request.substr(0, raw_request.find(" "));
 	raw_request = raw_request.substr(raw_request.find_first_of(" \t")+1);
 	extractVersion(raw_request);
-	raw_request = raw_request.substr(raw_request.find_first_of("\n")+1);
+	raw_request = raw_request.substr(raw_request.find_first_of("\r\n")+1);
 	extractHeaderMap(raw_request);
 	return ;
 }
@@ -40,7 +40,7 @@ void HTTPRequest::extractHeaderMap(std::string request)
 
 	ss << request;
 
-	while (std::getline(ss, temp) && !temp.empty() && temp.compare("\n"))
+	while (std::getline(ss, temp) && !temp.empty() && temp.compare("\r\n"))
 	{
 		current.first = temp.substr(0, temp.find(":"));
 		current.second = temp.substr(temp.find(":")+1, temp.length());
@@ -53,29 +53,28 @@ method_t HTTPRequest::extractMethod(std::string method)
 	method_t ret;
 
 	if (method == "GET")
-		ret = 0;
+		ret = GET;
 	else if (method == "POST")
-		ret = 1;
+		ret = POST;
 	else if (method == "DELETE")
-		ret = 2;
+		ret = DELETE;
 	return (ret);
 }
 
 void HTTPRequest::extractVersion(std::string httpVersion)
 {
 	std::pair<int, int> ret;
-	int i = 0;
 	int first;
 	int second;
 
-	while (!isdigit(httpVersion.at(i)))
-		i++;
-	first = ::atoi((httpVersion.substr(i, httpVersion.find("."))).c_str());
-
-	while (!isdigit(httpVersion.at(i)))
-		i++;
-	second = ::atoi((httpVersion.substr(i, httpVersion.find("."))).c_str());
-	_http_version = std::make_pair(first, second);
+	if (httpVersion.compare(0, 5, "HTTP/") == 0)
+	{
+		first = ::atoi((httpVersion.substr(5, httpVersion.find("."))).c_str());
+		second = ::atoi((httpVersion.substr(7, httpVersion.find("."))).c_str());
+		_http_version = std::make_pair(first, second);
+	}
+	else
+		throw std::invalid_argument("Invalid HTTP version");	
 }
 
 
@@ -84,34 +83,36 @@ HTTPRequest::~HTTPRequest(void)
 	return ;
 }
 
-HTTPRequest::HTTPRequest(const HTTPRequest& inst)
+HTTPRequest::HTTPRequest(const HTTPRequest& src)
 {
-	_method = inst._method;
-	_uri = inst._uri;
-	_http_version = inst._http_version;
-	_body = inst._body;
-	_raw_request = inst._raw_request;
-	_header_map = inst._header_map;
+	_method = src._method;
+	_uri = src._uri;
+	_http_version = src._http_version;
+	_body = src._body;
+	_raw_request = src._raw_request;
+	_header_map = src._header_map;
 }
 
-HTTPRequest& HTTPRequest::operator=(const HTTPRequest& inst)
+HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 {
 
-	_method = inst._method;
-	_uri = inst._uri;
-	_http_version = inst._http_version;
-	_body = inst._body;
-	_raw_request = inst._raw_request;
-	_header_map = inst._header_map;
+	_method = rhs._method;
+	_uri = rhs._uri;
+	_http_version = rhs._http_version;
+	_body = rhs._body;
+	_raw_request = rhs._raw_request;
+	_header_map = rhs._header_map;
 	return (*this);
 }
 
-headerMap_t::iterator HTTPRequest::getHeaderContent(const std::string& header_title)
+std::string HTTPRequest::getHeaderContent(const std::string& header_title)
 {
 	headerMap_t::iterator it;
 
 	it = _header_map.find(header_title);
-	return (it);
+	if (it == _header_map.end())
+		throw std::invalid_argument("Request header not found");
+	return (it->second);
 }
 
 bool HTTPRequest::isComplete()
