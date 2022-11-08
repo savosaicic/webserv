@@ -6,7 +6,7 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/15 10:39:57 by savosaicic        #+#    #+#             */
-/*   Updated: 2022/11/08 09:54:13 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/08 22:44:23 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,13 @@ int	main(void)
 //      handle_connection(tcp, (*stream)->second);
 //    }
 //  }
-	HTTPRequest raw("GET /software/htp/cics/index.html HTTP/1.2\nAccept-Language: fr, de\nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
+	HTTPRequest raw("GET /software/htp/cics/index.html HTTP/1.0 \r\nAccept-Language: \nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
 
-	std::cout << raw;
+	//HTTPRequest raw1("POST                           /software/htp/cics/index.html                     HTTP/1.2\nAccept-Language: fr                     ,                        de\nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
+
+	std::cout << raw << std::endl;
+	//std::cout << raw1 << std::endl;
+	//
 
 	std::cout << raw.getHeaderContent("Accept-Language") << std::endl;
 }
