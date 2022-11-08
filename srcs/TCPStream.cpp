@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/05 07:49:43 by savosaicic       ###   ########.fr       */
+/*   Updated: 2022/11/08 11:44:09 by sasaicic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,14 @@ const IPAddress& TCPStream::getIPAddr() const
 	return (_ip);
 }
 
-uint32_t TCPStream::triggeredEvents() const
+bool TCPStream::canRead() const
 {
-	return _triggered_events;
+	return _triggered_events & EPOLLIN;
+}
+
+bool TCPStream::canWrite() const
+{
+	return _triggered_events & EPOLLOUT;
 }
 
 uint32_t TCPStream::getRegisteredEvents() const
@@ -153,10 +158,10 @@ std::ostream &operator<<(std::ostream &out, const TCPStream &stream)
 {
 	out << "Client fd: " << stream.getFd()
     << ", IPAddress: " << stream.getIPAddr().toStr() << ", Event: ";
-	if (stream.triggeredEvents() & EPOLLIN)
-		out << " EPOLLIN ";
-	if (stream.triggeredEvents() & EPOLLOUT)
-		out << " EPOLLOUT ";
+	if (stream.canRead())
+		out << " can read ";
+	if (stream.canWrite())
+		out << " can write ";
 //	out << ", Data: \n- Port: " << (uint16_t)ntohs((stream.getData()).sin_port);
 //	out << "\n- Address: " << inet_ntoa(stream.getData().sin_addr) << '\n';
 	return (out);
