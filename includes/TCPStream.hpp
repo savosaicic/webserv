@@ -32,7 +32,8 @@ class TCPStream
 
 		int getFd() const;
 		const IPAddress& getIPAddr() const;
-		uint32_t triggeredEvents() const;
+		bool  canRead() const;
+    bool  canWrite() const;
     uint32_t getRegisteredEvents() const;
 		const std::string& getInMessage() const;
 		const std::string& getOutMessage() const;
