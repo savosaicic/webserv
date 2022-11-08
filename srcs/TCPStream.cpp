@@ -1,17 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   TCPStream.cpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/08 11:44:09 by sasaicic         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <TCPStream.hpp>
-
 #include <sys/epoll.h>
 #include <netinet/ip.h>
 #include <string>
@@ -104,6 +91,11 @@ uint32_t TCPStream::getRegisteredEvents() const
 const std::string& TCPStream::getInMessage() const
 {
 	return _in_msg;
+}
+
+void  TCPStream::setOutMessage(const std::string &str)
+{
+  _out_msg = str;
 }
 
 void  TCPStream::clearInMessage()
