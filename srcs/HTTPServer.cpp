@@ -1,4 +1,5 @@
 #include "TCPStream.hpp"
+#include "VirtualServer.hpp"
 #include <HTTPServer.hpp>
 #include <default_conf_value.hpp>
 
@@ -30,10 +31,9 @@ Config&  HTTPServer::config()
   return _config;
 }
 
-// This method will normally take a HTTPRequest as parameter
 void  HTTPServer::_handleConnection(TCPStream& stream)
 {
-  if (stream.triggeredEvents() & EPOLLIN)
+  if (stream.canRead())
   {
     if (stream.read() == 0)
     {
@@ -48,7 +48,7 @@ void  HTTPServer::_handleConnection(TCPStream& stream)
       _listener.registerClientEvent(stream, EPOLLOUT);
     }
   }
-  else if (stream.triggeredEvents() & EPOLLOUT)
+  else if (stream.canWrite())
   {
     stream.write("HTTP/1.1 200 Ok\r\n\r\n");
     _listener.dropClient(stream);

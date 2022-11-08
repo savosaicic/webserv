@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   TCPStream.hpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/18 19:08:46 by lefendie         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef TCPSTREAM_H
 # define TCPSTREAM_H
 
@@ -44,7 +32,8 @@ class TCPStream
 
 		int getFd() const;
 		const IPAddress& getIPAddr() const;
-		uint32_t triggeredEvents() const;
+		bool  canRead() const;
+    bool  canWrite() const;
     uint32_t getRegisteredEvents() const;
 		const std::string& getInMessage() const;
 		const std::string& getOutMessage() const;
