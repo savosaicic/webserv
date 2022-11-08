@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/27 16:27:03 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/08 09:26:57 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/08 10:18:48 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ class VirtualServer
 
         std::vector<std::string>  _index_list;
 
-        std::vector<method_t>     _allowed_method_list;
+        std::vector<HTTPRequest::method_t>     _allowed_method_list;
 
       public:
         Location();
@@ -83,13 +83,13 @@ class VirtualServer
         void  setDocroot(const std::string& docroot);
         void  setAutoindex(const bool autoindex);
         void  addIndexFileToList(const std::string& index);
-        void  allowMethod(const method_t method);
+        void  allowMethod(const HTTPRequest::method_t method);
 
         const std::string&  getLocationPath() const;
         const std::string&  getDocroot() const;
         bool	getAutoindex() const;
         bool	isIndexInList(const std::string& index) const;
-        bool	isMethodAllowed(const method_t method) const;
+        bool	isMethodAllowed(const HTTPRequest::method_t method) const;
     };
 
 

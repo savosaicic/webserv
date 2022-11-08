@@ -6,7 +6,7 @@
 /*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 11:02:40 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/10/28 18:04:01 by sasaicic         ###   ########.fr       */
+/*   Updated: 2022/11/08 10:19:37 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void  VirtualServer::Location::addIndexFileToList(const std::string& index)
     _index_list.push_back(index);
 }
 
-void  VirtualServer::Location::allowMethod(const method_t method)
+void  VirtualServer::Location::allowMethod(const HTTPRequest::method_t method)
 {
   if (!isMethodAllowed(method))
     _allowed_method_list.push_back(method);
@@ -91,7 +91,7 @@ bool  VirtualServer::Location::isIndexInList(const std::string& index) const
   return false;
 }
 
-bool  VirtualServer::Location::isMethodAllowed(const method_t method) const
+bool  VirtualServer::Location::isMethodAllowed(const HTTPRequest::method_t method) const
 {
   if (std::find(_allowed_method_list.begin(),
         _allowed_method_list.end(), method) != _allowed_method_list.end())

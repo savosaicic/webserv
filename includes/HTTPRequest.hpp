@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:15 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/08 09:51:20 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/08 10:18:06 by lefendie         ###   ########.fr       */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUEST_H
@@ -22,10 +22,11 @@
 
 typedef std::map<std::string, std::string> headerMap_t;
 
-enum method_t {GET = 0, POST, DELETE};
 
 class HTTPRequest
 {
+	public:
+		enum method_t {GET = 0, POST, DELETE};
 
 	private:
 		std::string _raw_request;
@@ -47,7 +48,7 @@ class HTTPRequest
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);
 
-		std::string getHeaderContent(const std::string& header_title);
+		const std::string& getHeaderContent(const std::string& header_title);
 		bool isComplete();
 
 		method_t	getMethod(void) const; 

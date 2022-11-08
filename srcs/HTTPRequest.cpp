@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/08 09:54:57 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/08 10:20:11 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ void HTTPRequest::extractHeaderMap(std::string request)
 	}
 }
 
-method_t HTTPRequest::extractMethod(std::string method)
+HTTPRequest::method_t HTTPRequest::extractMethod(std::string method)
 {
-	method_t ret;
+	HTTPRequest::method_t ret;
 
 	if (method == "GET")
 		ret = GET;
@@ -105,7 +105,7 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 	return (*this);
 }
 
-std::string HTTPRequest::getHeaderContent(const std::string& header_title)
+const std::string& HTTPRequest::getHeaderContent(const std::string& header_title)
 {
 	headerMap_t::iterator it;
 
@@ -128,7 +128,7 @@ bool HTTPRequest::isComplete()
 		
 }
 
-method_t	HTTPRequest::getMethod(void) const
+HTTPRequest::method_t	HTTPRequest::getMethod(void) const
 {
 		return (_method);
 }
