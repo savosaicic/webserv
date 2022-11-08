@@ -38,6 +38,7 @@ class TCPStream
 		const std::string& getInMessage() const;
 		const std::string& getOutMessage() const;
 
+    void  setOutMessage(const std::string& str);
     void  clearInMessage();
     void  clearOutMessage();
 
