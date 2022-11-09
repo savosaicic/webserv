@@ -1,17 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   VirtualServer.cpp                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/27 16:32:18 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 11:27:33 by sasaicic         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "VirtualServer.hpp"
 #include "default_conf_value.hpp"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <stdint.h>
@@ -88,6 +77,12 @@ const std::string VirtualServer::getErrorPage(const uint16_t error_num) const
 uint64_t VirtualServer::getClientMaxBodySize() const
 {
   return _client_max_body_size;
+}
+
+bool  VirtualServer::isServerNameSet(const std::string& name) const
+{
+  return std::find(_server_name_list.begin(), _server_name_list.end(), name)
+    != _server_name_list.end();
 }
 
 void  VirtualServer::setListeningHost(const std::string& host)

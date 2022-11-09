@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   VirtualServer.hpp                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/27 16:27:03 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/08 10:18:48 by lefendie         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef VIRTUAL_SERVER_HPP
 #define VIRTUAL_SERVER_HPP
 
@@ -54,6 +42,7 @@ class VirtualServer
     const std::string   getErrorPage(const uint16_t error_num) const;
     uint64_t            getClientMaxBodySize() const;
 
+    bool  isServerNameSet(const std::string& name) const;
 
     void  setListeningHost(const std::string& host);
     void  setListeningPort(const std::string& port);
