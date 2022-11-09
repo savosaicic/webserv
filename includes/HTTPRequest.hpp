@@ -10,6 +10,7 @@
 
 
 typedef std::map<std::string, std::string> headerMap_t;
+static const std::string Empty = "";
 
 
 class HTTPRequest
