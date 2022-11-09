@@ -218,11 +218,14 @@ HTTPRequest::HTTPRequest(const HTTPRequest& src)
 
 HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 {
-	_method = rhs._method;
-	_uri = rhs._uri;
-	_http_version = rhs._http_version;
-	_body = rhs._body;
-	_header_map = rhs._header_map;
+  if (this != &rhs)
+  {
+    _method = rhs._method;
+    _uri = rhs._uri;
+    _http_version = rhs._http_version;
+    _body = rhs._body;
+    _header_map = rhs._header_map;
+  }
 	return (*this);
 }
 
