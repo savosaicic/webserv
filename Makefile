@@ -13,6 +13,7 @@ SRCS := webserv.cpp \
 		TCPStreamManager.cpp \
 		CGIRequest.cpp \
 		HTTPServer.cpp \
+		HTTPStream.cpp \
 
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
