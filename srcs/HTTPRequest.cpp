@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/08 22:48:08 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/09 09:08:57 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <map>
 #include <cstdlib>
 #include <sstream>
-#include <VirtualServer.hpp>
 
 HTTPRequest::HTTPRequest(std::string raw_request)
 {

@@ -6,7 +6,7 @@
 /*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 11:01:15 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/08 10:18:06 by lefendie         ###   ########.fr       */
+/*   Updated: 2022/11/09 09:11:17 by lefendie         ###   ########.fr       */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUEST_H
@@ -26,7 +26,7 @@ typedef std::map<std::string, std::string> headerMap_t;
 class HTTPRequest
 {
 	public:
-		enum method_t {GET = 0, POST, DELETE};
+		enum method_t {GET = 0, POST, DELETE, INVALID};
 
 	private:
 		std::string _raw_request;
@@ -48,8 +48,9 @@ class HTTPRequest
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);
 
-		const std::string& getHeaderContent(const std::string& header_title);
-		bool isComplete();
+		const std::string getHeaderContent(const std::string& header_title);
+		bool isComplete() const;
+		bool isValid() const;
 
 		method_t	getMethod(void) const; 
 		const std::string&	getUri(void) const; 
@@ -57,6 +58,14 @@ class HTTPRequest
 		const std::string&	getBody(void) const; 
 		const std::string&	getRawRequest(void) const; 
 		const headerMap_t&	getHeaderMap(void) const; 
+
+		void setHttpVersion(std::string http_version);
+		void setBody(std::string body);
+		void addHeader(std::string header, std::string value);
+		void setHttpVersion(int prior, int minor);
+		void setHttpVersion(std::pair<int, int> http_version);
+		void setUri(std::string uri);
+		void setMethod(HTTPRequest::method_t method);
 
 };
 
