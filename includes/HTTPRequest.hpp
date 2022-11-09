@@ -38,9 +38,9 @@ class HTTPRequest
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);
 
-		const std::string getHeaderContent(const std::string& header_title);
+		const std::string& getHeaderContent(const std::string& header_title);
 		bool isComplete() const;
-		bool isValid() const;
+		bool isValid();
 
 		method_t	getMethod(void) const; 
 		const std::string&	getUri(void) const; 

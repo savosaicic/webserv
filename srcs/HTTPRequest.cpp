@@ -109,7 +109,6 @@ HTTPRequest::HTTPRequest(const HTTPRequest& src)
 
 HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 {
-
 	_method = rhs._method;
 	_uri = rhs._uri;
 	_http_version = rhs._http_version;
@@ -119,23 +118,26 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 	return (*this);
 }
 
-const std::string HTTPRequest::getHeaderContent(const std::string& header_title)
+const std::string& HTTPRequest::getHeaderContent(const std::string& header_title)
 {
-	headerMap_t::iterator it;
-
-	it = _header_map.find(header_title);
+	headerMap_t::const_iterator it = _header_map.find(header_title);
 	if (it == _header_map.end())
-		return ("");
+		return Empty;
 	return (it->second);
 }
 
-bool HTTPRequest::isValid() const
+bool HTTPRequest::isValid() 
 {
+	std::map<std::string, std::string>::const_iterator it;
 	if (_method == INVALID)
 		return (false);
 	if (_http_version.first == -1 || _http_version.second == -1)
 		return (false);
-
+	it = _header_map.find("");
+	if (it != _header_map.end())
+		return (false);
+	if (_uri.empty())
+		return (false);
 	return (true);
 }
 
@@ -239,7 +241,7 @@ std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 		out << "version: " << stream.getHttpVersion().first << '.' << stream.getHttpVersion().second << std::endl;
 		out << "Header list:" << std::endl;
 		headerMap_t header_map = stream.getHeaderMap();
-		for(headerMap_t::iterator it = header_map.begin();it != header_map.end(); it++)
+		for(headerMap_t::const_iterator it = header_map.begin();it != header_map.end(); it++)
 			out << "- " << it->first << ":" << it->second << std::endl;
 		out << "Body:" <<  stream.getBody() << std::endl;
 	}
