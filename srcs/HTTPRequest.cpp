@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lefendie <leon.efendiev@gmail.com>         +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/02 11:01:14 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/09 09:08:57 by lefendie         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "HTTPRequest.hpp"
 #include <vector>
 #include <utility>
@@ -87,7 +75,7 @@ void HTTPRequest::extractVersion(std::string http_version)
 
 	first = -1;
 	second = -1;
-	http_version.erase(0, http_version.find_first_not_of(" "));
+	http_version.erase(0, http_version.find_first_not_of("	"));
 	if (http_version.compare(0, 5, "HTTP/") == 0)
 	{
 		temp = (http_version.substr(5, http_version.find(".") - 5));
