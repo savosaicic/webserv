@@ -7,10 +7,7 @@
 
 HTTPRequest::HTTPRequest(std::string raw_request)
 {
-	std::string temp;
-
-	temp = raw_request.substr(0, raw_request.find(" "));
-	_method = extractMethod(temp);
+	_method = extractMethod(raw_request.substr(0, raw_request.find(" ")));
 	if (_method != INVALID)
 	{
 		raw_request = raw_request.substr(raw_request.find_first_of(" ")+1);
@@ -20,18 +17,11 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 		raw_request = raw_request.substr(raw_request.find_first_of(" ")+1);
 		extractVersion(raw_request);
 
-		if (!raw_request.compare(raw_request.find_first_of("\r\n"), 2, "\r\n"))
-		{
-			raw_request = raw_request.substr(raw_request.find_first_of("\r\n")+2);
-			extractHeaderMap(raw_request);
-		}
+		if (raw_request.size() > 1 && !raw_request.compare(raw_request.find_first_of("\r\n"), 2, "\r\n"))
+			extractHeaderMap(raw_request.substr(raw_request.find_first_of("\r\n")+2));
 		if (_method == POST)
-		{
-			raw_request = raw_request.substr(raw_request.find_last_of("\r\n")+1);
-			_body = raw_request;
-		}
+			_body = raw_request.substr(raw_request.find_last_of("\r\n")+1);
 	}
-
 	return ;
 }
 
@@ -76,21 +66,23 @@ void HTTPRequest::extractVersion(std::string http_version)
 	first = -1;
 	second = -1;
 	http_version.erase(0, http_version.find_first_not_of("	"));
-	if (http_version.compare(0, 5, "HTTP/") == 0)
+	if (http_version.size() > 4)
 	{
-		temp = (http_version.substr(5, http_version.find(".") - 5));
-		if (!temp.empty() && temp.find_first_not_of("0123456789") == std::string::npos)
+		if (http_version.compare(0, 5, "HTTP/") == 0)
 		{
-			first = ::atoi(temp.c_str());
-			http_version.erase(0, 6 + temp.size());
-			temp = http_version.substr(0, http_version.find_first_not_of("0123456789"));
+			temp = (http_version.substr(5, http_version.find(".") - 5));
 			if (!temp.empty() && temp.find_first_not_of("0123456789") == std::string::npos)
-				second = ::atoi(http_version.c_str());
+			{
+				first = ::atoi(temp.c_str());
+				http_version.erase(0, 6 + temp.size());
+				temp = http_version.substr(0, http_version.find_first_not_of("0123456789"));
+				if (!temp.empty())
+					second = ::atoi(http_version.c_str());
+			}
 		}
 	}
 	_http_version = std::make_pair(first, second);
 }
-
 
 HTTPRequest::~HTTPRequest(void)
 {
