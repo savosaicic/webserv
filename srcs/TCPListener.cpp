@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <TCPStream.hpp>
 #include <vector>
+#include <ws_syscall_error.hpp>
 
 TCPListener::TCPListener() : _epfd(-1), _streams_manager(_epfd, *this)
 {
@@ -140,7 +141,14 @@ std::vector<TCPStreamManager::iterator>  TCPListener::incoming()
       event.events = EPOLLIN;
       epoll_ctl(_epfd, EPOLL_CTL_ADD, client, &event);
 
-      _streams_manager.addClient(TCPStream(client, client_addr, addrlen, EPOLLIN));
+      struct sockaddr our_addr;
+      socklen_t our_addrlen = sizeof(our_addr);
+      if (getsockname(fd, &our_addr, &our_addrlen) < 0)
+        throw ws_syscall_error("getsockname()");
+
+      _streams_manager.addClient(
+          TCPStream(client, client_addr, addrlen, our_addr, our_addrlen, EPOLLIN)
+      );
 		}
 		else
 		{

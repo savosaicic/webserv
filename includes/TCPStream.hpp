@@ -11,17 +11,18 @@ class TCPStream
 {
 	private:
 		int _fd;
-		IPAddress _ip;
+		IPAddress _host_addr;
+		IPAddress _remote_addr;
 		uint32_t _events;
 		uint32_t _triggered_events;
 		std::string _in_msg;
 		std::string _out_msg;
-		int _port;
 	
 	public:
 		TCPStream();
-		TCPStream(const int fd, struct sockaddr addr,
-				const socklen_t addrlen, const uint32_t events);
+    TCPStream(const int fd, const struct sockaddr remote_addr,
+		  const socklen_t remote_addrlen, const struct sockaddr host_addr,
+		  const socklen_t host_addrlen, const uint32_t events);
 		~TCPStream();
 		TCPStream& operator=(const TCPStream& rhs);
 		TCPStream(const TCPStream& src);
@@ -33,6 +34,7 @@ class TCPStream
 
 		int getFd() const;
 		const IPAddress& getIPAddr() const;
+		const IPAddress& getHostIPAddr() const;
 		bool  canRead() const;
     bool  canWrite() const;
     uint32_t getRegisteredEvents() const;
