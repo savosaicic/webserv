@@ -36,6 +36,7 @@ class HTTPRequest
 	public:
 
 
+		HTTPRequest();
 		HTTPRequest(std::string raw_request);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& src);
