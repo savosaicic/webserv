@@ -208,7 +208,9 @@ void HTTPRequest::addHeader(std::string header, std::string value)
 {
 	std::pair<std::string, std::string> current;
 
-	current.first = header;
+	current.first = "";
+	if (current.first.find_first_of("	 ") != std::string::npos)
+		current.first = header;
 	current.second = value;
 	_header_map.insert(current);
 } 
