@@ -1,15 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/11/09 09:27:52 by sasaicic         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 NAME := webserv
 CXX := c++
 CPPFLAGS := -Iincludes
@@ -23,7 +11,8 @@ SRCS := webserv.cpp \
 		TCPStream.cpp \
 		HTTPRequest.cpp \
 		TCPStreamManager.cpp \
-		HTTPServer.cpp
+		HTTPServer.cpp \
+		HTTPStream.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
