@@ -57,6 +57,19 @@ void  Config::parseConfigFile(const char* filename)
   _defined = true;
 }
 
+const VirtualServer&  Config::getServer(const char* listening_addr,
+    const char* port, const std::string& server_name) const
+{
+  for (std::vector<VirtualServer>::const_iterator it = _server_list.begin();
+      it != _server_list.end(); ++it)
+  {
+    if (it->getListeningHost() == listening_addr &&
+        it->getListeningPort() == port && it->isServerNameSet(server_name))
+      return *it;
+  }
+  throw std::runtime_error("");
+}
+
 const std::vector<VirtualServer>& Config::getServerList()
 {
   return _server_list;
