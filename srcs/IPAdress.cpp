@@ -56,6 +56,11 @@ IPAddress&  IPAddress::operator=(const IPAddress& rhs)
   return *this;
 }
 
+const std::string& IPAddress::port() const
+{
+  return _port_str;
+}
+
 const std::string& IPAddress::toStr() const
 {
   return _ip_str;
