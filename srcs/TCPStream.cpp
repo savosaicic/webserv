@@ -12,9 +12,12 @@ TCPStream::TCPStream(): _fd(-1), _events(0), _triggered_events(0)
 {
 }
 
-TCPStream::TCPStream(const int fd, const struct sockaddr addr,
-		const socklen_t addrlen, const uint32_t events)
-  : _fd(fd), _ip(addr, addrlen), _events(events), _triggered_events(0)
+TCPStream::TCPStream(const int fd, const struct sockaddr remote_addr,
+		const socklen_t remote_addrlen, const struct sockaddr host_addr,
+		const socklen_t host_addrlen, const uint32_t events)
+  : _fd(fd), _host_addr(host_addr, host_addrlen),
+  _remote_addr(remote_addr, remote_addrlen), _events(events),
+  _triggered_events(0)
 {
 }
 
@@ -27,7 +30,8 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	if (this != &rhs)
 	{
 		_fd = rhs._fd;
-		_ip = rhs._ip;
+    _host_addr = rhs._host_addr;
+		_remote_addr = rhs._remote_addr;
 		_events = rhs._events;
 		_triggered_events = rhs._triggered_events;
 		_in_msg = rhs._in_msg;
@@ -37,7 +41,7 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	return (*this);
 }
 
-TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _ip(src._ip),
+TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _remote_addr(src._remote_addr),
   _events(src._events), _triggered_events(src._triggered_events),
   _in_msg(src._in_msg), _out_msg(src._out_msg)
 {
@@ -65,12 +69,17 @@ void  TCPStream::setTriggeredEvents(const uint32_t events)
 
 int TCPStream::getFd() const
 {
-	return (_fd);
+	return _fd;
 }
 
 const IPAddress& TCPStream::getIPAddr() const
 {
-	return (_ip);
+	return _remote_addr;
+}
+
+const IPAddress& TCPStream::getHostIPAddr() const
+{
+	return _host_addr;
 }
 
 bool TCPStream::canRead() const
