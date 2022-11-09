@@ -21,6 +21,7 @@ class IPAddress
 
     IPAddress&  operator=(const IPAddress& rhs);
 
+    const std::string& port() const;
     const std::string& toStr() const;
     const sockaddr    addr() const;
     socklen_t   addrlen() const;
