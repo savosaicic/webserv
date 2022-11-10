@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <stdint.h>
 #include <string>
 
@@ -69,14 +70,17 @@ const std::string VirtualServer::getErrorPage(const uint16_t error_num) const
   if (it != _error_page_file_list.end())
   {
     std::ifstream filestream(it->second.c_str());
+    if (filestream.is_open() == false)
+      goto default_error_page;
     std::stringstream buffer;
     buffer << filestream.rdbuf();
     return buffer.str();
   }
 
+default_error_page:
   it = _default_error_page_list.find(error_num);
   if (it == _default_error_page_list.end())
-    return std::string(); // TODO: return 500 internal instead ?
+    throw std::logic_error("Default error page not found");
   return it->second;
 }
 
