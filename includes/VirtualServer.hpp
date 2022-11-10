@@ -9,6 +9,9 @@
 
 class VirtualServer
 {
+  public:
+    class Location;
+
   private:
     //Not sure about those types
     std::string _host;
@@ -27,7 +30,6 @@ class VirtualServer
 
     std::vector<std::string>  _server_name_list;
   
-    class Location;
     std::vector<Location>  _location_list;
 
    public:
@@ -41,6 +43,7 @@ class VirtualServer
     const std::string&  getListeningPort() const;
     const std::string   getErrorPage(const uint16_t error_num) const;
     uint64_t            getClientMaxBodySize() const;
+    const Location&     getLocation(const std::string& uri_src) const;
 
     bool  isServerNameSet(const std::string& name) const;
 
@@ -49,7 +52,7 @@ class VirtualServer
     void  addErrorPage(const uint16_t error_num, const std::string& filename);
     void  setClientMaxBodySize(const uint64_t size);
 
-   private:
+   public:
     class Location
     {
       private:
