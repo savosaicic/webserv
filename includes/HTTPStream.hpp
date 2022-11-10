@@ -33,6 +33,8 @@ class HTTPStream
     void  setLocationConfig(const std::string& uri);
 
     void  setResponse(const std::string& str);
+    
+    bool  operator==(const HTTPStream& rhs);
 };
 
 #endif
