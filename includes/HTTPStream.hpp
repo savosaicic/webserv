@@ -9,15 +9,16 @@
 class HTTPStream
 {
   private:
-    TCPStream     _tcp;
+    TCPStream     &_tcp;
+  public:
     HTTPRequest   _request;
+  private:
     VirtualServer _srv_config;
     VirtualServer::Location _location_config;
 
   public:
-    HTTPStream();
     HTTPStream(const HTTPStream& src);
-    HTTPStream(const TCPStream& tcp);
+    HTTPStream(TCPStream& tcp);
     ~HTTPStream();
 
     HTTPStream& operator=(const HTTPStream& rhs);

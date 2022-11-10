@@ -1,14 +1,11 @@
 #include <HTTPStream.hpp>
 #include <string>
 
-HTTPStream::HTTPStream()
-{}
-
 HTTPStream::HTTPStream(const HTTPStream& src)
   : _tcp(src._tcp), _request(src._request), _srv_config(src._srv_config)
 {}
 
-HTTPStream::HTTPStream(const TCPStream& tcp)
+HTTPStream::HTTPStream(TCPStream& tcp)
   : _tcp(tcp)
 {
   //Set the _request to empty
