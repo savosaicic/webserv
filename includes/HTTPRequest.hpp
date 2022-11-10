@@ -28,7 +28,10 @@ class HTTPRequest
 
 		method_t extractMethod(std::string method);
 		void extractVersion(std::string httpVersion);
-		void extractHeaderMap(std::string request);
+		void extractHeaderMap(std::string &request);
+		const std::string getNextWord(std::string& line);
+		const std::string& eraseFirstWord(std::string& line);
+		const std::string getNextLine(std::string& line);
 
 	public:
 
@@ -44,16 +47,16 @@ class HTTPRequest
 
 		method_t	getMethod(void) const; 
 		const std::string&	getUri(void) const; 
-		const std::pair<int, int>&	getHttpVersion(void) const; 
+		const std::pair<int, int>&	getHTTPVersion(void) const; 
 		const std::string&	getBody(void) const; 
 		const std::string&	getRawRequest(void) const; 
 		const headerMap_t&	getHeaderMap(void) const; 
 
-		void setHttpVersion(std::string http_version);
+		void setHTTPVersion(std::string http_version);
 		void setBody(std::string body);
 		void addHeader(std::string header, std::string value);
-		void setHttpVersion(int prior, int minor);
-		void setHttpVersion(std::pair<int, int> http_version);
+		void setHTTPVersion(int prior, int minor);
+		void setHTTPVersion(std::pair<int, int> http_version);
 		void setUri(std::string uri);
 		void setMethod(HTTPRequest::method_t method);
 

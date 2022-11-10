@@ -7,38 +7,69 @@
 
 HTTPRequest::HTTPRequest(std::string raw_request)
 {
-	_method = extractMethod(raw_request.substr(0, raw_request.find(" ")));
+	if (raw_request.find_first_not_of("	 "))
+		_method = INVALID;
+	else
+		_method = extractMethod(getNextWord(raw_request));
 	if (_method != INVALID)
 	{
-		raw_request = raw_request.substr(raw_request.find_first_of(" ")+1);
-		raw_request.erase(0, raw_request.find_first_not_of(" "));
-		_uri = raw_request.substr(0, raw_request.find(" "));
-
-		raw_request = raw_request.substr(raw_request.find_first_of(" ")+1);
-		extractVersion(raw_request);
-
-		if (raw_request.size() > 1 && !raw_request.compare(raw_request.find_first_of("\r\n"), 2, "\r\n"))
-			extractHeaderMap(raw_request.substr(raw_request.find_first_of("\r\n")+2));
-		if (_method == POST)
-			_body = raw_request.substr(raw_request.find_last_of("\r\n")+1);
+		eraseFirstWord(raw_request);
+		_uri = getNextWord(raw_request);
+		eraseFirstWord(raw_request);
+		extractVersion(getNextWord(raw_request));
+		if (raw_request.size() > 1 && raw_request.find_first_of("\r\n") != std::string::npos)
+		{
+			if (!raw_request.compare(raw_request.find_first_of("\r\n"), 2, "\r\n"))
+			{
+				raw_request = getNextLine(raw_request);
+				extractHeaderMap(raw_request);
+			}
+			if (_method == POST)
+				_body = raw_request;
+		}
 	}
 	return ;
 }
 
-void HTTPRequest::extractHeaderMap(std::string request)
+const std::string HTTPRequest::getNextWord(std::string& line)
+{
+	std::string word;
+	line.erase(0, line.find_first_not_of(" "));
+	if (line.find_first_of(" "))
+		word = line.substr(0, line.find_first_of(" "));
+	return word;
+}
+
+const std::string HTTPRequest::getNextLine(std::string& line)
+{
+	std::string next_line;
+	if (line.find_first_of("\r\n"))
+		next_line = line.substr(line.find_first_of("\r\n")+2);
+	return next_line;
+}
+
+const std::string& HTTPRequest::eraseFirstWord(std::string& line)
+{
+	if (line.find_first_of("		"))
+		line.erase(0, line.find_first_of(" ")+1);
+	return line;
+}
+
+void HTTPRequest::extractHeaderMap(std::string &request)
 {
 	std::stringstream ss;
-	std::string temp;
+	std::string temp = " ";
 	std::pair<std::string, std::string> current;
 
 	ss << request;
 
-	while (std::getline(ss, temp) && !temp.empty())
+	while (std::getline(ss, temp) && temp != "\r")
 	{
 		current.first = temp.substr(0, temp.find(":"));
 		current.second = temp.substr(temp.find(":")+1, temp.length());
 		_header_map.insert(current);
 	}
+	std::getline(ss, request);
 }
 
 HTTPRequest::method_t HTTPRequest::extractMethod(std::string method)
@@ -157,7 +188,7 @@ const std::string&	HTTPRequest::getUri(void) const
 		return (_uri);
 }
 
-const std::pair<int, int>&	HTTPRequest::getHttpVersion(void) const
+const std::pair<int, int>&	HTTPRequest::getHTTPVersion(void) const
 {
 		return (_http_version);
 }
@@ -187,12 +218,12 @@ void HTTPRequest::setUri(std::string uri)
 	_uri = uri;
 }
 
-void HTTPRequest::setHttpVersion(std::pair<int, int> http_version)
+void HTTPRequest::setHTTPVersion(std::pair<int, int> http_version)
 {
 	_http_version = http_version;
 }
 
-void HTTPRequest::setHttpVersion(int prior, int minor)
+void HTTPRequest::setHTTPVersion(int prior, int minor)
 {
 	if (prior > 0)
 		_http_version.first = prior;
@@ -220,7 +251,7 @@ void HTTPRequest::setBody(std::string body)
 	_body = body;
 }
 
-void HTTPRequest::setHttpVersion(std::string http_version)
+void HTTPRequest::setHTTPVersion(std::string http_version)
 {
 	extractVersion(http_version);
 }
@@ -232,7 +263,7 @@ std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 		out << "method: " << stream.getMethod() << std::endl;
 		out << "uri: " << stream.getUri() << std::endl;
 
-		out << "version: " << stream.getHttpVersion().first << '.' << stream.getHttpVersion().second << std::endl;
+		out << "version: " << stream.getHTTPVersion().first << '.' << stream.getHTTPVersion().second << std::endl;
 		out << "Header list:" << std::endl;
 		headerMap_t header_map = stream.getHeaderMap();
 		for(headerMap_t::const_iterator it = header_map.begin();it != header_map.end(); it++)
