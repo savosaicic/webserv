@@ -12,7 +12,8 @@ SRCS := webserv.cpp \
 		HTTPRequest.cpp \
 		TCPStreamManager.cpp \
 		HTTPServer.cpp \
-		HTTPStream.cpp
+		HTTPStream.cpp \
+		utils.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
