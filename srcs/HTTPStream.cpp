@@ -62,3 +62,8 @@ void  HTTPStream::setResponse(const std::string& str)
 {
   _tcp.setOutMessage(str);
 }
+
+bool  HTTPStream::operator==(const HTTPStream& rhs)
+{
+  return _tcp == rhs._tcp;
+}
