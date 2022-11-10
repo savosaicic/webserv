@@ -18,7 +18,8 @@ class VirtualServer
     std::string _port;
 
     // <error_code, error_page>
-    static std::map<unsigned short, std::string>  _default_error_page_list;
+    static std::pair<unsigned short, std::string> map_data[5];
+    static const std::map<unsigned short, std::string>  _default_error_page_list;
     
     // <error_code, error_page_filename>
     std::map<uint16_t, std::string>  _error_page_file_list;
@@ -31,8 +32,6 @@ class VirtualServer
     std::vector<std::string>  _server_name_list;
   
     std::vector<Location>  _location_list;
-
-    static int _server_count;
 
    public:
     VirtualServer();
