@@ -28,7 +28,7 @@ HTTPStream& HTTPStream::operator=(const HTTPStream& rhs)
   return *this;
 }
 
-const TCPStream&  HTTPStream::tcp() const
+TCPStream&  HTTPStream::tcp()
 {
   return _tcp;
 }
@@ -38,9 +38,24 @@ const HTTPRequest&  HTTPStream::getRequest() const
   return _request;
 }
 
+const VirtualServer&  HTTPStream::getVirtualServer() const
+{
+  return _srv_config;
+}
+
+const VirtualServer::Location&  HTTPStream::getLocationConfig() const
+{
+  return _location_config;
+}
+
 void  HTTPStream::setServerConfig(const VirtualServer& srv_conf)
 {
   _srv_config = srv_conf;
+}
+
+void  HTTPStream::setLocationConfig(const std::string& uri)
+{
+  _location_config = _srv_config.getLocation(uri);
 }
 
 void  HTTPStream::setResponse(const std::string& str)
