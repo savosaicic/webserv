@@ -6,19 +6,24 @@
 #include <stdint.h>
 #include <string>
 
+int VirtualServer::_server_count = 0;
+
 VirtualServer::VirtualServer() : _client_max_body_size(DEFAULT_CLIENT_BODY_SIZE)
 {
-  _default_error_page_list[400] = _createErrorPage(400, "Bad Request");
-  _default_error_page_list[403] = _createErrorPage(403, "Forbidden");
-  _default_error_page_list[404] = _createErrorPage(404, "Not Found");
-  _default_error_page_list[405] = _createErrorPage(405, "Method Not Allowed");
-  _default_error_page_list[500] = _createErrorPage(500, "Internal Server Error");
+  if (!_server_count)
+  {
+    _default_error_page_list[400] = _createErrorPage(400, "Bad Request");
+    _default_error_page_list[403] = _createErrorPage(403, "Forbidden");
+    _default_error_page_list[404] = _createErrorPage(404, "Not Found");
+    _default_error_page_list[405] = _createErrorPage(405, "Method Not Allowed");
+    _default_error_page_list[500] = _createErrorPage(500, "Internal Server Error");
+  }
+  _server_count++;
 }
 
 VirtualServer::VirtualServer(const VirtualServer& src)
   : _host(src._host),
   _port(src._port),
-  _default_error_page_list(src._default_error_page_list),
   _error_page_file_list(src._error_page_file_list),
   _client_max_body_size(src._client_max_body_size),
   _cgi_list(src._cgi_list),
@@ -27,7 +32,9 @@ VirtualServer::VirtualServer(const VirtualServer& src)
 {}
 
 VirtualServer::~VirtualServer()
-{}
+{
+  _server_count--;
+}
 
 VirtualServer&  VirtualServer::operator=(const VirtualServer& rhs)
 {
