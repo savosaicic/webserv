@@ -12,6 +12,7 @@ class HTTPStream
     TCPStream     _tcp;
     HTTPRequest   _request;
     VirtualServer _srv_config;
+    VirtualServer::Location _location_config;
 
   public:
     HTTPStream();
@@ -21,11 +22,16 @@ class HTTPStream
 
     HTTPStream& operator=(const HTTPStream& rhs);
 
-    const TCPStream&  tcp() const;
+    TCPStream&  tcp();
     const HTTPRequest&  getRequest() const;
     const VirtualServer&  getVirtualServer() const;
+    const VirtualServer::Location&  getLocationConfig() const;
     
     void  setServerConfig(const VirtualServer& srv_conf);
+
+    //Call it only when _srv_config is set
+    void  setLocationConfig(const std::string& uri);
+
     void  setResponse(const std::string& str);
 };
 
