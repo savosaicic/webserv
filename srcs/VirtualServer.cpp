@@ -6,19 +6,20 @@
 #include <stdint.h>
 #include <string>
 
-int VirtualServer::_server_count = 0;
+std::pair<unsigned short, std::string> VirtualServer::map_data[5] = {
+  std::make_pair(400, VirtualServer::_createErrorPage(400, "Forbidden")),
+  std::make_pair(403, VirtualServer::_createErrorPage(403, "Forbidden")),
+  std::make_pair(404, VirtualServer::_createErrorPage(404, "Not Found")),
+  std::make_pair(405, VirtualServer::_createErrorPage(405, "Method Not Allowed")),
+  std::make_pair(500, VirtualServer::_createErrorPage(500, "Internal Server Error"))
+};
+
+const std::map<unsigned short, std::string>
+VirtualServer::_default_error_page_list(VirtualServer::map_data,
+    VirtualServer::map_data + sizeof VirtualServer::map_data / sizeof VirtualServer::map_data[0]);
 
 VirtualServer::VirtualServer() : _client_max_body_size(DEFAULT_CLIENT_BODY_SIZE)
 {
-  if (!_server_count)
-  {
-    _default_error_page_list[400] = _createErrorPage(400, "Bad Request");
-    _default_error_page_list[403] = _createErrorPage(403, "Forbidden");
-    _default_error_page_list[404] = _createErrorPage(404, "Not Found");
-    _default_error_page_list[405] = _createErrorPage(405, "Method Not Allowed");
-    _default_error_page_list[500] = _createErrorPage(500, "Internal Server Error");
-  }
-  _server_count++;
 }
 
 VirtualServer::VirtualServer(const VirtualServer& src)
@@ -33,7 +34,6 @@ VirtualServer::VirtualServer(const VirtualServer& src)
 
 VirtualServer::~VirtualServer()
 {
-  _server_count--;
 }
 
 VirtualServer&  VirtualServer::operator=(const VirtualServer& rhs)
@@ -42,7 +42,6 @@ VirtualServer&  VirtualServer::operator=(const VirtualServer& rhs)
   {
     _host = rhs._host;
     _port = rhs._port;
-    _default_error_page_list = rhs._default_error_page_list;
     _error_page_file_list = rhs._error_page_file_list;
     _client_max_body_size = rhs._client_max_body_size;
     _cgi_list = rhs._cgi_list;
