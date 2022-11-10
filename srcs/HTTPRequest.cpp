@@ -63,10 +63,17 @@ void HTTPRequest::extractHeaderMap(std::string &request)
 
 	ss << request;
 
-	while (std::getline(ss, temp) && temp != "\r")
+	while (std::getline(ss, temp) && temp != "\r" && !temp.empty())
 	{
 		current.first = temp.substr(0, temp.find(":"));
-		current.second = temp.substr(temp.find(":")+1, temp.length());
+		current.second = temp.substr(temp.find(":")+1, temp.find_first_of("\r\n"));
+		if (current.second.find_last_of("\r") != std::string::npos)
+		{
+			current.second.erase(0, current.second.find_first_not_of(" "));
+			current.second.erase(current.second.find_last_of("\r"), current.second.length());
+		}
+		else
+			current.first = "";
 		_header_map.insert(current);
 	}
 	std::getline(ss, request);
@@ -145,6 +152,8 @@ const std::string& HTTPRequest::getHeaderContent(const std::string& header_title
 {
 	headerMap_t::const_iterator it = _header_map.find(header_title);
 	if (it == _header_map.end())
+		return Empty;
+	if (it->first == "")
 		return Empty;
 	return (it->second);
 }
