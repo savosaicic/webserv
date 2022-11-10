@@ -79,6 +79,29 @@ uint64_t VirtualServer::getClientMaxBodySize() const
   return _client_max_body_size;
 }
 
+const VirtualServer::Location&
+VirtualServer::getLocation(const std::string& uri_src) const
+{
+  std::string uri = uri_src;
+  if (*uri.rbegin() == '/')
+    uri.erase(uri.rbegin().base());
+
+  std::vector<Location>::const_iterator location = _location_list.begin();
+  for (; !uri.empty(); ++location)
+  {
+    if (location->getLocationPath() == uri)
+      break;
+    if (location == _location_list.end())
+    {
+      uri = uri.substr(0, uri.find_last_of('/'));
+//    if (uri.empty())
+//      return default location (/) if it exist
+      location = _location_list.begin();
+    }
+  }
+  return *location;
+}
+
 bool  VirtualServer::isServerNameSet(const std::string& name) const
 {
   return std::find(_server_name_list.begin(), _server_name_list.end(), name)
