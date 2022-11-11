@@ -8,7 +8,7 @@
 #include<stdio.h>
 #include<sstream>
 #include<sys/wait.h>
-
+#include<sys/wait.h>
 
 CGIRequest::CGIRequest()
 {

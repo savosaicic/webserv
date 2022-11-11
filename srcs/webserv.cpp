@@ -67,6 +67,5 @@ int	main(int ac, char **av, char **envp)
 	request.parseRequestHeader("d\r\n");
 	request.parseRequestHeader("\r\n");
 	request.parseRequestHeader("OUT OF BODY");
-
 	std::cout << request;
 }
