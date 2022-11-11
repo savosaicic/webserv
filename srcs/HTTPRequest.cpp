@@ -5,6 +5,11 @@
 #include <cstdlib>
 #include <sstream>
 
+HTTPRequest::HTTPRequest()
+{
+
+}
+
 HTTPRequest::HTTPRequest(std::string raw_request)
 {
 	if (raw_request.find_first_not_of("	 "))

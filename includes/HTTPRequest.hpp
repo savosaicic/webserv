@@ -34,8 +34,7 @@ class HTTPRequest
 		const std::string getNextLine(std::string& line);
 
 	public:
-
-
+		HTTPRequest();
 		HTTPRequest(std::string raw_request);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& src);
