@@ -72,19 +72,24 @@ char** CGIRequest::prepareCGI(char **envp)
 		_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
 		_input = "QUERY_STRING="+_input;
 		_env_variables.push_back(_input);		
-		new_envp = new char*[_env_variables.size()+1];
-		for (std::size_t i = 0;i < _env_variables.size();i++)
-		{
-			new_envp[i] = new char[_env_variables[i].length()+1];
-			for (std::size_t j = 0;j < _env_variables[i].length();j++)
-				new_envp[i][j] = _env_variables[i][j];
-			new_envp[i][_env_variables[i].length()] = '\0';
-		}	
-		new_envp[_env_variables.size()] = NULL;
 	}
 	if (_HTTP_request.getMethod() == HTTPRequest::POST)
 	{
+		
 	}
+	_input = "GATEWAY_INTERFACE=CGI/1.0";
+	_input = "SERVER_PROTOCOL=" + _HTTP_request.getHTTPVersion().first + '.' + _HTTP_request.getHTTPVersion().second;
+	//_input = "SERVER_PROTOCOL=" + _HTTP_request.getMethodString();
+	_env_variables.push_back(_input);		
+	new_envp = new char*[_env_variables.size()+1];
+	for (std::size_t i = 0;i < _env_variables.size();i++)
+	{
+		new_envp[i] = new char[_env_variables[i].length()+1];
+		for (std::size_t j = 0;j < _env_variables[i].length();j++)
+			new_envp[i][j] = _env_variables[i][j];
+		new_envp[i][_env_variables[i].length()] = '\0';
+	}	
+	new_envp[_env_variables.size()] = NULL;
 	return (new_envp);
 }
 
@@ -120,6 +125,7 @@ void CGIRequest::executeCGI(char **envp)
 	close(pipe_fd[1]);
 	dup2(pipe_fd[0], 0);
 	close(pipe_fd[0]);
+
 	std::string s;
 	while (std::getline(std::cin,s))
 		std::cout << s << '\n';
