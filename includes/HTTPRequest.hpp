@@ -8,7 +8,6 @@
 #include <list>
 #include <map>
 
-
 #define CRLF "\r\n"
 
 typedef std::map<std::string, std::string> headerMap_t;
@@ -40,6 +39,7 @@ class HTTPRequest
 		int				extractHeaderMap(std::string &request);
 
 	public:
+		HTTPRequest();
 		HTTPRequest(std::string raw_request);
 		HTTPRequest(void);
 		~HTTPRequest(void);

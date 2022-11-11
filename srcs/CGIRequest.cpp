@@ -9,8 +9,10 @@
 #include<sstream>
 #include<sys/wait.h>
 
+
 CGIRequest::CGIRequest()
 {
+
 }
 
 CGIRequest::~CGIRequest()
