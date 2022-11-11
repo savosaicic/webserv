@@ -5,6 +5,8 @@
 #include<sys/types.h>
 #include<unistd.h>
 #include<stdlib.h>
+#include<stdio.h>
+#include<sys/wait.h>
 
 CGIRequest::CGIRequest()
 {
@@ -67,18 +69,18 @@ char** CGIRequest::prepareCGI(char **envp)
 	{
 		//Need to parse the location on the host with uri
 		_script_path = "." + _HTTP_request.getUri().substr(0, _HTTP_request.getUri().find_first_of("?"));
-		_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?"));
+		_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
 		_input = "QUERY_STRING="+_input;
 		_env_variables.push_back(_input);		
 		new_envp = new char*[_env_variables.size()+1];
 		for (std::size_t i = 0;i < _env_variables.size();i++)
 		{
-			new_envp[i] = new char[_env_variables[i].length()];
+			new_envp[i] = new char[_env_variables[i].length()+1];
 			for (std::size_t j = 0;j < _env_variables[i].length();j++)
 				new_envp[i][j] = _env_variables[i][j];
+			new_envp[i][_env_variables[i].length()] = '\0';
 		}	
-		for (std::size_t i = 0; i < _env_variables.size(); i++)
-			std::cout << std::string(new_envp[i]) << '\n';
+		new_envp[_env_variables.size()] = NULL;
 	}
 	if (_HTTP_request.getMethod() == HTTPRequest::POST)
 	{
@@ -90,16 +92,35 @@ void CGIRequest::executeCGI(char **envp)
 {
 	int id;
 	char **new_envp;
-	char **arg;
-	char *path;
+	char **path;
+	int status;
+	int pipe_fd[2];
+
+	pipe(pipe_fd);
+
 	id = fork();
 	if (!id)
 	{
-		path = _script_path.c_str();
+		path = new char*[3];
+		path[0] = (char *)std::string("/usr/bin/perl").c_str();
+		path[1] = (char *)_script_path.c_str();
+		path[2] = NULL;
 
-		arg = &path;
+
 		new_envp = prepareCGI(envp);
-		execve(path, arg, new_envp);
-	}
 
+		close(pipe_fd[0]);
+		dup2(pipe_fd[1], 1);
+		close(pipe_fd[1]);
+		execve(path[0], path, new_envp);
+
+		perror("Error from child");
+	}
+	waitpid(id, &status, 0);
+	close(pipe_fd[1]);
+	dup2(pipe_fd[0], 0);
+	close(pipe_fd[0]);
+	std::string s;
+	while (std::getline(std::cin,s))
+		std::cout << s << '\n';
 }

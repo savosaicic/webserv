@@ -55,7 +55,8 @@ int	main(int ac, char **av, char **envp)
 			HTTPRequest raw("GET /cgi/hello.cgi?key1=value1&key2=value2 HTTP/1.1 \r\nAccept-Language: \nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
 
 			CGIRequest cgi(raw, "cgi/", CGIRequest::PERL);
-			cgi.prepareCGI(envp);
+			char **new_envp = cgi.prepareCGI(envp);
+			cgi.executeCGI(new_envp);
 	}
 
 }
