@@ -52,7 +52,6 @@ const std::string HTTPRequest::getNextLine(std::string& line)
 		next_line = line.substr(line.find_first_of("\r\n")+2);
 	return next_line;
 }
-
 const std::string& HTTPRequest::eraseFirstWord(std::string& line)
 {
 	if (line.find_first_of("		"))
@@ -195,6 +194,17 @@ bool HTTPRequest::isComplete() const
 HTTPRequest::method_t	HTTPRequest::getMethod(void) const
 {
 		return (_method);
+}
+
+std::string	HTTPRequest::getMethodString(void) const
+{
+	if (_method == GET)
+		return ("GET");
+	else if (_method == POST)
+		return ("POST");
+	else if (_method == DELETE)
+		return ("DELETE");
+	return ("");	
 }
 
 const std::string&	HTTPRequest::getUri(void) const
