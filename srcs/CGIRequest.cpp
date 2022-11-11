@@ -8,7 +8,6 @@
 #include<stdio.h>
 #include<sstream>
 #include<sys/wait.h>
-#include<sys/wait.h>
 
 CGIRequest::CGIRequest()
 {
@@ -66,7 +65,6 @@ void	CGIRequest::prepareCGI(void)
 	_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
 	
   setenv("QUERY_STRING", _input.c_str(), 1);
-
 }
 
 void CGIRequest::executeCGI(char **envp)

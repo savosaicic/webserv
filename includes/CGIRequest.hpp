@@ -30,7 +30,11 @@ class CGIRequest
 		HTTPRequest _HTTP_request;
 		std::string _script_path;
 		executable_t _executable;
-		headerMap_t _header_map;
+		std::string		_input;
+		std::string		_path_info;
+		std::string		_content_type;
+		std::vector<std::string> _env_variables;
+
 	public:
 		CGIRequest();
 		~CGIRequest();
