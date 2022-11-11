@@ -1,7 +1,10 @@
-#include "CGIRequest.hpp"
-#include "HTTPRequest.hpp"
+#include"CGIRequest.hpp"
+#include"HTTPRequest.hpp"
 #include<string>
 #include<map>
+#include<sys/types.h>
+#include<unistd.h>
+#include<stdlib.h>
 
 CGIRequest::CGIRequest()
 {
@@ -13,7 +16,7 @@ CGIRequest::~CGIRequest()
 
 }
 
-CGIRequest::CGIRequest(HTTPRequest HTTP_request, std::string script_path, executable_t executable, headerMap_t header_map): _HTTP_request(HTTP_request), _script_path(script_path), _executable(executable), _header_map(header_map)
+CGIRequest::CGIRequest(const HTTPRequest& HTTP_request, const std::string& script_path, const executable_t executable): _HTTP_request(HTTP_request), _script_path(script_path), _executable(executable)
 {
 
 
@@ -24,7 +27,6 @@ CGIRequest::CGIRequest(const CGIRequest &src)
 	_HTTP_request = src._HTTP_request;
 	_script_path = src._script_path;
 	_executable = src._executable;
-	_header_map = src._header_map;
 }
 
 CGIRequest& CGIRequest::operator=(const CGIRequest &rhs)
@@ -32,6 +34,72 @@ CGIRequest& CGIRequest::operator=(const CGIRequest &rhs)
 	_HTTP_request = rhs._HTTP_request;
 	_script_path = rhs._script_path;
 	_executable = rhs._executable;
-	_header_map = rhs._header_map;
 	return *this;
+}
+
+bool CGIRequest::isValid()
+{
+	std::string temp;
+	if (_HTTP_request.getMethod() == HTTPRequest::GET)
+	{
+		
+	}
+	if (_HTTP_request.getMethod() == HTTPRequest::POST)
+	{
+		temp = _HTTP_request.getHeaderContent("Content-Length");
+		for (std::size_t i = 0;i < temp.size(); i++)
+		{
+			if (std::isdigit(temp[i]) == 0)
+				return (false);
+		}
+	}
+	return (true);
+}
+
+char** CGIRequest::prepareCGI(char **envp)
+{
+	std::string temp;
+	char **new_envp;
+
+	for(int i = 0;envp[i];i++)
+		_env_variables.push_back(std::string(envp[i]));
+	if (_HTTP_request.getMethod() == HTTPRequest::GET)
+	{
+		//Need to parse the location on the host with uri
+		_script_path = "." + _HTTP_request.getUri().substr(0, _HTTP_request.getUri().find_first_of("?"));
+		_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?"));
+		_input = "QUERY_STRING="+_input;
+		_env_variables.push_back(_input);		
+		new_envp = new char*[_env_variables.size()+1];
+		for (std::size_t i = 0;i < _env_variables.size();i++)
+		{
+			new_envp[i] = new char[_env_variables[i].length()];
+			for (std::size_t j = 0;j < _env_variables[i].length();j++)
+				new_envp[i][j] = _env_variables[i][j];
+		}	
+		for (std::size_t i = 0; i < _env_variables.size(); i++)
+			std::cout << std::string(new_envp[i]) << '\n';
+	}
+	if (_HTTP_request.getMethod() == HTTPRequest::POST)
+	{
+	}
+	return (new_envp);
+}
+
+void CGIRequest::executeCGI(char **envp)
+{
+	int id;
+	char **new_envp;
+	char **arg;
+	char *path;
+	id = fork();
+	if (!id)
+	{
+		path = _script_path.c_str();
+
+		arg = &path;
+		new_envp = prepareCGI(envp);
+		execve(path, arg, new_envp);
+	}
+
 }
