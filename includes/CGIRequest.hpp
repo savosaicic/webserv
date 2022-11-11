@@ -17,6 +17,9 @@ class CGIRequest
 		std::string		_path_info;
 		std::string		_content_type;
 		std::vector<std::string> _env_variables;
+
+		char **updatedEnvp() const;
+		void addCommonHeaders();
 	public:
 		CGIRequest();
 		~CGIRequest();

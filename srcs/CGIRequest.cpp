@@ -6,6 +6,7 @@
 #include<unistd.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include<sstream>
 #include<sys/wait.h>
 
 CGIRequest::CGIRequest()
@@ -58,6 +59,38 @@ bool CGIRequest::isValid()
 	return (true);
 }
 
+void CGIRequest::addCommonHeaders()
+{
+	std::stringstream ss;
+	std::string temp;
+
+	_input = "GATEWAY_INTERFACE=CGI/1.0";
+	_env_variables.push_back(_input);		
+	std::cout << " hello :"  << _HTTP_request.getHTTPVersion().first << '.' << _HTTP_request.getHTTPVersion().second << std::endl;
+	ss << _HTTP_request.getHTTPVersion().first << "." << _HTTP_request.getHTTPVersion().second;
+	ss >> temp;
+	_input = "SERVER_PROTOCOL=HTTP/" + temp;
+	_env_variables.push_back(_input);		
+	_input = "REQUEST_METHOD=" + _HTTP_request.getMethodString();
+	_env_variables.push_back(_input);		
+}
+
+char **CGIRequest::updatedEnvp() const
+{
+	char **new_envp;
+
+	new_envp = new char*[_env_variables.size()+1];
+	for (std::size_t i = 0;i < _env_variables.size();i++)
+	{
+		new_envp[i] = new char[_env_variables[i].length()+1];
+		for (std::size_t j = 0;j < _env_variables[i].length();j++)
+			new_envp[i][j] = _env_variables[i][j];
+		new_envp[i][_env_variables[i].length()] = '\0';
+	}	
+	new_envp[_env_variables.size()] = NULL;
+	return (new_envp);
+}
+
 char** CGIRequest::prepareCGI(char **envp)
 {
 	std::string temp;
@@ -73,23 +106,12 @@ char** CGIRequest::prepareCGI(char **envp)
 		_input = "QUERY_STRING="+_input;
 		_env_variables.push_back(_input);		
 	}
-	if (_HTTP_request.getMethod() == HTTPRequest::POST)
+	else if (_HTTP_request.getMethod() == HTTPRequest::POST)
 	{
 		
 	}
-	_input = "GATEWAY_INTERFACE=CGI/1.0";
-	_input = "SERVER_PROTOCOL=" + _HTTP_request.getHTTPVersion().first + '.' + _HTTP_request.getHTTPVersion().second;
-	//_input = "SERVER_PROTOCOL=" + _HTTP_request.getMethodString();
-	_env_variables.push_back(_input);		
-	new_envp = new char*[_env_variables.size()+1];
-	for (std::size_t i = 0;i < _env_variables.size();i++)
-	{
-		new_envp[i] = new char[_env_variables[i].length()+1];
-		for (std::size_t j = 0;j < _env_variables[i].length();j++)
-			new_envp[i][j] = _env_variables[i][j];
-		new_envp[i][_env_variables[i].length()] = '\0';
-	}	
-	new_envp[_env_variables.size()] = NULL;
+	addCommonHeaders();
+	new_envp = updatedEnvp();
 	return (new_envp);
 }
 
