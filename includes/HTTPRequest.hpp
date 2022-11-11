@@ -46,6 +46,7 @@ class HTTPRequest
 		bool isValid();
 
 		method_t	getMethod(void) const; 
+		std::string	getMethodString(void) const;
 		const std::string&	getUri(void) const; 
 		const std::pair<int, int>&	getHTTPVersion(void) const; 
 		const std::string&	getBody(void) const; 
