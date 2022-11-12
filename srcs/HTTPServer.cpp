@@ -64,11 +64,12 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   // HTTPRequest::setServerConfigBlock(Config c, HTTPRequest s)
   try {
     stream.setServerConfig(_config.getServer(
-          stream.tcp().getHostIPAddr().toStr().c_str(),
-          stream.tcp().getHostIPAddr().port().c_str(),
-          "localhost"));
+          stream.tcp().getHostIPAddr().toStr(),
+          stream.tcp().getHostIPAddr().port(),
+          "0.0.0.0"));
   } catch (const std::exception& e) {
     // Server block not found (this is temporary)
+    std::cout << "server block not found\n";
     stream.setResponse(stream.getVirtualServer().getErrorPage(500));
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
     _listener.registerClientEvent(stream.tcp(), EPOLLOUT);

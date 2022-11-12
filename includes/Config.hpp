@@ -23,9 +23,8 @@ class Config
     // This method will return a server with a given :
     // - Listening address (ip+port)
     // - a server_name (From http request header `Host`)
-    const VirtualServer&  getServer(const char* listening_addr,
-        const char* port,
-        const std::string& server_name) const;
+    const VirtualServer&  getServer(const std::string& listening_addr,
+        const std::string& port, const std::string& server_name) const;
 
     const std::vector<VirtualServer>& getServerList();
 
