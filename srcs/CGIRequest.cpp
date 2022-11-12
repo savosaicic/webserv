@@ -141,6 +141,22 @@ void CGIRequest::executeCGI(char **envp)
 		close(pipe_fd[1]);
 		execve(path[0], path, new_envp);
 
+    /*
+     * char argv[2];
+     * argv[0] = _script_path.c_str();
+     * argv[1] = NULL;
+     *
+     * setenv("REQUEST_METHOD", _http.method(), 1);
+     * setenv("WHATEVER", _http.whatever(), 1);
+     *
+     * dup2(fds[1], STDOUT);
+     * close(fds[0]);
+     * close(fds[1]);
+     *
+     * execve(_script_path, argv, prepareCGI());
+     *
+    */
+
 		perror("Error from child");
 	}
 	waitpid(id, &status, 0);
@@ -151,4 +167,18 @@ void CGIRequest::executeCGI(char **envp)
 	std::string s;
 	while (std::getline(std::cin,s))
 		std::cout << s << '\n';
+
+  /*
+   * close(fds[1]);
+   * waitpid(id, &status, 0);
+   *
+   * __gnu_cxx::stdio_filebuf<char> pipe_buf(fds[0], std::ios::in);
+   * std::istream pipe_stream(&pipe_buf);
+   *
+   * std::string line;
+   * while (std::getline(pipe_stream, line);
+   *   cout << line;
+   *
+   * close(fds[0]);
+  */
 }
