@@ -181,6 +181,6 @@ void  HTTPServer::logRequest(const IPAddress& remote,
     "[" << getTimeToStr() << "] \"" <<
     request.getMethod() << " " <<
     request.getUri() << " " << "HTTP/" <<
-    request.getHttpVersion().first << "." <<
-    request.getHttpVersion().second << "\" " << status << std::endl;
+    request.getHTTPVersion().first << "." <<
+    request.getHTTPVersion().second << "\" " << status << std::endl;
 }
