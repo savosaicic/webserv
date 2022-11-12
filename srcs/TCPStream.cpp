@@ -41,7 +41,8 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	return (*this);
 }
 
-TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _remote_addr(src._remote_addr),
+TCPStream::TCPStream(const TCPStream &src): _fd(src._fd),
+  _host_addr(src._host_addr), _remote_addr(src._remote_addr),
   _events(src._events), _triggered_events(src._triggered_events),
   _in_msg(src._in_msg), _out_msg(src._out_msg)
 {
