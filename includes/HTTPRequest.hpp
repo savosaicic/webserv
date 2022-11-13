@@ -51,6 +51,7 @@ class HTTPRequest
 		const std::string&	getHeaderContent(const std::string& header_title) const;
 		bool								isValid()const;
 		bool								isComplete() const;
+		const std::string& getHeaderContent(const std::string& header_title);
 
 		std::string	getMethodString(void) const;
 		method_t		getMethod(void) const; 
