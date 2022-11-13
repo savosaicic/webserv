@@ -1,4 +1,5 @@
 #include "Config.hpp"
+#include "VirtualServer.hpp"
 #include <iostream>
 #include <fstream>
 #include <cerrno>
@@ -48,9 +49,19 @@ void  Config::parseConfigFile(const char* filename)
   std::cout << "Config file reading done..." << std::endl;
 
   VirtualServer server;
+  VirtualServer::Location location;
+
+  location.setLocationPath("/");
+  location.setDocroot("/home/path");
+  location.setAutoindex(false);
+  location.addIndexFileToList("index.html");
+  location.allowMethod(HTTPRequest::GET);
+
   server.addErrorPage(404, "404.html");
   server.setListeningHost("0.0.0.0");
   server.setListeningPort("9090");
+  server.addServerName("0.0.0.0");
+  server.addLocation(location);
 
   _server_list.push_back(server);
 
