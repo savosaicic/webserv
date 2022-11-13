@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <stdint.h>
 #include <string>
+#include <utility>
 
 std::pair<unsigned short, std::string> VirtualServer::map_data[5] = {
   std::make_pair(400, VirtualServer::_createErrorPage(400, "Forbidden")),
@@ -96,23 +97,24 @@ VirtualServer::getLocation(const std::string& uri_src) const
   if (uri.size() > 1 && *uri.rbegin() == '/')
     uri.erase(--(uri.rbegin().base()));
 
-  std::vector<Location>::const_iterator location = _location_list.begin();
+  std::map<std::string, Location>::const_iterator
+    location(_location_list.begin());
 	if (location == _location_list.end())
     throw std::runtime_error("");
 
   for (; !uri.empty(); ++location)
   {
-    if (location->getLocationPath() == uri)
-      break;
     if (location == _location_list.end())
     {
       uri = uri.substr(0, uri.find_last_of('/'));
-//    if (uri.empty())
-//      return default location (/) if it exist
+      if (uri.empty())
+        return _location_list.find("/")->second;
       location = _location_list.begin();
     }
+    if (location->second.getLocationPath() == uri)
+      break;
   }
-  return *location;
+  return location->second;
 }
 
 bool  VirtualServer::isServerNameSet(const std::string& name) const
@@ -133,7 +135,7 @@ void  VirtualServer::setListeningPort(const std::string& port)
 
 void  VirtualServer::addLocation(const Location& location)
 {
-  _location_list.push_back(location);
+  _location_list.insert(std::make_pair(location.getLocationPath(), location));
 }
 
 void  VirtualServer::addServerName(const std::string& name)

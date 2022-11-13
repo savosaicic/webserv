@@ -31,7 +31,7 @@ class VirtualServer
 
     std::vector<std::string>  _server_name_list;
   
-    std::vector<Location>  _location_list;
+    std::map<std::string, Location>  _location_list;
 
    public:
     VirtualServer();
