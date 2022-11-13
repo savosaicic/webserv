@@ -93,10 +93,13 @@ const VirtualServer::Location&
 VirtualServer::getLocation(const std::string& uri_src) const
 {
   std::string uri = uri_src;
-  if (*uri.rbegin() == '/')
-    uri.erase(uri.rbegin().base());
+  if (uri.size() > 1 && *uri.rbegin() == '/')
+    uri.erase(--(uri.rbegin().base()));
 
   std::vector<Location>::const_iterator location = _location_list.begin();
+	if (location == _location_list.end())
+    throw std::runtime_error("");
+
   for (; !uri.empty(); ++location)
   {
     if (location->getLocationPath() == uri)
