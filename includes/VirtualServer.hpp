@@ -50,6 +50,8 @@ class VirtualServer
 
     void  setListeningHost(const std::string& host);
     void  setListeningPort(const std::string& port);
+    void  addLocation(const Location& location);
+    void  addServerName(const std::string& name);
     void  addErrorPage(const uint16_t error_num, const std::string& filename);
     void  setClientMaxBodySize(const uint64_t size);
 

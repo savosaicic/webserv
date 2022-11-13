@@ -131,6 +131,16 @@ void  VirtualServer::setListeningPort(const std::string& port)
   _port = port;
 }
 
+void  VirtualServer::addLocation(const Location& location)
+{
+  _location_list.push_back(location);
+}
+
+void  VirtualServer::addServerName(const std::string& name)
+{
+  _server_name_list.push_back(name);
+}
+
 void  VirtualServer::addErrorPage(const uint16_t error_num,
     const std::string& filename)
 {
