@@ -164,7 +164,7 @@ const std::string& HTTPRequest::getHeaderContent(const std::string& header_title
 	return (it->second);
 }
 
-bool HTTPRequest::isValid() 
+bool HTTPRequest::isValid() const
 {
 	std::map<std::string, std::string>::const_iterator it;
 	if (_method == INVALID)
