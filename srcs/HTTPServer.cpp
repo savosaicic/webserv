@@ -43,13 +43,11 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   stream._request = HTTPRequest(stream.tcp().getInMessage());
   std::cout << stream._request << std::endl;
 
-/* TODO:
-* Here, we should normaly check if the request is not complete.
-* If so we should just return and not register to POLLOUT
-* and stay registered to POLLIN 
-* because we need to wait for more data to come
-*/
-  if (!stream.getRequest().isValid() /*isComplete*/)
+  // If request is not complete, wait for more data
+  if (!stream.getRequest().isComplete())
+    return ;
+
+  if (!stream.getRequest().isValid())
   {
     std::cout << "invalid request\n";
     stream.setResponse(stream.getVirtualServer().getErrorPage(500));
@@ -94,7 +92,19 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
 
   //Get the right Location config block based on URI
   //The VirtualServer server need to be already set
-  stream.setLocationConfig(stream.getRequest().getUri());
+  try
+  {
+    stream.setLocationConfig(stream.getRequest().getUri());
+  }
+  catch (const std::exception& e)
+  {
+    std::cout << "location block not found\n";
+    stream.setResponse(stream.getVirtualServer().getErrorPage(500));
+    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
+    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
+    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
+    return ;
+  }
 
   //Check if Method is allowed in this context
   if (!stream.getLocationConfig().isMethodAllowed(stream.getRequest().getMethod()))
