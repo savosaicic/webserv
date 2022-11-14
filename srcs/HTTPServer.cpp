@@ -4,6 +4,8 @@
 #include <default_conf_value.hpp>
 #include <exception>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <sys/epoll.h>
 #include <utility>
 #include <ctime>
@@ -39,11 +41,17 @@ Config&  HTTPServer::config()
   return _config;
 }
 
+// This function is temporary and need to be somehow in the HTTPRequest class
+std::string getRootedURI(std::string uri, const std::string& location,
+    const std::string& docroot)
+{
+  return docroot + "/" + uri.erase(0, location.size());
+}
+
 void  HTTPServer::_handleRequest(HTTPStream& stream)
 {
   // This is temporary (waiting for HTTPRequest to be finished)
   stream._request = HTTPRequest(stream.tcp().getInMessage());
-  std::cout << stream._request << std::endl;
 
   // If request is not complete, wait for more data
   if (!stream.getRequest().isComplete())
@@ -162,14 +170,20 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   }
 
   // Append URI to location path
-  
+  std::string rooted_uri = getRootedURI(stream.getRequest().getUri(),
+      stream.getLocationConfig().getLocationPath(),
+      stream.getLocationConfig().getDocroot());
+
 
   // Temporary
   headerMap_t headers;
   headers.insert(std::make_pair("Content-type", "text/html"));
   stream.setResponse(HTTPVersion(1,1), 200, "Ok", headers,
       "<html><head><title>42 webserv WIP</title></head> \
-      <body><center><h1>42 webserv WIP</h1></center></body></html>"
+      <body><center><h1>42 webserv WIP</h1>\
+      <p>The requested uri: \'" + stream.getRequest().getUri() +
+      "\' is mapped to: " + rooted_uri +
+      "</p></center></body></html>"
   );
   _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
   _listener.registerClientEvent(stream.tcp(), EPOLLOUT);

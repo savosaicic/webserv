@@ -50,6 +50,7 @@ void  Config::parseConfigFile(const char* filename)
 
   VirtualServer server;
   VirtualServer::Location location;
+  VirtualServer::Location location_two;
   VirtualServer::Redirection redirection;
   VirtualServer::Redirection location_redirection;
 
@@ -60,18 +61,25 @@ void  Config::parseConfigFile(const char* filename)
   location_redirection.setStatusCode(301);
 
   location.setLocationPath("/");
-  location.setDocroot("/home/path");
+  location.setDocroot("/default/path");
   location.setAutoindex(false);
   location.addIndexFileToList("index.html");
   location.allowMethod(HTTPRequest::GET);
-  location.setRedirection(location_redirection);
+  
+  location_two.setLocationPath("/foo");
+  location_two.setDocroot("/path/to/bonjour");
+  location_two.setAutoindex(false);
+  location_two.addIndexFileToList("index.html");
+  location_two.allowMethod(HTTPRequest::GET);
+  location_two.setRedirection(location_redirection);
 
   server.addErrorPage(404, "404.html");
   server.setListeningHost("0.0.0.0");
   server.setListeningPort("9090");
   server.addServerName("0.0.0.0");
   server.addLocation(location);
-  server.setRedirection(redirection);
+  server.addLocation(location_two);
+//  server.setRedirection(redirection);
 
   _server_list.push_back(server);
 
