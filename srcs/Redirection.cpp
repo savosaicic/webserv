@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Redirection.cpp                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/28 17:01:25 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/10/28 17:20:05 by sasaicic         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "VirtualServer.hpp"
 
 VirtualServer::Redirection::Redirection() : _location(),
@@ -26,6 +14,26 @@ VirtualServer::Redirection::Redirection(const std::string& location,
 
 VirtualServer::Redirection::~Redirection()
 {}
+
+uint16_t  VirtualServer::Redirection::statusCode() const
+{
+  return _status_code;
+}
+
+const std::string& VirtualServer::Redirection::getLocation() const
+{
+  return _location;
+}
+
+void  VirtualServer::Redirection::setLocation(const std::string& location)
+{
+  _location = location;
+}
+
+void  VirtualServer::Redirection::setStatusCode(const uint16_t code)
+{
+  _status_code = code;
+}
 
 VirtualServer::Redirection&
 VirtualServer::Redirection::operator=(const Redirection& rhs)
