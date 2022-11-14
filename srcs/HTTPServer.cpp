@@ -9,6 +9,8 @@
 #include <ctime>
 #include <utils.hpp>
 
+volatile sig_atomic_t listening = true;
+
 HTTPServer::HTTPServer()
 {
 }

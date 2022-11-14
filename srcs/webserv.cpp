@@ -13,8 +13,6 @@
 #include <signal.h>
 #include <ws_syscall_error.hpp>
 
-volatile sig_atomic_t listening = true;
-
 void  sigint_handler(int signal)
 {
   if (signal == SIGINT)
