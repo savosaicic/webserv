@@ -1,5 +1,7 @@
 #include <HTTPStream.hpp>
+#include <sstream>
 #include <string>
+#include <utils.hpp>
 
 HTTPStream::HTTPStream(const HTTPStream& src)
   : _tcp(src._tcp), _request(src._request), _srv_config(src._srv_config)
@@ -55,9 +57,21 @@ void  HTTPStream::setLocationConfig(const std::string& uri)
   _location_config = _srv_config.getLocation(uri);
 }
 
-void  HTTPStream::setResponse(const std::string& str)
+void  HTTPStream::setResponse(const HTTPVersion& version, const uint16_t code,
+    const std::string& reason, /*const headermap, */ const std::string& body)
 {
-  _tcp.setOutMessage(str);
+  std::stringstream ss;
+  
+  ss << version.getPrefix() <<
+    version.getMajor() << "." << version.getMinor() << SP <<
+    code << SP << reason << CRLF;
+
+//  for (it in headers)
+//    ss << it << CRLF
+  ss << "Content-type: text/html" << CRLF CRLF; // Temporary
+
+  ss << body;
+  _tcp.setOutMessage(ss.str());
 }
 
 bool  HTTPStream::operator==(const HTTPStream& rhs)

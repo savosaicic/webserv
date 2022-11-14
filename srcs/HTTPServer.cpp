@@ -52,7 +52,10 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   if (!stream.getRequest().isValid())
   {
     std::cout << "invalid request\n";
-    stream.setResponse(stream.getVirtualServer().getErrorPage(500));
+    stream.setResponse(HTTPVersion(1, 1),
+        500, "Invalid Request",
+        stream.getVirtualServer().getErrorPage(500)
+    );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
     _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
     logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
@@ -70,7 +73,10 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   } catch (const std::exception& e) {
     // Server block not found (this is temporary)
     std::cout << "server block not found\n";
-    stream.setResponse(stream.getVirtualServer().getErrorPage(500));
+    stream.setResponse(HTTPVersion(1, 1),
+        500, "Server Block not found",
+        stream.getVirtualServer().getErrorPage(500)
+    );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
     _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
     logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
@@ -101,7 +107,10 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   catch (const std::exception& e)
   {
     std::cout << "location block not found\n";
-    stream.setResponse(stream.getVirtualServer().getErrorPage(500));
+    stream.setResponse(HTTPVersion(1, 1),
+        500, "Location Block not found",
+        stream.getVirtualServer().getErrorPage(500)
+    );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
     _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
     logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
@@ -111,16 +120,27 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   //Check if Method is allowed in this context
   if (!stream.getLocationConfig().isMethodAllowed(stream.getRequest().getMethod()))
   {
-    stream.setResponse(
+    stream.setResponse(HTTPVersion(1, 1),
+        405, "Method not allowed",
         stream.getVirtualServer().getErrorPage(405)
     );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
     _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
+    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 405);
     return ;
   }
 
   // Append URI to location path
+  
+
+  // Temporary
+  stream.setResponse(HTTPVersion(1,1), 200, "Ok", 
+      "<html><head><title>42 webserv WIP</title></head> \
+      <body><center><h1>42 webserv WIP</h1></center></body></html>"
+  );
+  _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
+  _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
+  logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 200);
 }
 
 void  HTTPServer::_handleConnection(TCPStream& stream)
