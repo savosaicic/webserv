@@ -15,6 +15,7 @@ SRCS := webserv.cpp \
 		HTTPServer.cpp \
 		HTTPStream.cpp \
 		utils.cpp \
+		HTTPVersion.cpp \
 
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
