@@ -51,15 +51,20 @@ void  Config::parseConfigFile(const char* filename)
   VirtualServer server;
   VirtualServer::Location location;
   VirtualServer::Redirection redirection;
+  VirtualServer::Redirection location_redirection;
 
   redirection.setLocation("http://google.com");
   redirection.setStatusCode(301);
+
+  location_redirection.setLocation("https://cplusplus.com/");
+  location_redirection.setStatusCode(301);
 
   location.setLocationPath("/");
   location.setDocroot("/home/path");
   location.setAutoindex(false);
   location.addIndexFileToList("index.html");
   location.allowMethod(HTTPRequest::GET);
+  location.setRedirection(location_redirection);
 
   server.addErrorPage(404, "404.html");
   server.setListeningHost("0.0.0.0");

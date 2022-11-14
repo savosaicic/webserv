@@ -1,25 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Location.cpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/28 11:02:40 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/08 10:19:37 by lefendie         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "VirtualServer.hpp"
 #include <algorithm>
 
-VirtualServer::Location::Location()
+VirtualServer::Location::Location() : _redirection_set(false)
 {
 }
 
 VirtualServer::Location::Location(const Location& src)
   : _location(src._location), _docroot(src._docroot),
-  _autoindex(src._autoindex), _index_list(src._index_list),
+  _autoindex(src._autoindex), _redirection(src._redirection),
+  _redirection_set(src._redirection_set), _index_list(src._index_list),
   _allowed_method_list(src._allowed_method_list)
 {}
 
@@ -34,6 +23,8 @@ VirtualServer::Location& VirtualServer::Location::operator=(const Location& rhs)
     _location = rhs._location;
     _docroot = rhs._docroot;
     _autoindex = rhs._autoindex;
+    _redirection = rhs._redirection;
+    _redirection_set = rhs._redirection_set;
     _index_list = rhs._index_list;
     _allowed_method_list = rhs._allowed_method_list;
   }
@@ -53,6 +44,13 @@ void  VirtualServer::Location::setDocroot(const std::string& docroot)
 void  VirtualServer::Location::setAutoindex(const bool autoindex)
 {
   _autoindex = autoindex;
+}
+
+void  VirtualServer::Location::setRedirection(
+    const VirtualServer::Redirection& redirection)
+{
+  _redirection = redirection;
+  _redirection_set = true;
 }
 
 void  VirtualServer::Location::addIndexFileToList(const std::string& index)
@@ -81,6 +79,17 @@ const std::string& VirtualServer::Location::getDocroot() const
 bool  VirtualServer::Location::getAutoindex() const
 {
   return _autoindex;
+}
+
+bool  VirtualServer::Location::isRedirectionSet() const
+{
+  return _redirection_set;
+}
+
+const VirtualServer::Redirection&
+VirtualServer::Location::getRedirection() const
+{
+  return _redirection;
 }
 
 bool  VirtualServer::Location::isIndexInList(const std::string& index) const
