@@ -10,37 +10,6 @@
 class VirtualServer
 {
   public:
-    class Location
-    {
-      private:
-        std::string   _location;
-        std::string   _docroot;
-        bool          _autoindex;
-
-        std::vector<std::string>  _index_list;
-
-        std::vector<HTTPRequest::method_t>     _allowed_method_list;
-
-      public:
-        Location();
-        Location(const Location& src);
-        ~Location();
-
-        Location& operator=(const Location& rhs);
-
-        void  setLocationPath(const std::string &location);
-        void  setDocroot(const std::string& docroot);
-        void  setAutoindex(const bool autoindex);
-        void  addIndexFileToList(const std::string& index);
-        void  allowMethod(const HTTPRequest::method_t method);
-
-        const std::string&  getLocationPath() const;
-        const std::string&  getDocroot() const;
-        bool	getAutoindex() const;
-        bool	isIndexInList(const std::string& index) const;
-        bool	isMethodAllowed(const HTTPRequest::method_t method) const;
-    };
-
     class Redirection
     {
       private:
@@ -63,6 +32,42 @@ class VirtualServer
         void  setLocation(const std::string& location);
         void  setStatusCode(const uint16_t code);
         void  setRedirectionOn();
+    };
+
+    class Location
+    {
+      private:
+        std::string   _location;
+        std::string   _docroot;
+        bool          _autoindex;
+        Redirection   _redirection;
+        bool          _redirection_set;
+
+        std::vector<std::string>  _index_list;
+
+        std::vector<HTTPRequest::method_t>     _allowed_method_list;
+
+      public:
+        Location();
+        Location(const Location& src);
+        ~Location();
+
+        Location& operator=(const Location& rhs);
+
+        void  setLocationPath(const std::string &location);
+        void  setDocroot(const std::string& docroot);
+        void  setAutoindex(const bool autoindex);
+        void  setRedirection(const Redirection& redirection);
+        void  addIndexFileToList(const std::string& index);
+        void  allowMethod(const HTTPRequest::method_t method);
+
+        const std::string&  getLocationPath() const;
+        const std::string&  getDocroot() const;
+        bool	getAutoindex() const;
+        bool  isRedirectionSet() const;
+        const Redirection&  getRedirection() const;
+        bool	isIndexInList(const std::string& index) const;
+        bool	isMethodAllowed(const HTTPRequest::method_t method) const;
     };
 
   private:
