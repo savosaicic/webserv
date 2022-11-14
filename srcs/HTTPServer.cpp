@@ -52,8 +52,11 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   if (!stream.getRequest().isValid())
   {
     std::cout << "invalid request\n";
+
+    headerMap_t headers;
+    headers.insert(std::make_pair("Content-type", "text/html"));
     stream.setResponse(HTTPVersion(1, 1),
-        500, "Invalid Request",
+        500, "Invalid Request", headers,
         stream.getVirtualServer().getErrorPage(500)
     );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
@@ -73,8 +76,11 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   } catch (const std::exception& e) {
     // Server block not found (this is temporary)
     std::cout << "server block not found\n";
+
+    headerMap_t headers;
+    headers.insert(std::make_pair("Content-type", "text/html"));
     stream.setResponse(HTTPVersion(1, 1),
-        500, "Server Block not found",
+        500, "Server Block not found", headers,
         stream.getVirtualServer().getErrorPage(500)
     );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
@@ -107,8 +113,11 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   catch (const std::exception& e)
   {
     std::cout << "location block not found\n";
+
+    headerMap_t headers;
+    headers.insert(std::make_pair("Content-type", "text/html"));
     stream.setResponse(HTTPVersion(1, 1),
-        500, "Location Block not found",
+        500, "Location Block not found", headers,
         stream.getVirtualServer().getErrorPage(500)
     );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
@@ -120,8 +129,10 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   //Check if Method is allowed in this context
   if (!stream.getLocationConfig().isMethodAllowed(stream.getRequest().getMethod()))
   {
+    headerMap_t headers;
+    headers.insert(std::make_pair("Content-type", "text/html"));
     stream.setResponse(HTTPVersion(1, 1),
-        405, "Method not allowed",
+        405, "Method not allowed", headers,
         stream.getVirtualServer().getErrorPage(405)
     );
     _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
@@ -134,7 +145,9 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   
 
   // Temporary
-  stream.setResponse(HTTPVersion(1,1), 200, "Ok", 
+  headerMap_t headers;
+  headers.insert(std::make_pair("Content-type", "text/html"));
+  stream.setResponse(HTTPVersion(1,1), 200, "Ok", headers,
       "<html><head><title>42 webserv WIP</title></head> \
       <body><center><h1>42 webserv WIP</h1></center></body></html>"
   );

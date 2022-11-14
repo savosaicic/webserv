@@ -35,7 +35,8 @@ class HTTPStream
     void  setLocationConfig(const std::string& uri);
 
     void  setResponse(const HTTPVersion& version, const uint16_t code,
-        const std::string& reason, /*headermap, */ const std::string& body);
+        const std::string& reason, const headerMap_t& headers,
+        const std::string& body);
     
     bool  operator==(const HTTPStream& rhs);
 };

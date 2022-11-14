@@ -58,7 +58,8 @@ void  HTTPStream::setLocationConfig(const std::string& uri)
 }
 
 void  HTTPStream::setResponse(const HTTPVersion& version, const uint16_t code,
-    const std::string& reason, /*const headermap, */ const std::string& body)
+    const std::string& reason, const headerMap_t& headers,
+    const std::string& body)
 {
   std::stringstream ss;
   
@@ -66,10 +67,12 @@ void  HTTPStream::setResponse(const HTTPVersion& version, const uint16_t code,
     version.getMajor() << "." << version.getMinor() << SP <<
     code << SP << reason << CRLF;
 
-//  for (it in headers)
-//    ss << it << CRLF
-  ss << "Content-type: text/html" << CRLF CRLF; // Temporary
-
+  for (headerMap_t::const_iterator it = headers.begin();
+      it != headers.end(); ++it)
+  {
+    ss << it->first << ":" SP << it->second << CRLF;
+  }
+  ss << CRLF;
   ss << body;
   _tcp.setOutMessage(ss.str());
 }
