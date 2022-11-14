@@ -129,6 +129,23 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
     return ;
   }
 
+  //If the Location have a redirection, no need to go further
+  if (stream.getLocationConfig().isRedirectionSet())
+  {
+    headerMap_t headers;
+    headers.insert(std::make_pair("Location",
+          stream.getLocationConfig().getRedirection().getLocation()));
+
+    stream.setResponse(HTTPVersion(1, 1),
+        301, "Moved Permanently", headers, ""
+    );
+
+    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
+    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
+    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 301);
+    return ;
+  }
+
   //Check if Method is allowed in this context
   if (!stream.getLocationConfig().isMethodAllowed(stream.getRequest().getMethod()))
   {
