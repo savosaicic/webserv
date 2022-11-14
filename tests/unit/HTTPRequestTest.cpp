@@ -4,7 +4,7 @@
 TEST(extractHeaderMap, empty_raw_request)
 {
 	HTTPRequest request("");
-	char *test = "";
+	const char *test = "";
 	EXPECT_STREQ(request.getRawRequest().c_str(), test);
 }
 
