@@ -20,13 +20,15 @@ const std::map<unsigned short, std::string>
 VirtualServer::_default_error_page_list(VirtualServer::map_data,
     VirtualServer::map_data + sizeof VirtualServer::map_data / sizeof VirtualServer::map_data[0]);
 
-VirtualServer::VirtualServer() : _client_max_body_size(DEFAULT_CLIENT_BODY_SIZE)
+VirtualServer::VirtualServer() : _redirection_set(false),
+  _client_max_body_size(DEFAULT_CLIENT_BODY_SIZE)
 {
 }
 
 VirtualServer::VirtualServer(const VirtualServer& src)
   : _host(src._host),
   _port(src._port),
+  _redirection(src._redirection), _redirection_set(src._redirection_set),
   _error_page_file_list(src._error_page_file_list),
   _client_max_body_size(src._client_max_body_size),
   _cgi_list(src._cgi_list),
@@ -44,6 +46,8 @@ VirtualServer&  VirtualServer::operator=(const VirtualServer& rhs)
   {
     _host = rhs._host;
     _port = rhs._port;
+    _redirection = rhs._redirection;
+    _redirection_set = rhs._redirection_set;
     _error_page_file_list = rhs._error_page_file_list;
     _client_max_body_size = rhs._client_max_body_size;
     _cgi_list = rhs._cgi_list;
@@ -61,6 +65,16 @@ const std::string&  VirtualServer::getListeningHost() const
 const std::string&  VirtualServer::getListeningPort() const
 {
   return _port;
+}
+
+bool  VirtualServer::isRedirectionSet() const
+{
+  return _redirection_set;
+}
+
+const VirtualServer::Redirection&  VirtualServer::getRedirection() const
+{
+  return _redirection;
 }
 
 const std::string VirtualServer::getErrorPage(const uint16_t error_num) const
@@ -131,6 +145,13 @@ void  VirtualServer::setListeningHost(const std::string& host)
 void  VirtualServer::setListeningPort(const std::string& port)
 {
   _port = port;
+}
+
+void  VirtualServer::setRedirection(
+    const VirtualServer::Redirection& redirection)
+{
+  _redirection = redirection;
+  _redirection_set = true;
 }
 
 void  VirtualServer::addLocation(const Location& location)
