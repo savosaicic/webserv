@@ -50,6 +50,10 @@ void  Config::parseConfigFile(const char* filename)
 
   VirtualServer server;
   VirtualServer::Location location;
+  VirtualServer::Redirection redirection;
+
+  redirection.setLocation("http://google.com");
+  redirection.setStatusCode(301);
 
   location.setLocationPath("/");
   location.setDocroot("/home/path");
@@ -62,6 +66,7 @@ void  Config::parseConfigFile(const char* filename)
   server.setListeningPort("9090");
   server.addServerName("0.0.0.0");
   server.addLocation(location);
+  server.setRedirection(redirection);
 
   _server_list.push_back(server);
 

@@ -91,18 +91,21 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
 
   //If the VirtualServer have a redirection, no need to go further
   // Write something cleaner than this
-/*
-  if (stream.getVirtualServer().isThereRedirection())
+  if (stream.getVirtualServer().isRedirectionSet())
   {
-    stream.setResponse(
-        buildRedirectionMessage(stream.config().server().redirection)
+    headerMap_t headers;
+    headers.insert(std::make_pair("Location",
+          stream.getVirtualServer().getRedirection().getLocation()));
+
+    stream.setResponse(HTTPVersion(1, 1),
+        301, "Moved Permanently", headers, ""
     );
-    stream.unRegisterClientEvent(EPOLLIN);
-    stream.registerClientEvent(EPOLLOUT);
-    //Log request here ?
+
+    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
+    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
+    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 301);
     return ;
   }
-*/
 
   //Get the right Location config block based on URI
   //The VirtualServer server need to be already set
