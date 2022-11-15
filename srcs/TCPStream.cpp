@@ -141,8 +141,8 @@ int TCPStream::write(const std::string& str)
   int len;
   int bytes_sent = 0;
 
-  buffer = str.c_str();
-  len = strlen(buffer);
+  buffer = str.data();
+  len = str.size();
   while (bytes_sent < len)
   {
     bytes_sent += send(_fd, buffer + bytes_sent, len - bytes_sent, 0);
