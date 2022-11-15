@@ -1,5 +1,7 @@
 #include <ctime>
 #include <cstdio>
+#include <string>
+#include <sstream>
 
 char* getTimeToStr()
 {
@@ -21,3 +23,16 @@ char* getTimeToStr()
     timeinfo->tm_min, timeinfo->tm_sec);
   return result;
 }
+
+template<typename T>
+std::string i_to_string(T value)
+{
+  std::ostringstream ss;
+  ss << value ;
+  return std::string(ss.str());
+}
+
+std::string to_string(int value) {return i_to_string<int>(value);}
+std::string to_string(long value) {return i_to_string<int>(value);}
+std::string to_string(unsigned int value) {return i_to_string<int>(value);}
+std::string to_string(unsigned long value) {return i_to_string<int>(value);}
