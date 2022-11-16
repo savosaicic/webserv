@@ -158,7 +158,6 @@ const std::string& HTTPRequest::eraseCurrentLine(std::string& line) const
 	return line;
 }
 
-
 HTTPRequest::method_t HTTPRequest::extractMethod(const std::string& method)
 {
 	HTTPRequest::method_t ret;
