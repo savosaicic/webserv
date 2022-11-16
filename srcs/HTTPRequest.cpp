@@ -54,31 +54,33 @@ const std::string& HTTPRequest::eraseFirstWord(std::string& line)
 	return line;
 }
 
-void HTTPRequest::extractHeaderMap(std::string &request)
+int HTTPRequest::extractHeaderMap(std::string &request)
 {
 	std::stringstream ss;
 	std::string temp = " ";
-	std::pair<std::string, std::string> current;
+	std::string key;
+	std::string value;
 
 	ss << request;
 
 	while (std::getline(ss, temp) && temp != "\r" && !temp.empty())
 	{
-		current.first = temp.substr(0, temp.find(":"));
-		current.second = temp.substr(temp.find(":")+1, temp.find_first_of("\r\n"));
-		if (current.second.find_last_of("\r") != std::string::npos)
+		key = temp.substr(0, temp.find(":"));
+		value = temp.substr(temp.find(":")+1, temp.find_first_of("\r\n"));
+		if (value.find_last_of("\r") != std::string::npos)
 		{
-			current.second.erase(0, current.second.find_first_not_of(" "));
-			current.second.erase(current.second.find_last_of("\r"), current.second.length());
+			value.erase(0, value.find_first_not_of(" "));
+			value.erase(value.find_last_of("\r"), value.length());
 		}
-		else
-			current.first = "";
-		_header_map.insert(current);
+		if (addHeader(key, value) == -1)
+			return (-1);
+		//_header_map.insert(current);
 	}
 	std::getline(ss, request);
+	return (0);
 }
 
-HTTPRequest::method_t HTTPRequest::extractMethod(std::string method)
+HTTPRequest::method_t HTTPRequest::extractMethod(const std::string& method)
 {
 	HTTPRequest::method_t ret;
 
@@ -152,12 +154,10 @@ const std::string& HTTPRequest::getHeaderContent(const std::string& header_title
 	headerMap_t::const_iterator it = _header_map.find(header_title);
 	if (it == _header_map.end())
 		return Empty;
-	if (it->first == "")
-		return Empty;
 	return (it->second);
 }
 
-bool HTTPRequest::isValid() 
+bool HTTPRequest::isValid() const
 {
 	std::map<std::string, std::string>::const_iterator it;
 	if (_method == INVALID)
@@ -174,14 +174,7 @@ bool HTTPRequest::isValid()
 
 bool HTTPRequest::isComplete() const
 {
-	bool essential_empty = _uri.empty() || _uri.empty() || _http_version.first == 0;
-	if (_method == GET && essential_empty)
-		return (false);
-	else if (_method == POST && (essential_empty || _body.empty()))
-		return (false);
-	else if (_method == DELETE && essential_empty)
-		return (false);
-	else if (_method == INVALID)
+	if (_uri.empty() || _http_version.first == 0 || _method == INVALID)
 		return (false);
 	return (true);	
 }
@@ -227,50 +220,46 @@ const headerMap_t&	HTTPRequest::getHeaderMap(void) const
 		return (_header_map);
 }
 
-void HTTPRequest::setMethod(HTTPRequest::method_t method)
+void HTTPRequest::setMethod(const HTTPRequest::method_t& method)
 {
 	_method = method;
 } 
 
-void HTTPRequest::setUri(std::string uri)
+void HTTPRequest::setUri(const std::string& uri)
 {
 	_uri = uri;
 }
 
-void HTTPRequest::setHTTPVersion(std::pair<int, int> http_version)
+void HTTPRequest::setHTTPVersion(const std::pair<int, int>& http_version)
 {
 	_http_version = http_version;
 }
 
-void HTTPRequest::setHTTPVersion(int prior, int minor)
+void HTTPRequest::setHTTPVersion(const int prior, const int minor)
 {
-	if (prior > 0)
-		_http_version.first = prior;
-	else
-		_http_version.first = -1;
-	if (minor >= 0)
-		_http_version.second = minor;
-	else
-		_http_version.second = -1;
+	_http_version.first = prior;
+	_http_version.second = minor;
 } 
 
-void HTTPRequest::addHeader(std::string header, std::string value)
+int HTTPRequest::addHeader(std::string key, std::string value)
 {
-	std::pair<std::string, std::string> current;
-
-	current.first = "";
-	if (current.first.find_first_of("	 ") != std::string::npos)
-		current.first = header;
-	current.second = value;
-	_header_map.insert(current);
+	if (key.empty())
+		return (-1);
+	for(size_t i = 0;i < key.size();i++)
+	{
+		if (key[i] < 33 || key[i] > 126 || key[i] == ':')
+			return (-1);
+	}
+	_header_map.insert(std::make_pair(key, value));
+	return (0);
 } 
 
-void HTTPRequest::setBody(std::string body)
+void HTTPRequest::setBody(const std::string& body)
 {
 	_body = body;
 }
 
-void HTTPRequest::setHTTPVersion(std::string http_version)
+void HTTPRequest::setHTTPVersion(const std::string& http_version)
 {
 	extractVersion(http_version);
 }
