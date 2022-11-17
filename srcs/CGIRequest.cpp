@@ -11,32 +11,28 @@
 
 CGIRequest::CGIRequest()
 {
-
 }
 
 CGIRequest::~CGIRequest()
 {
-
 }
 
-CGIRequest::CGIRequest(const HTTPRequest& HTTP_request, const std::string& script_path, const executable_t executable): _HTTP_request(HTTP_request), _script_path(script_path), _executable(executable)
+CGIRequest::CGIRequest(const HTTPRequest& HTTP_request, const std::string& script_path): _HTTP_request(HTTP_request), _script_path(script_path)
 {
-
-
 }
 
-CGIRequest::CGIRequest(const CGIRequest &src)
+CGIRequest::CGIRequest(const CGIRequest &src): _HTTP_request(src._HTTP_request), _script_path(src._script_path)
 {
-	_HTTP_request = src._HTTP_request;
-	_script_path = src._script_path;
-	_executable = src._executable;
 }
+
 
 CGIRequest& CGIRequest::operator=(const CGIRequest &rhs)
 {
-	_HTTP_request = rhs._HTTP_request;
-	_script_path = rhs._script_path;
-	_executable = rhs._executable;
+	if (this != this)
+	{
+		_HTTP_request = rhs._HTTP_request;
+		_script_path = rhs._script_path;
+	}
 	return *this;
 }
 
@@ -59,60 +55,16 @@ bool CGIRequest::isValid()
 	return (true);
 }
 
-void CGIRequest::addCommonHeaders()
-{
-	std::stringstream ss;
-	std::string temp;
-
-	_input = "GATEWAY_INTERFACE=CGI/1.0";
-	_env_variables.push_back(_input);		
-	std::cout << " hello :"  << _HTTP_request.getHTTPVersion().first << '.' << _HTTP_request.getHTTPVersion().second << std::endl;
-	ss << _HTTP_request.getHTTPVersion().first << "." << _HTTP_request.getHTTPVersion().second;
-	ss >> temp;
-	_input = "SERVER_PROTOCOL=HTTP/" + temp;
-	_env_variables.push_back(_input);		
-	_input = "REQUEST_METHOD=" + _HTTP_request.getMethodString();
-	_env_variables.push_back(_input);		
-}
-
-char **CGIRequest::updatedEnvp() const
-{
-	char **new_envp;
-
-	new_envp = new char*[_env_variables.size()+1];
-	for (std::size_t i = 0;i < _env_variables.size();i++)
-	{
-		new_envp[i] = new char[_env_variables[i].length()+1];
-		for (std::size_t j = 0;j < _env_variables[i].length();j++)
-			new_envp[i][j] = _env_variables[i][j];
-		new_envp[i][_env_variables[i].length()] = '\0';
-	}	
-	new_envp[_env_variables.size()] = NULL;
-	return (new_envp);
-}
-
-char** CGIRequest::prepareCGI(char **envp)
+void	CGIRequest::prepareCGI(void)
 {
 	std::string temp;
-	char **new_envp;
 
-	for(int i = 0;envp[i];i++)
-		_env_variables.push_back(std::string(envp[i]));
-	if (_HTTP_request.getMethod() == HTTPRequest::GET)
-	{
-		//Need to parse the location on the host with uri
-		_script_path = "." + _HTTP_request.getUri().substr(0, _HTTP_request.getUri().find_first_of("?"));
-		_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
-		_input = "QUERY_STRING="+_input;
-		_env_variables.push_back(_input);		
-	}
-	else if (_HTTP_request.getMethod() == HTTPRequest::POST)
-	{
-		
-	}
-	addCommonHeaders();
-	new_envp = updatedEnvp();
-	return (new_envp);
+	//Need to parse the location on the host with uri
+	_script_path = "." + _HTTP_request.getUri().substr(0, _HTTP_request.getUri().find_first_of("?"));
+	_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
+	
+  setenv("QUERY_STRING", _input.c_str(), 1);
+
 }
 
 void CGIRequest::executeCGI(char **envp)
@@ -133,8 +85,7 @@ void CGIRequest::executeCGI(char **envp)
 		path[1] = (char *)_script_path.c_str();
 		path[2] = NULL;
 
-
-		new_envp = prepareCGI(envp);
+		prepareCGI();
 
 		close(pipe_fd[0]);
 		dup2(pipe_fd[1], 1);
