@@ -31,6 +31,89 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 	return ;
 }
 
+int HTTPRequest::parseRequestHeader(std::string raw_request)
+{
+	std::stringstream ss;
+	std::string line;
+	raw_request = _buffer + raw_request;
+	ss << raw_request;
+	if (raw_request.find_first_of("\n") != std::string::npos)
+	{
+		while (std::getline(ss, line))
+		{
+			switch((int)_to_parse)
+			{
+				case HEADER:
+					extractHeaderMap(line);
+					eraseCurrentLine(raw_request);
+					break;
+				case BODY:
+					break;
+			}
+					
+				
+		}
+	}
+	_buffer = raw_request;
+	return (0);
+}
+
+int HTTPRequest::extractHeaderMap(std::string &line)
+{
+	std::string key;
+	std::string value;
+
+	key = line.substr(0, line.find(":"));
+	value = line.substr(line.find(":")+1, line.find_first_of("\r\n"));
+	if (value.find_last_of("\r") != std::string::npos)
+	{
+		value.erase(0, value.find_first_not_of(" "));
+		value.erase(value.find_last_of("\r"), value.length());
+	}
+	if (addHeader(key, value) == -1)
+		return (-1);
+	//_header_map.insert(current);
+	return (0);
+}
+
+int HTTPRequest::parseRequestLine(std::string raw_request)
+{
+	raw_request = _buffer + raw_request;
+	raw_request.erase(0, raw_request.find_first_not_of(" "));
+	while (raw_request.find_first_of(" ") != std::string::npos || (_to_parse == VERSION && raw_request.find_first_of("\r\n") != std::string::npos))
+	{
+		switch((int)_to_parse)
+		{
+			case METHOD:
+					_method = extractMethod(getNextWord(raw_request));
+					eraseFirstWord(raw_request);
+					_to_parse = URI;
+					break;
+			case URI:
+					_uri = getNextWord(raw_request);
+					eraseFirstWord(raw_request);
+					_to_parse = VERSION;
+				_buffer = raw_request;
+				break;
+			case VERSION:
+					extractVersion(getNextWord(raw_request));
+					eraseFirstWord(raw_request);
+					raw_request = getNextLine(raw_request);
+					_to_parse = HEADER;
+				break;
+		}
+	}
+	_buffer = raw_request;
+	return (0);
+}
+
+
+
+
+HTTPRequest::HTTPRequest(void): _to_parse(METHOD), _buffer("")
+{
+}
+
 const std::string HTTPRequest::getNextWord(std::string& line)
 {
 	std::string word;
@@ -47,6 +130,7 @@ const std::string HTTPRequest::getNextLine(std::string& line)
 		next_line = line.substr(line.find_first_of("\r\n")+2);
 	return next_line;
 }
+
 const std::string& HTTPRequest::eraseFirstWord(std::string& line)
 {
 	if (line.find_first_of("		"))
@@ -54,31 +138,13 @@ const std::string& HTTPRequest::eraseFirstWord(std::string& line)
 	return line;
 }
 
-int HTTPRequest::extractHeaderMap(std::string &request)
+const std::string& HTTPRequest::eraseCurrentLine(std::string& line)
 {
-	std::stringstream ss;
-	std::string temp = " ";
-	std::string key;
-	std::string value;
-
-	ss << request;
-
-	while (std::getline(ss, temp) && temp != "\r" && !temp.empty())
-	{
-		key = temp.substr(0, temp.find(":"));
-		value = temp.substr(temp.find(":")+1, temp.find_first_of("\r\n"));
-		if (value.find_last_of("\r") != std::string::npos)
-		{
-			value.erase(0, value.find_first_not_of(" "));
-			value.erase(value.find_last_of("\r"), value.length());
-		}
-		if (addHeader(key, value) == -1)
-			return (-1);
-		//_header_map.insert(current);
-	}
-	std::getline(ss, request);
-	return (0);
+	if (line.find_first_of("\n"))
+		line.erase(0, line.find_first_of("\n")+1);
+	return line;
 }
+
 
 HTTPRequest::method_t HTTPRequest::extractMethod(const std::string& method)
 {
@@ -134,7 +200,6 @@ HTTPRequest::HTTPRequest(const HTTPRequest& src)
 	_uri = src._uri;
 	_http_version = src._http_version;
 	_body = src._body;
-	_raw_request = src._raw_request;
 	_header_map = src._header_map;
 }
 
@@ -144,7 +209,6 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 	_uri = rhs._uri;
 	_http_version = rhs._http_version;
 	_body = rhs._body;
-	_raw_request = rhs._raw_request;
 	_header_map = rhs._header_map;
 	return (*this);
 }
@@ -208,11 +272,6 @@ const std::pair<int, int>&	HTTPRequest::getHTTPVersion(void) const
 const std::string&	HTTPRequest::getBody(void) const
 {
 		return (_body);
-}
-
-const std::string&	HTTPRequest::getRawRequest(void) const
-{
-		return (_raw_request);
 }
 
 const headerMap_t&	HTTPRequest::getHeaderMap(void) const

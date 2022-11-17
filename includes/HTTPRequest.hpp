@@ -9,9 +9,12 @@
 #include <map>
 
 
+#define CRLF "\r\n"
+
 typedef std::map<std::string, std::string> headerMap_t;
 static const std::string Empty = "";
 
+enum status_t {METHOD = 0, URI, VERSION, HEADER, BODY};
 
 class HTTPRequest
 {
@@ -21,25 +24,29 @@ class HTTPRequest
 	private:
 		std::pair<int, int>	_http_version;
 		headerMap_t					_header_map;
-		std::string					_raw_request;
 		std::string					_uri;
 		std::string					_body;
 		method_t						_method;
+		status_t						_to_parse;
+		std::string					_buffer;
 
 		method_t	extractMethod(const std::string& method);
 		const			std::string getNextWord(std::string& line);
 		const			std::string& eraseFirstWord(std::string& line);
 		const			std::string getNextLine(std::string& line);
+		const			std::string& eraseCurrentLine(std::string& line);
 		void			extractVersion(std::string httpVersion);
 		int				extractHeaderMap(std::string &request);
 
 	public:
-
-
 		HTTPRequest(std::string raw_request);
+		HTTPRequest(void);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);
+
+		int parseRequestLine(std::string raw_request);
+		int parseRequestHeader(std::string raw_request);
 
 		const std::string&	getHeaderContent(const std::string& header_title);
 		bool								isValid()const;
@@ -50,7 +57,6 @@ class HTTPRequest
 		const				std::string&	getUri(void) const; 
 		const 			std::pair<int, int>&	getHTTPVersion(void) const; 
 		const 			std::string&	getBody(void) const; 
-		const 			std::string&	getRawRequest(void) const; 
 		const 			headerMap_t&	getHeaderMap(void) const; 
 
 		void	setBody(const std::string& body);

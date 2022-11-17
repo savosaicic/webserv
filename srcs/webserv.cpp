@@ -49,13 +49,23 @@ int	main(void)
 //      handle_connection(tcp, (*stream)->second);
 //    }
 //  }
-	HTTPRequest raw("GET /software/htp/cics/index.html HTTP/1.0 \r\nAccept-Language: \nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
+	HTTPRequest request;
 
-	//HTTPRequest raw1("POST                           /software/htp/cics/index.html                     HTTP/1.2\nAccept-Language: fr                     ,                        de\nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
+	request.parseRequestLine("GE");
+	request.parseRequestLine("T ");
+	request.parseRequestLine(" /");
+	request.parseRequestLine("ur");
+	request.parseRequestLine("i ");
+	request.parseRequestLine("HT");
+	request.parseRequestLine("TP");
+	request.parseRequestLine("/1");
+	request.parseRequestLine(".1\r\n");
+	request.parseRequestHeader("Lang:");
+	request.parseRequestHeader(" FR");
+	request.parseRequestHeader(" \r");
+	request.parseRequestHeader("\n");
+	request.parseRequestHeader("Content-ty");
+	request.parseRequestHeader("pe: html\r\n");
 
-	std::cout << raw << std::endl;
-	//std::cout << raw1 << std::endl;
-	//
-
-	std::cout << raw.getHeaderContent("Accept-Language") << std::endl;
+	std::cout << request;
 }
