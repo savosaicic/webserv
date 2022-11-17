@@ -37,21 +37,6 @@ int	main(int ac, char **av, char **envp)
 {
 	if (ac && av)
 	{
-		//	TCPListener	tcp;
-		//
-		//	std::vector<TCPStreamManager::iterator> incoming_streams;
-		//
-		//	tcp.bind("0.0.0.0", "8080");
-		//	tcp.listen();
-		//	while (1)
-		//  {
-		//		incoming_streams = tcp.incoming();
-		//    for (std::vector<TCPStreamManager::iterator>::iterator stream =
-		//        incoming_streams.begin(); stream != incoming_streams.end(); ++stream)
-		//    {
-		//      handle_connection(tcp, (*stream)->second);
-		//    }
-		//  }
 			HTTPRequest raw("GET /cgi/hello.cgi?key1=value1&key2=value2 HTTP/1.1 \r\nAccept-Language: \nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
 
 			CGIRequest cgi(raw, "cgi/", CGIRequest::PERL);
@@ -59,4 +44,23 @@ int	main(int ac, char **av, char **envp)
 			cgi.executeCGI(new_envp);
 	}
 
+	HTTPRequest request;
+
+	request.parseRequestLine("GE");
+	request.parseRequestLine("T ");
+	request.parseRequestLine(" /");
+	request.parseRequestLine("ur");
+	request.parseRequestLine("i ");
+	request.parseRequestLine("HT");
+	request.parseRequestLine("TP");
+	request.parseRequestLine("/1");
+	request.parseRequestLine(".1\r\n");
+	request.parseRequestHeader("Lang:");
+	request.parseRequestHeader(" FR");
+	request.parseRequestHeader(" \r");
+	request.parseRequestHeader("\n");
+	request.parseRequestHeader("Content-ty");
+	request.parseRequestHeader("pe: html\r\n");
+
+	std::cout << request;
 }
