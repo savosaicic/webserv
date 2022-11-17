@@ -14,6 +14,7 @@
 typedef std::map<std::string, std::string> headerMap_t;
 static const std::string Empty = "";
 
+enum status_t {METHOD = 0, URI, VERSION, HEADER, BODY};
 
 class HTTPRequest
 {
@@ -40,9 +41,7 @@ class HTTPRequest
 		int				extractHeaderMap(std::string &request);
 
 	public:
-
-
-		HTTPRequest();
+		HTTPRequest(void);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);

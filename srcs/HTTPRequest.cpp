@@ -64,7 +64,7 @@ int HTTPRequest::parseRequestHeader(std::string raw_request)
 					if (line == CRLF)
 						_to_parse = END;
 					break;
-			}	
+			}
 		}
 	}
 	_buffer = raw_request;
@@ -157,6 +157,7 @@ const std::string& HTTPRequest::eraseCurrentLine(std::string& line) const
 		line.erase(0, line.find_first_of("\n")+1);
 	return line;
 }
+
 
 HTTPRequest::method_t HTTPRequest::extractMethod(const std::string& method)
 {
