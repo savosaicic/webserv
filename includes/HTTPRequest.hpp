@@ -14,10 +14,11 @@
 typedef std::map<std::string, std::string> headerMap_t;
 static const std::string Empty = "";
 
-enum status_t {METHOD = 0, URI, VERSION, HEADER, BODY};
 
 class HTTPRequest
 {
+	private:
+		enum status_t {METHOD = 0, URI, VERSION, HEADER, BODY};
 	public:
 		enum method_t {GET = 0, POST, DELETE, INVALID};
 
@@ -31,10 +32,10 @@ class HTTPRequest
 		std::string					_buffer;
 
 		method_t	extractMethod(const std::string& method);
-		const			std::string getNextWord(std::string& line);
-		const			std::string& eraseFirstWord(std::string& line);
-		const			std::string getNextLine(std::string& line);
-		const			std::string& eraseCurrentLine(std::string& line);
+		const			std::string getNextWord(std::string& line) const;
+		const			std::string& eraseFirstWord(std::string& line) const;
+		const			std::string getNextLine(std::string& line) const;
+		const			std::string& eraseCurrentLine(std::string& line) const;
 		void			extractVersion(std::string httpVersion);
 		int				extractHeaderMap(std::string &request);
 
@@ -48,7 +49,7 @@ class HTTPRequest
 		int parseRequestLine(std::string raw_request);
 		int parseRequestHeader(std::string raw_request);
 
-		const std::string&	getHeaderContent(const std::string& header_title);
+		const std::string&	getHeaderContent(const std::string& header_title) const;
 		bool								isValid()const;
 		bool								isComplete() const;
 
@@ -59,8 +60,8 @@ class HTTPRequest
 		const 			std::string&	getBody(void) const; 
 		const 			headerMap_t&	getHeaderMap(void) const; 
 
+		int		addHeader(const std::string& key, const std::string& value);
 		void	setBody(const std::string& body);
-		int		addHeader(std::string key, std::string value);
 		void	setHTTPVersion(const std::string& http_version);
 		void 	setHTTPVersion(const int prior, const int minor);
 		void 	setHTTPVersion(const std::pair<int, int>& http_version);

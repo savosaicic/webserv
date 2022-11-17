@@ -110,11 +110,11 @@ int HTTPRequest::parseRequestLine(std::string raw_request)
 
 
 
-HTTPRequest::HTTPRequest(void): _to_parse(METHOD), _buffer("")
+HTTPRequest::HTTPRequest(void): _to_parse(METHOD)
 {
 }
 
-const std::string HTTPRequest::getNextWord(std::string& line)
+const std::string HTTPRequest::getNextWord(std::string& line) const
 {
 	std::string word;
 	line.erase(0, line.find_first_not_of(" "));
@@ -123,7 +123,7 @@ const std::string HTTPRequest::getNextWord(std::string& line)
 	return word;
 }
 
-const std::string HTTPRequest::getNextLine(std::string& line)
+const std::string HTTPRequest::getNextLine(std::string& line) const 
 {
 	std::string next_line;
 	if (line.find_first_of("\r\n"))
@@ -131,14 +131,14 @@ const std::string HTTPRequest::getNextLine(std::string& line)
 	return next_line;
 }
 
-const std::string& HTTPRequest::eraseFirstWord(std::string& line)
+const std::string& HTTPRequest::eraseFirstWord(std::string& line) const 
 {
 	if (line.find_first_of("		"))
 		line.erase(0, line.find_first_of(" ")+1);
 	return line;
 }
 
-const std::string& HTTPRequest::eraseCurrentLine(std::string& line)
+const std::string& HTTPRequest::eraseCurrentLine(std::string& line) const 
 {
 	if (line.find_first_of("\n"))
 		line.erase(0, line.find_first_of("\n")+1);
@@ -213,7 +213,7 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 	return (*this);
 }
 
-const std::string& HTTPRequest::getHeaderContent(const std::string& header_title)
+const std::string& HTTPRequest::getHeaderContent(const std::string& header_title) const
 {
 	headerMap_t::const_iterator it = _header_map.find(header_title);
 	if (it == _header_map.end())
@@ -300,7 +300,7 @@ void HTTPRequest::setHTTPVersion(const int prior, const int minor)
 	_http_version.second = minor;
 } 
 
-int HTTPRequest::addHeader(std::string key, std::string value)
+int HTTPRequest::addHeader(const std::string& key, const std::string& value)
 {
 	if (key.empty())
 		return (-1);
