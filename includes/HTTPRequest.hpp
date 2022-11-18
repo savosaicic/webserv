@@ -18,7 +18,7 @@ static const std::string Empty = "";
 class HTTPRequest
 {
 	private:
-		enum status_t {METHOD = 0, URI, VERSION, HEADER, BODY};
+		enum status_t {METHOD = 0, URI, VERSION, HEADER, BODY, END};
 	public:
 		enum method_t {GET = 0, POST, DELETE, INVALID};
 
