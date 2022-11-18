@@ -6,7 +6,7 @@
 /*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/05 08:43:21 by savosaicic       ###   ########.fr       */
+/*   Updated: 2022/11/18 19:08:46 by lefendie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ class TCPStream
 		uint32_t _triggered_events;
 		std::string _in_msg;
 		std::string _out_msg;
-		int _port;
 	
 	public:
 		TCPStream();

@@ -40,7 +40,7 @@ class HTTPRequest
 		int				extractHeaderMap(std::string &request);
 
 	public:
-		HTTPRequest(std::string raw_request);
+		//HTTPRequest(std::string raw_request);
 		HTTPRequest(void);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& src);

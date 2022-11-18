@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <sstream>
 
+/** DEPRECATED
+
 HTTPRequest::HTTPRequest(std::string raw_request)
 {
 	if (raw_request.find_first_not_of("	 "))
@@ -30,6 +32,7 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 	}
 	return ;
 }
+**/
 
 int HTTPRequest::parseRequestHeader(std::string raw_request)
 {
