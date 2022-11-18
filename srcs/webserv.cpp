@@ -7,6 +7,7 @@
 #include "CGIRequest.hpp"
 #include <vector>
 
+#include "CGIRequest.hpp"
 #include "Config.hpp"
 
 void  handle_connection(TCPListener& listener, TCPStream& stream)
@@ -33,17 +34,8 @@ void  handle_connection(TCPListener& listener, TCPStream& stream)
   }
 }
 
-int	main(int ac, char **av, char **envp)
+int	main(int argument_count, char **argument_value, char **environement_parameters)
 {
-	if (ac && av)
-	{
-			HTTPRequest raw("GET /cgi/hello.cgi?key1=value1&key2=value2 HTTP/1.1 \r\nAccept-Language: \nIf-Modified-Since: Fri, 10 Dec 2004 11:22:13 GMT\n\nBonjour a tousse");
-
-			CGIRequest cgi(raw, "cgi/", CGIRequest::PERL);
-			char **new_envp = cgi.prepareCGI(envp);
-			cgi.executeCGI(new_envp);
-	}
-
 	HTTPRequest request;
 
 	request.parseRequestLine("GE");
@@ -68,4 +60,11 @@ int	main(int ac, char **av, char **envp)
 	request.parseRequestHeader("\r\n");
 	request.parseRequestHeader("OUT OF BODY");
 	std::cout << request;
+	if (argument_count && argument_value)
+	{
+			HTTPRequest raw("POST /cgi/form.cgi?key1=value1&key2=value2 HTTP/1.1 \r\nAccept-Language: \r\nContent-Length: 16\r\nBonjour a tousse\r\n\r\n");
+
+			CGIRequest cgi(raw, "cgi/", "/bin/perl");
+			cgi.executeCGI(environement_parameters);
+	}
 }
