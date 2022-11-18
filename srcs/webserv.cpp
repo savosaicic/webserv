@@ -61,6 +61,12 @@ int	main(int ac, char **av, char **envp)
 	request.parseRequestHeader("\n");
 	request.parseRequestHeader("Content-ty");
 	request.parseRequestHeader("pe: html\r\n");
+	request.parseRequestHeader("\r\n");
+	request.parseRequestHeader("LORAINE IPSUME BLABLA LATIN");
+	request.parseRequestHeader("i\r\n");
+	request.parseRequestHeader("d\r\n");
+	request.parseRequestHeader("\r\n");
+	request.parseRequestHeader("OUT OF BODY");
 
 	std::cout << request;
 }

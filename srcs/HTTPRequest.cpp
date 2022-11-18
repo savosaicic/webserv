@@ -44,7 +44,15 @@ int HTTPRequest::parseRequestHeader(std::string raw_request)
 	ss << raw_request;
 	if (raw_request.find_first_of("\n") != std::string::npos)
 	{
-		while (std::getline(ss, line))
+		if (raw_request == CRLF)
+		{
+			if (_method == POST)
+				_to_parse = BODY;
+			else
+				_to_parse = END;
+			eraseCurrentLine(raw_request);
+		}
+		while (std::getline(ss, line) && _to_parse != END)
 		{
 			switch((int)_to_parse)
 			{
@@ -53,10 +61,12 @@ int HTTPRequest::parseRequestHeader(std::string raw_request)
 					eraseCurrentLine(raw_request);
 					break;
 				case BODY:
+					_body += raw_request;
+					eraseCurrentLine(raw_request);
+					if (line == CRLF)
+						_to_parse = END;
 					break;
-			}
-					
-				
+			}	
 		}
 	}
 	_buffer = raw_request;
