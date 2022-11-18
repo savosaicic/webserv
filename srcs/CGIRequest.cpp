@@ -70,6 +70,7 @@ void	CGIRequest::prepareCGI(char **path)
 	path[2] = NULL;
 }
 
+
 void CGIRequest::executeCGI(char **envp)
 {
 	int id;
@@ -82,25 +83,26 @@ void CGIRequest::executeCGI(char **envp)
 	pipe(pipe_output);
 
 	//Not permanent
-	write(pipe_input[0], _HTTP_request.getBody().data(), atoi(_HTTP_request.getHeaderContent("Content-Length").c_str()));
-	std::cout << "Body data: " << _HTTP_request.getBody().data() << "\nContent-Length :" << _HTTP_request.getHeaderContent("Content-Length").c_str();
+	write(pipe_input[1], _HTTP_request.getBody().data(), atoi(_HTTP_request.getHeaderContent("Content-Length").c_str()));
 	id = fork();
-
 	if (!id)
 	{
 		prepareCGI(path);
+
+		close(pipe_output[0]);
+		close(pipe_input[1]);
+
 		dup2(pipe_output[1], 1);
 		dup2(pipe_input[0], 0);
-		close(pipe_output[0]);
+
 		close(pipe_output[1]);
 		close(pipe_input[0]);
-		close(pipe_input[1]);
 		execve(path[0], path, envp);
 		perror("Error from child");
 	}
+	close(pipe_input[1]);
 	close(pipe_output[1]);
 	close(pipe_input[0]);
-	close(pipe_input[1]);
 	waitpid(id, &status, 0);
 	std::string s;
   

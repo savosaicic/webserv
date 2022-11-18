@@ -38,11 +38,9 @@ int	main(int argument_count, char **argument_value, char **environement_paramete
 {
 	HTTPRequest request;
 
-	request.parseRequestLine("GE");
-	request.parseRequestLine("T ");
-	request.parseRequestLine(" /");
-	request.parseRequestLine("ur");
-	request.parseRequestLine("i ");
+	request.parseRequestLine("PO");
+	request.parseRequestLine("ST ");
+	request.parseRequestLine(" /cgi/stdin.cgi ");
 	request.parseRequestLine("HT");
 	request.parseRequestLine("TP");
 	request.parseRequestLine("/1");
@@ -53,18 +51,20 @@ int	main(int argument_count, char **argument_value, char **environement_paramete
 	request.parseRequestHeader("\n");
 	request.parseRequestHeader("Content-ty");
 	request.parseRequestHeader("pe: html\r\n");
+	request.parseRequestHeader("Content-Length: 20");
+	request.parseRequestHeader("\r\n");
 	request.parseRequestHeader("\r\n");
 	request.parseRequestHeader("LORAINE IPSUME BLABLA LATIN");
-	request.parseRequestHeader("i\r\n");
+	request.parseRequestHeader(" i\r\n");
 	request.parseRequestHeader("d\r\n");
 	request.parseRequestHeader("\r\n");
 	request.parseRequestHeader("OUT OF BODY");
-	std::cout << request;
+	//std::cout << request;
 	if (argument_count && argument_value)
 	{
-			HTTPRequest raw("POST /cgi/form.cgi?key1=value1&key2=value2 HTTP/1.1 \r\nAccept-Language: \r\nContent-Length: 16\r\nBonjour a tousse\r\n\r\n");
+			//HTTPRequest raw("POST /cgi/form.cgi?key1=value1&key2=value2 HTTP/1.1 \r\nAccept-Language: \r\nContent-Length: 16\r\nBonjour a tousse\r\n\r\n");
 
-			CGIRequest cgi(raw, "cgi/", "/bin/perl");
+			CGIRequest cgi(request, "cgi/", "/bin/perl");
 			cgi.executeCGI(environement_parameters);
 	}
 }

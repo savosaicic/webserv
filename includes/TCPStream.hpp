@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   TCPStream.hpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/18 16:36:21 by lefendie         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef TCPSTREAM_H
 # define TCPSTREAM_H
 
@@ -28,7 +16,6 @@ class TCPStream
 		uint32_t _triggered_events;
 		std::string _in_msg;
 		std::string _out_msg;
-		//int _port;
 	
 	public:
 		TCPStream();
