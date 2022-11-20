@@ -11,12 +11,6 @@
 #include <signal.h>
 #include <ws_syscall_error.hpp>
 
-void  sigint_handler(int signal)
-{
-  if (signal == SIGINT)
-    listening = false;
-}
-
 int	main(void)
 {
 //	TCPListener	tcp;

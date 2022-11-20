@@ -4,6 +4,7 @@
 #include <map>
 #include <cstdlib>
 #include <sstream>
+#include <HTTPVersion.hpp>
 
 /** DEPRECATED
 HTTPRequest::HTTPRequest(std::string raw_request)
@@ -119,9 +120,6 @@ int HTTPRequest::parseRequestLine(std::string raw_request)
 	return (0);
 }
 
-
-
-
 HTTPRequest::HTTPRequest(void): _to_parse(METHOD)
 {
 }
@@ -175,13 +173,10 @@ HTTPRequest::method_t HTTPRequest::extractMethod(const std::string& method)
 
 void HTTPRequest::extractVersion(std::string http_version)
 {
-	std::pair<int, int> ret;
-	int first;
-	int second;
+	int major;
+	int minor;
 	std::string temp;
 
-	first = -1;
-	second = -1;
 	http_version.erase(0, http_version.find_first_not_of("	"));
 	if (http_version.size() > 4)
 	{
@@ -190,15 +185,15 @@ void HTTPRequest::extractVersion(std::string http_version)
 			temp = (http_version.substr(5, http_version.find(".") - 5));
 			if (!temp.empty() && temp.find_first_not_of("0123456789") == std::string::npos)
 			{
-				first = ::atoi(temp.c_str());
+				major = ::atoi(temp.c_str());
 				http_version.erase(0, 6 + temp.size());
 				temp = http_version.substr(0, http_version.find_first_not_of("0123456789"));
 				if (!temp.empty())
-					second = ::atoi(http_version.c_str());
+					minor = ::atoi(http_version.c_str());
 			}
 		}
 	}
-	_http_version = std::make_pair(first, second);
+	_http_version = HTTPVersion(major, minor);
 }
 
 HTTPRequest::~HTTPRequest(void)
@@ -241,8 +236,8 @@ bool HTTPRequest::isValid() const
 	std::map<std::string, std::string>::const_iterator it;
 	if (_method == INVALID)
 		return (false);
-	if (_http_version.first == -1 || _http_version.second == -1)
-		return (false);
+//	if (_http_version.first == -1 || _http_version.second == -1)
+//		return (false);
 	it = _header_map.find("");
 	if (it != _header_map.end())
 		return (false);
@@ -253,7 +248,7 @@ bool HTTPRequest::isValid() const
 
 bool HTTPRequest::isComplete() const
 {
-	if (_uri.empty() || _http_version.first == 0 || _method == INVALID)
+	if (_uri.empty() || _http_version.getMajor() == 0 || _method == INVALID)
 		return (false);
 	return (true);	
 }
@@ -279,7 +274,7 @@ const std::string&	HTTPRequest::getUri(void) const
 		return (_uri);
 }
 
-const std::pair<int, int>&	HTTPRequest::getHTTPVersion(void) const
+const HTTPVersion&	HTTPRequest::getHTTPVersion(void) const
 {
 		return (_http_version);
 }
@@ -304,15 +299,15 @@ void HTTPRequest::setUri(const std::string& uri)
 	_uri = uri;
 }
 
-void HTTPRequest::setHTTPVersion(const std::pair<int, int>& http_version)
+void HTTPRequest::setHTTPVersion(const HTTPVersion& http_version)
 {
 	_http_version = http_version;
 }
 
-void HTTPRequest::setHTTPVersion(const int prior, const int minor)
+void HTTPRequest::setHTTPVersion(const int major, const int minor)
 {
-	_http_version.first = prior;
-	_http_version.second = minor;
+	_http_version.setMajor(major);
+	_http_version.setMinor(minor);
 } 
 
 int HTTPRequest::addHeader(const std::string& key, const std::string& value)
@@ -345,7 +340,7 @@ std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 		out << "method: " << stream.getMethod() << std::endl;
 		out << "uri: " << stream.getUri() << std::endl;
 
-		out << "version: " << stream.getHTTPVersion().first << '.' << stream.getHTTPVersion().second << std::endl;
+		out << "version: " << stream.getHTTPVersion().getMajor() << '.' << stream.getHTTPVersion().getMinor() << std::endl;
 		out << "Header list:" << std::endl;
 		headerMap_t header_map = stream.getHeaderMap();
 		for(headerMap_t::const_iterator it = header_map.begin();it != header_map.end(); it++)
