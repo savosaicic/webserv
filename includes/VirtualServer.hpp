@@ -36,6 +36,9 @@ class VirtualServer
 
     class Location
     {
+      public:
+        typedef std::vector<std::string> index_list_t;
+
       private:
         std::string   _location;
         std::string   _docroot;
@@ -43,7 +46,7 @@ class VirtualServer
         Redirection   _redirection;
         bool          _redirection_set;
 
-        std::vector<std::string>  _index_list;
+        index_list_t  _index_list;
 
         std::vector<HTTPRequest::method_t>     _allowed_method_list;
 
@@ -66,8 +69,13 @@ class VirtualServer
         bool	getAutoindex() const;
         bool  isRedirectionSet() const;
         const Redirection&  getRedirection() const;
-        bool	isIndexInList(const std::string& index) const;
+        bool  isIndexInList(const std::string& index) const;
         bool	isMethodAllowed(const HTTPRequest::method_t method) const;
+
+        index_list_t::iterator        indexBegin();
+        index_list_t::iterator        indexEnd();
+        index_list_t::const_iterator  indexBegin() const;
+        index_list_t::const_iterator  indexEnd() const;
     };
 
   private:

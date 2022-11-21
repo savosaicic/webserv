@@ -31,11 +31,11 @@ class status_code
 class mime_types
 {
   private:
-    static const  std::map<std::string, std::string>  _content_type;
-    static const  std::map<std::string, std::string>&  _init_tree();
+    static const  std::map<std::string, std::string>  _mime_tree;
+    static const  std::map<std::string, std::string>  _init_tree();
 
   public:
-    static const std::string& get_content_type(const std::string& rooted_uri);
+    static const char* content_type(const std::string& rooted_uri);
 
     static const char* application_octet_stream;
     static const char* application_javascript;

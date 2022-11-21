@@ -1,4 +1,36 @@
 #include <http_utils.hpp>
+#include <string>
+
+const std::map<std::string, std::string> mime_types::_mime_tree =
+  mime_types::_init_tree();
+
+const  std::map<std::string, std::string>  mime_types::_init_tree()
+{
+  std::map<std::string, std::string>  tree;
+  tree[".js"] = application_javascript;
+  tree[".ts"] = application_typescript;
+  tree[".json"] = application_json;
+  tree[".pdf"] = application_pdf;
+  tree[".html"] = text_html;
+  tree[".css"] = text_css;
+  tree[".jpg"] = image_jpeg;
+  tree[".jpeg"] = image_jpeg;
+  tree[".png"] = image_png;
+  tree[".gif"] = image_gif;
+  tree[".svg"] = image_svg;
+  tree[".otf"] = font_otf;
+  return tree;
+}
+
+const char*  mime_types::content_type(const std::string& rooted_uri)
+{
+  if (_mime_tree.find( rooted_uri.substr(rooted_uri.find_last_of('.')))
+      != _mime_tree.end()) {
+    return _mime_tree.find(rooted_uri.substr(
+          rooted_uri.find_last_of('.')))->second.c_str();
+  }
+  return mime_types::application_octet_stream;
+}
 
 const char* http_headers::server = "Server";
 const char* http_headers::connection = "Connection";

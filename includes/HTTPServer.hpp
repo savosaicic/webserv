@@ -3,8 +3,10 @@
 
 #include "IPAddress.hpp"
 #include "TCPStream.hpp"
+#include "VirtualServer.hpp"
 #include <TCPListener.hpp>
 #include <Config.hpp>
+#include <fstream>
 #include <string>
 #include <signal.h>
 #include <HTTPStream.hpp>
@@ -37,6 +39,8 @@ class HTTPServer
     void  _setStreamResponse(HTTPStream& stream,
         int status, const std::string& body,
         const std::string& content_type = mime_types::application_octet_stream);
+    int   _openURI(const VirtualServer::Location& location_conf,
+        std::string& rooted_uri, std::ifstream* fstream);
 
   private:
     TCPListener _listener;
