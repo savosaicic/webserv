@@ -73,7 +73,9 @@ void  Config::parseConfigFile(const char* filename)
   location_two.allowMethod(HTTPRequest::GET);
   location_two.setRedirection(location_redirection);
 
-  server.addErrorPage(404, "404.html");
+  server.addErrorPage(403, "www/403.html");
+  server.addErrorPage(404, "www/404.html");
+  server.addErrorPage(500, "www/500.html");
   server.setListeningHost("0.0.0.0");
   server.setListeningPort("9090");
   server.addServerName("0.0.0.0");

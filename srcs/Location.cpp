@@ -107,3 +107,19 @@ bool  VirtualServer::Location::isMethodAllowed(const HTTPRequest::method_t metho
     return true;
   return false;
 }
+
+VirtualServer::Location::index_list_t::iterator
+VirtualServer::Location::indexBegin()
+{ return _index_list.begin(); }
+
+VirtualServer::Location::index_list_t::iterator
+VirtualServer::Location::indexEnd()
+{ return _index_list.end(); }
+
+VirtualServer::Location::index_list_t::const_iterator
+VirtualServer::Location::indexBegin() const
+{ return _index_list.begin(); }
+
+VirtualServer::Location::index_list_t::const_iterator
+VirtualServer::Location::indexEnd() const
+{ return _index_list.end(); }

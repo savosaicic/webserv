@@ -1,10 +1,14 @@
+#include "HTTPRequest.hpp"
+#include "HTTPStream.hpp"
 #include "TCPStream.hpp"
 #include "VirtualServer.hpp"
 #include <HTTPServer.hpp>
 #include <default_conf_value.hpp>
 #include <exception>
 #include <fstream>
+#include <ios>
 #include <iostream>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <sys/epoll.h>
@@ -12,6 +16,12 @@
 #include <ctime>
 #include <utils.hpp>
 #include <HTTPResponse.hpp>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <ws_syscall_error.hpp>
+#include <ext/stdio_filebuf.h>
+#include <fcntl.h>
 
 #include <stdlib.h>
 
@@ -50,6 +60,37 @@ std::string getRootedURI(std::string uri, const std::string& location,
     const std::string& docroot)
 {
   return docroot + "/" + uri.erase(0, location.size());
+}
+
+int HTTPServer::_openURI(const VirtualServer::Location& location_conf,
+    std::string& rooted_uri, std::ifstream* fstream)
+{
+  if (*rooted_uri.rbegin() == '/') {
+    struct stat statbuf;
+    VirtualServer::Location::index_list_t::const_iterator it;
+    for (it = location_conf.indexBegin();
+        it != location_conf.indexEnd(); ++it) {
+      if (stat((rooted_uri + *it).c_str(), &statbuf) == -1)
+        continue;
+      if (statbuf.st_mode & S_IFREG && !(statbuf.st_mode & S_IRUSR))
+        return -1;
+      else if (statbuf.st_mode & S_IFREG && statbuf.st_mode & S_IRUSR) {
+        rooted_uri.append(*it);
+        fstream->open(rooted_uri.c_str(),
+            std::ios::in | std::ios::binary);
+        break ;
+      }
+    }
+  }
+  else {
+    struct stat statbuf;
+    if (stat(rooted_uri.c_str(), &statbuf) == -1)
+      return 0;
+    if (statbuf.st_mode & S_IFREG && !(statbuf.st_mode & S_IRUSR))
+      return -1;
+    fstream->open(rooted_uri.c_str(), std::ios::in | std::ios::binary);
+  }
+  return 0;
 }
 
 void  HTTPServer::_setStreamResponse(HTTPStream& stream,
@@ -148,9 +189,15 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
       stream.getLocationConfig().getLocationPath(),
       stream.getLocationConfig().getDocroot());
 
-  std::ifstream file(rooted_uri.c_str(), std::ios::binary | std::ios_base::in);
-  //TODO: check permissions
-  if (!file.is_open())
+  std::ifstream ressource;
+  if (_openURI(stream.getLocationConfig(), rooted_uri, &ressource) == -1)
+  {
+    _setStreamResponse(stream, status_code::http_forbidden,
+        stream.getVirtualServer().getErrorPage(status_code::http_forbidden),
+        mime_types::text_html);
+    return ;
+  }
+  else if (!ressource.is_open())
   {
     _setStreamResponse(stream, status_code::http_not_found,
         stream.getVirtualServer().getErrorPage(status_code::http_not_found),
@@ -158,12 +205,11 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
     return ;
   }
   std::string body =
-    std::string(std::istreambuf_iterator<char>(file),
+    std::string(std::istreambuf_iterator<char>(ressource),
         std::istreambuf_iterator<char>());
 
-  //TODO, determine the content_type based on rooted_uri extension
   _setStreamResponse(stream, status_code::http_ok, body,
-      mime_types::text_html);
+      mime_types::content_type(rooted_uri));
   return ;
 }
 
