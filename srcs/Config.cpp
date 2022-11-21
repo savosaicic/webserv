@@ -61,7 +61,7 @@ void  Config::parseConfigFile(const char* filename)
   location_redirection.setStatusCode(301);
 
   location.setLocationPath("/");
-  location.setDocroot("/default/path");
+  location.setDocroot("/mnt/nfs/homes/sasaicic/webserv/www");
   location.setAutoindex(false);
   location.addIndexFileToList("index.html");
   location.allowMethod(HTTPRequest::GET);

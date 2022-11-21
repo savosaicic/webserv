@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <HTTPStream.hpp>
 #include <map>
+#include <http_utils.hpp>
 
 extern volatile sig_atomic_t listening;
 
@@ -33,6 +34,9 @@ class HTTPServer
     void  _init();
     void  _handleConnection(TCPStream& stream);
     void  _handleRequest(HTTPStream& stream);
+    void  _setStreamResponse(HTTPStream& stream,
+        int status, const std::string& body,
+        const std::string& content_type = mime_types::application_octet_stream);
 
   private:
     TCPListener _listener;

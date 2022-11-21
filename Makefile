@@ -15,7 +15,10 @@ SRCS := webserv.cpp \
 		HTTPStream.cpp \
 		utils.cpp \
 		HTTPVersion.cpp \
-		Redirection.cpp
+		Redirection.cpp \
+		HTTPResponse.cpp \
+		http_utils.cpp \
+
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj

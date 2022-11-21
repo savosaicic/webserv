@@ -3,6 +3,7 @@
 #include <HTTPServer.hpp>
 #include <default_conf_value.hpp>
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -10,6 +11,9 @@
 #include <utility>
 #include <ctime>
 #include <utils.hpp>
+#include <HTTPResponse.hpp>
+
+#include <stdlib.h>
 
 volatile sig_atomic_t listening = true;
 
@@ -48,6 +52,21 @@ std::string getRootedURI(std::string uri, const std::string& location,
   return docroot + "/" + uri.erase(0, location.size());
 }
 
+void  HTTPServer::_setStreamResponse(HTTPStream& stream,
+    const int status, const std::string& body,
+    const std::string& content_type)
+{
+  HTTPResponse response(status, body, content_type);
+
+  response.addHeader(http_headers::server, "webserv 0.1");
+  response.addHeader(http_headers::connection, "close");
+
+  stream.tcp().setOutMessage(response.raw());
+  _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
+  _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
+  logRequest(stream.tcp().getIPAddr(), stream.getRequest(), status);
+}
+
 void  HTTPServer::_handleRequest(HTTPStream& stream)
 {
   // This is temporary (waiting for HTTPRequest to be finished)
@@ -60,16 +79,9 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   if (!stream.getRequest().isValid())
   {
     std::cout << "invalid request\n";
-
-    headerMap_t headers;
-    headers.insert(std::make_pair("Content-type", "text/html"));
-    stream.setResponse(HTTPVersion(1, 1),
-        500, "Invalid Request", headers,
-        stream.getVirtualServer().getErrorPage(500)
-    );
-    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
-    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
+    _setStreamResponse(stream, status_code::http_bad_request,
+        stream.getVirtualServer().getErrorPage(status_code::http_bad_request),
+        mime_types::text_html);
     return ;
   }
 
@@ -84,16 +96,9 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   } catch (const std::exception& e) {
     // Server block not found (this is temporary)
     std::cout << "server block not found\n";
-
-    headerMap_t headers;
-    headers.insert(std::make_pair("Content-type", "text/html"));
-    stream.setResponse(HTTPVersion(1, 1),
-        500, "Server Block not found", headers,
-        stream.getVirtualServer().getErrorPage(500)
-    );
-    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
-    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
+    _setStreamResponse(stream, status_code::http_internal_error,
+        stream.getVirtualServer().getErrorPage(status_code::http_internal_error),
+        mime_types::text_html);
     return ;
   }
 
@@ -101,17 +106,8 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   // Write something cleaner than this
   if (stream.getVirtualServer().isRedirectionSet())
   {
-    headerMap_t headers;
-    headers.insert(std::make_pair("Location",
-          stream.getVirtualServer().getRedirection().getLocation()));
-
-    stream.setResponse(HTTPVersion(1, 1),
-        301, "Moved Permanently", headers, ""
-    );
-
-    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
-    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 301);
+    _setStreamResponse(stream, status_code::http_moved_permanently,
+        std::string());
     return ;
   }
 
@@ -124,48 +120,26 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   catch (const std::exception& e)
   {
     std::cout << "location block not found\n";
-
-    headerMap_t headers;
-    headers.insert(std::make_pair("Content-type", "text/html"));
-    stream.setResponse(HTTPVersion(1, 1),
-        500, "Location Block not found", headers,
-        stream.getVirtualServer().getErrorPage(500)
-    );
-    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
-    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 500);
+    _setStreamResponse(stream, status_code::http_internal_error,
+        stream.getVirtualServer().getErrorPage(
+          status_code::http_internal_error), mime_types::text_html);
     return ;
   }
 
   //If the Location have a redirection, no need to go further
   if (stream.getLocationConfig().isRedirectionSet())
   {
-    headerMap_t headers;
-    headers.insert(std::make_pair("Location",
-          stream.getLocationConfig().getRedirection().getLocation()));
-
-    stream.setResponse(HTTPVersion(1, 1),
-        301, "Moved Permanently", headers, ""
-    );
-
-    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
-    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 301);
+    _setStreamResponse(stream, status_code::http_moved_permanently,
+        std::string());
     return ;
   }
 
   //Check if Method is allowed in this context
   if (!stream.getLocationConfig().isMethodAllowed(stream.getRequest().getMethod()))
   {
-    headerMap_t headers;
-    headers.insert(std::make_pair("Content-type", "text/html"));
-    stream.setResponse(HTTPVersion(1, 1),
-        405, "Method not allowed", headers,
-        stream.getVirtualServer().getErrorPage(405)
-    );
-    _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
-    _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-    logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 405);
+    _setStreamResponse(stream, status_code::http_not_allowed,
+        stream.getVirtualServer().getErrorPage(status_code::http_not_allowed),
+        mime_types::text_html);
     return ;
   }
 
@@ -174,20 +148,23 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
       stream.getLocationConfig().getLocationPath(),
       stream.getLocationConfig().getDocroot());
 
+  std::ifstream file(rooted_uri.c_str(), std::ios::binary | std::ios_base::in);
+  //TODO: check permissions
+  if (!file.is_open())
+  {
+    _setStreamResponse(stream, status_code::http_not_found,
+        stream.getVirtualServer().getErrorPage(status_code::http_not_found),
+        mime_types::text_html);
+    return ;
+  }
+  std::string body =
+    std::string(std::istreambuf_iterator<char>(file),
+        std::istreambuf_iterator<char>());
 
-  // Temporary
-  headerMap_t headers;
-  headers.insert(std::make_pair("Content-type", "text/html"));
-  stream.setResponse(HTTPVersion(1,1), 200, "Ok", headers,
-      "<html><head><title>42 webserv WIP</title></head> \
-      <body><center><h1>42 webserv WIP</h1>\
-      <p>The requested uri: \'" + stream.getRequest().getUri() +
-      "\' is mapped to: " + rooted_uri +
-      "</p></center></body></html>"
-  );
-  _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
-  _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
-  logRequest(stream.tcp().getIPAddr(), stream.getRequest(), 200);
+  //TODO, determine the content_type based on rooted_uri extension
+  _setStreamResponse(stream, status_code::http_ok, body,
+      mime_types::text_html);
+  return ;
 }
 
 void  HTTPServer::_handleConnection(TCPStream& stream)
