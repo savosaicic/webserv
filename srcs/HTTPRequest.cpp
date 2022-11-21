@@ -42,27 +42,27 @@ int HTTPRequest::parseRequestHeader(std::string raw_request)
 	ss << raw_request;
 	if (raw_request.find_first_of("\n") != std::string::npos)
 	{
-		if (raw_request == CRLF)
-		{
-			if (_method == POST)
-				_to_parse = BODY;
-			else
-				_is_complete = true;
-			eraseCurrentLine(raw_request);
-		}
 		while (std::getline(ss, line) && _is_complete == false && _is_valid)
 		{
 			switch((int)_to_parse)
 			{
 				case HEADER:
+					if (raw_request == CRLF)
+					{
+						if (_method == POST)
+							_to_parse = BODY;
+						else
+							_is_complete = true;
+						break;
+					}
 					extractHeaderMap(line);
 					eraseCurrentLine(raw_request);
 					break;
 				case BODY:
 					_body += raw_request;
-					eraseCurrentLine(raw_request);
-					if (line == CRLF)
+					if (raw_request == CRLF)
 						_is_complete = true;
+					eraseCurrentLine(raw_request);
 					break;
 			}
 		}
