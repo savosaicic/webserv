@@ -78,7 +78,8 @@ void  Config::parseConfigFile(const char* filename)
   server.addErrorPage(500, "www/500.html");
   server.setListeningHost("0.0.0.0");
   server.setListeningPort("9090");
-  server.addServerName("0.0.0.0");
+  server.addServerName("0.0.0.0"); // Temporary
+  server.addServerName("localhost");
   server.addLocation(location);
   server.addLocation(location_two);
 //  server.setRedirection(redirection);
