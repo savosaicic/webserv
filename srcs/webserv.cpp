@@ -30,8 +30,10 @@ int	main(void)
 //  }
 	HTTPRequest request;
 
-	request.parseRequestLine("GE");
-	request.parseRequestLine("T ");
+//	request.parseRequestLine("GE");
+//	request.parseRequestLine("T ");
+	request.parseRequestLine("POST");
+	request.parseRequestLine(" ");
 	request.parseRequestLine(" /");
 	request.parseRequestLine("ur");
 	request.parseRequestLine("i ");
