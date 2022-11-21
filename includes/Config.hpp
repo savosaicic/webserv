@@ -13,19 +13,19 @@ enum ContextFlag {
 };
 
 #define DIRECTIVES \
-X(SERV, "server", int(HTTP)) \
-X(CGI, "cgi", int(SERVER)) \
-X(LISTEN, "listen", int(SERVER)) \
-X(LOC, "location", int(SERVER)) \
-X(SERVER_NAME, "server_name", int(SERVER)) \
-X(LIMIT_EXCEPT, "limit_except", int(LOCATION)) \
-X(ROOT, "root", int(HTTP|SERVER|LOCATION)) \
-X(RETURN, "return", int(SERVER|LOCATION)) \
-X(CLIENT_MAX_BODY_SIZE, "client_max_body_size", int(HTTP|SERVER|LOCATION)) \
-X(ERROR_PAGE, "error_page", int(HTTP|SERVER|LOCATION))\
-X(AUTOINDEX, "autoindex",int(HTTP|SERVER|LOCATION)) \
-X(INDEX, "index", int(HTTP|SERVER|LOCATION)) \
-X(LAST, "unknown", 0)
+X(SERV, "server", int(HTTP), parse_server) \
+X(CGI, "cgi", int(SERVER), parse_cgi) \
+X(LISTEN, "listen", int(SERVER), parse_listen) \
+X(LOC, "location", int(SERVER), parse_location) \
+X(SERVER_NAME, "server_name", int(SERVER), parse_server_name) \
+X(FORBID_METHOD, "forbid_method", int(LOCATION), parse_forbid_method) \
+X(ROOT, "root", int(HTTP|SERVER|LOCATION), parse_root) \
+X(RETURN, "return", int(SERVER|LOCATION), parse_return) \
+X(CLIENT_MAX_BODY_SIZE, "client_max_body_size", int(HTTP|SERVER|LOCATION), parse_client_max_body_size) \
+X(ERROR_PAGE, "error_page", int(HTTP|SERVER|LOCATION), parse_error_page) \
+X(AUTOINDEX, "autoindex",int(HTTP|SERVER|LOCATION), parse_autoindex) \
+X(INDEX, "index", int(HTTP|SERVER|LOCATION), parse_index) \
+X(LAST, "unknown", 0, parse_unknown)
 
 class Config
 {

@@ -16,14 +16,14 @@ server {
 		error_page 404	/404.html;
 
 		# 4) Limit client body size
-		client_max_body_size	100M;
+		client_max_body_size	100B;
 
 
 		# 5) Setup routes with one or multiple of the following rules/configuration			
 			# Define a directory or a file from where the file should be searched
 			location /  {
 				# Define a list of accepted HTTP methods for the route
-				limit_except	GET; #better limit then define what we accept
+				forbid_method GET; #better limit then define what we accept
 				root	/data/www;
 				# Turn on or off directory listing. 
 				autoindex	on;

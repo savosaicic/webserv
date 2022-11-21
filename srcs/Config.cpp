@@ -6,12 +6,13 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/27 16:31:11 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/22 15:33:43 by abiju-du         ###   ########.fr       */
+/*   Updated: 2022/11/22 15:34:52 by abiju-du         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 #include "VirtualServer.hpp"
+#include "HTTPRequest.hpp"
 #include <iostream>
 #include <fstream>
 #include <cerrno>
@@ -26,17 +27,18 @@
 
 #include <algorithm>
 
-#define X(index, name, allowed_context) index,
+#define X(index, name, allowed_context, parse_fun) index,
     enum Directive { DIRECTIVES };
 #undef X
 
-#define X(index, name, allowed_context) name,
+#define X(index, name, allowed_context, parse_fun) name,
     static char const *directive_name[] = { DIRECTIVES };
 #undef X
 
-#define X(index, name, allowed_context) allowed_context,
+#define X(index, name, allowed_context, parse_fun) allowed_context,
     static int context_flag[] = { DIRECTIVES };
-#undef X    
+#undef X
+
 
 Config::Config() : _defined(false)
 {}
@@ -58,21 +60,386 @@ Config& Config::operator=(const Config& rhs)
   return *this;
 }
 
-// int Config::checkContext( std::string line )
-// {
+bool check_ip( std::string ip )
+{
+  int dot;
+  int octet[4] = {-1, -1, -1, -1};
+  char* cip = (char*)ip.c_str();
+
+  dot = std::count(ip.begin(), ip.end(), '.');
+  if (dot != 3)
+    return (false);
+  octet[0] = std::atoi(std::strtok((char*)ip.c_str(), "."));
+  for (int i = 1; cip != NULL; ++i)
+  {
+    cip = (char*)std::strtok(NULL, ".");
+    if (cip)
+      octet[i] = std::atoi((const char*)cip);
+  }
+  for (int i = 0; i < 4; ++i)
+  {
+    if (octet[i] < 0 || octet[i] > 255)
+      return (false);
+  }
+  return (true);
+}
+
+bool check_port( std::string port )
+{
+  if ((size_t)std::count_if(port.begin(), port.end(), isdigit) != port.size())
+    return (false);
+  int n = atoi(port.c_str());
+  if (n < 1 || n > 65535)
+    return (false);
+  return true;
+}
+
+bool  check_extention( const std::string &current_word )
+{
+  if (current_word[0] != '.')
+    return (false);
+  long unsigned int n = std::count_if(current_word.begin() + 1, current_word.end(), isalpha);
+  if (n + 1 != current_word.size())
+    return (false);
+  return (true);
+}
+
+bool isuri(const std::string &current_word)
+{
+  long unsigned int slash;
+  long unsigned int alnum;
+  long unsigned int underscore;
+  long unsigned int hyphen;
+  long unsigned int dot;
+
+  slash = std::count(current_word.begin(), current_word.end(), ('/'));
+  alnum = std::count_if(current_word.begin(), current_word.end(),isalnum);
+  hyphen = std::count(current_word.begin(), current_word.end(),'-');
+  dot = std::count(current_word.begin(), current_word.end(),'.');
+  underscore = std::count(current_word.begin(), current_word.end(),'-');
+
+  if (slash + alnum + underscore + hyphen + dot != current_word.size())
+    return (false);
+  return (true);
+}
+
+bool ispath(const std::string &current_word)
+{
+  if (*current_word.begin() != '/' || (current_word.size() != 1 && *current_word.rbegin() == '/'))
+    return (false);
+  return (isuri(current_word));
+}
+
+void parse_listen( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)location;
+  (void)redirection;
+  int dot;
+  int dotdot;
+  char* ip;
+  std::string host;
+  const char* port;
+
+  if (words_count == 1)
+    return ;
+  else if (words_count > 2)
+    throw std::runtime_error("Wrong number of words in listen directive line\n");
+  dotdot = std::count(current_word.begin(), current_word.end(), ':');
+  dot = std::count(current_word.begin(), current_word.end(), '.');
+  if (dotdot == 1)
+  {
+    if (dot != 3)
+      throw std::runtime_error("Non valid ip format in listen directive\n");
+    ip = std::strtok((char*)current_word.c_str(), ":");
+    port = std::strtok(NULL, ":");
+    if (check_ip(ip) == false)
+      throw std::runtime_error("Wrong IP adress format in listen directive\n");
+    if (check_port(port) == false)
+      throw std::runtime_error("Wrong port format in listen directive\n");
+  }
+  else if (!dotdot)
+  {
+    if (check_port(current_word) == false)
+      throw std::runtime_error("Wrong port format in listen directive\n");
+    port = current_word.c_str();
+    ip = NULL;
+  }
+  else
+    throw std::runtime_error("Wrong format in listen directive line\n");
+  if (ip)
+    server.setListeningHost(ip);
+  server.setListeningPort(port);
+  return ;
+}
+
+void parse_server( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)location;
+  (void)redirection;
+  if (words_count == 1)
+    return ;
+  else if (words_count > 2)
+    throw std::runtime_error("Too much words in server directive line\n");
+  else if (current_word != "{")
+      throw std::runtime_error("Wrong word in server directive line. expected:'{'\n");
+  return ;
+}
+
+void parse_cgi( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)location;
+  (void)redirection;
+
+  std::string extension;
+
+  if (words_count == 1)
+    return ;
+  if (words_count > 3)
+    throw std::runtime_error("Too much words in cgi directive line\n");
+  if (words_count == 2)
+  {
+    if (!check_extention(current_word))
+      throw std::runtime_error("Wrong extention format in cgi directive line\n");
+    return ;
+  }
+  if (words_count == 3 && !ispath(current_word))
+    throw std::runtime_error("Wrong path format in cgi directive line\n");
+  // server.addCGI(previous_word, current_word);
+  std::cout << "server.addCGI(\"" << previous_word << "\", \"" << current_word << "\");" << std::endl;
   
-// }
+}
+
+void parse_location( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)redirection;
+
+  if (words_count == 1)
+    return ;
+  else if (words_count == 2 && !ispath(current_word))
+    throw std::runtime_error("Error while parsing location directive line\n");
+  else if (words_count == 3 && current_word != "{")
+    throw std::runtime_error("Error while parsing locarion directive line\n");
+  else if (words_count > 3)
+    throw std::runtime_error("Error while parsing locafion directive line\n");
+  if (words_count == 2)
+    location.setLocationPath(current_word);
+}
+
+void parse_server_name( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)location;
+  (void)redirection;
+  (void)words_count;
+
+  if (words_count == 1)
+    return ;
+
+  uint alnum = std::count_if(current_word.begin(), current_word.end(), isalnum);
+  uint dot = std::count_if(current_word.begin(), current_word.end(), ispunct);
+  
+  if (alnum + dot == current_word.size() && words_count > 1)
+    server.addServerName(current_word);
+}
+
+void parse_forbid_method( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)redirection;
+  (void)words_count;  
+
+  if (current_word == "GET") { std::cout << "Forbiden method: " << current_word << " in "<< location.getLocationPath() << std::endl; }
+    // location.forbidMethod(HTTPRequest::GET);
+  else if (current_word == "POST") { std::cout << "Forbiden method: " << current_word << " in "<< location.getLocationPath() << std::endl; }
+    // location.forbidMethod(HTTPRequest::POST);
+  else if (current_word == "DELETE") { std::cout << "Forbiden method: " << current_word << " in "<< location.getLocationPath() << std::endl; }
+    // location.forbidMethod(HTTPRequest::DELETE);
+}
+
+void parse_root( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)redirection;
+
+  if (words_count > 2)
+    throw std::runtime_error("Too much words in root directive line");
+  if (words_count == 2 ) {
+    if (!ispath(current_word))
+      throw std::runtime_error("Wrong path format in root directive line");
+    if (std::count(current_word.begin(), current_word.end(), '.'))
+      throw std::runtime_error("No dots accepted in root path");
+    location.setDocroot(current_word);
+  }
+}
+
+void parse_return( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)location;
+
+  if (words_count > 3)
+    throw std::runtime_error("Too much words in return directive line");
+  if (words_count == 3 ) {
+    uint dotdot = count(current_word.begin(), current_word.end(), ':');
+    if (dotdot) {
+      std::strtok((char*)current_word.c_str(), ":");
+      if (!isuri(std::strtok(NULL, ":")) || dotdot > 1)
+        throw std::runtime_error("Wrong uri format in return directive line");
+    }
+    redirection.setLocation(current_word);
+    // redirection.setRedirectionOn();
+  }
+  if (words_count == 2) {
+    uint digits = std::count_if(current_word.begin(), current_word.end(), isdigit);
+    int status_code = atoi(current_word.c_str());
+
+    if (digits != current_word.size())
+      throw std::runtime_error("Status code must be a number in return directive line");
+    if (status_code < 300 || status_code > 399)
+      throw std::runtime_error("Status code must be a number between 300 and 399 for redirection. Error in return directive line");
+    redirection.setStatusCode(status_code);
+  }
+}
+void parse_client_max_body_size( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)location;
+  (void)redirection;
+  (void)words_count;  
+
+  if (words_count < 2 || words_count > 2)
+    return ;
+
+  uint max_body_size = 0;
+  std::string copy = current_word;
+
+  int mult;
+  if (std::isalpha(*current_word.rbegin())) {
+    if (*current_word.rbegin() == 'B' || *current_word.rbegin() == 'b')
+      mult = 1;
+    else if (*current_word.rbegin() == 'M' || *current_word.rbegin() == 'm')
+      mult = 1000;
+    else if (*current_word.rbegin() == 'G' || *current_word.rbegin() == 'g')
+      mult = 1000000;
+    else
+      throw std::runtime_error("The mesure unit of the client max body size must be \'B\' for bytes, \'M\' for mega bytes or \'G\' for giga bytes");
+    for (std::string::reverse_iterator it = copy.rbegin() + 1; it != copy.rend(); ++it) {
+      if (!isdigit(*it))
+        throw std::runtime_error("Size of max body must be a number");
+      else {
+        max_body_size += (*it - 48) * mult;
+        mult *= 10;
+      }
+    }
+  }
+  if (max_body_size)
+    server.setClientMaxBodySize(max_body_size);
+}
+void parse_error_page( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)location;
+  (void)redirection;
+
+  uint16_t error_code;
+
+  if (words_count == 1)
+    return ;
+  if (words_count == 2) {
+    uint digits = std::count_if(current_word.begin(), current_word.end(), isdigit);
+    if (digits != 3 || digits != current_word.size())
+      throw std::runtime_error("Code for error page must be a three digits number");
+    error_code = atoi(current_word.c_str());
+    if (error_code < 400 || error_code > 599)
+      throw std::runtime_error("Code for error page must be between 400 and 599");
+  }
+  else if (words_count == 3) {
+    if (!ispath(current_word))
+      throw std::runtime_error("Wrong error page path format");
+    error_code = atoi(previous_word.c_str());
+    server.addErrorPage(error_code, current_word);
+  }
+  else
+    throw std::runtime_error("Too much words in error page directive line");
+}
+void parse_autoindex( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)redirection;
+
+  if (words_count == 1)
+    return ;
+  else if (words_count == 2) {
+    if (current_word == "on")
+      location.setAutoindex(true);
+    else if (current_word == "off")
+      location.setAutoindex(false);
+    else
+      throw std::runtime_error("Autoindex settings must be either \'on\' or \'off\'");
+  }
+  else
+    throw std::runtime_error("Too much words in autoindex directive line");
+}
+void parse_index( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)location;
+  (void)redirection;
+  (void)current_word;
+  (void)words_count;  
+
+  if (words_count == 1)
+    return ;
+  else if (words_count == 2) {
+    if (!isuri(current_word))
+      throw std::runtime_error("Wrong path format in index directive line");
+    // location.setIndex(current_word);
+std::cout << "index is: " << current_word << std::endl;
+  }
+  else
+    throw std::runtime_error("Too much words in index directive line");
+}
+void parse_unknown( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
+{
+  (void)previous_word;
+  (void)server;
+  (void)location;
+  (void)redirection;
+  (void)current_word;
+  (void)words_count;  
+  return ;
+}
+
+#define X(index, name, allowed_context, parse_fun) parse_fun,
+    static void (*parsing_functions[])(const std::string &,  const std::string &, int, VirtualServer&, VirtualServer::Location&, VirtualServer::Redirection&) = { DIRECTIVES };
+#undef X 
 
 void  Config::parseConfigFile(const char* filename)
 {
   std::ifstream file(filename);
   std::string   line;
   std::string   first_word;
+  char*   previous_word;
   char*   current_word;
   int           context = HTTP;
   int           index;
   std::vector <std::string> tokens;
   char*          str;
+  VirtualServer server;
+  VirtualServer::Location location;
+  VirtualServer::Redirection redirection;
 
   if (!file.is_open())
   {
@@ -83,54 +450,55 @@ void  Config::parseConfigFile(const char* filename)
 
   while (std::getline(file, line))
   {
-    // checkContext(line);
-    // line.erase(std::remove_if(line.begin(), line.end(), isspace), line.begin());
-    // std::stringstream check1(line);
-    // while (std::getline(check1, current_word, ' '))
-    //   std::cout << current_word << "|";
-    // std::cout << std::endl;
+    // Do not take account of empty lines
     if ((std::count_if(line.begin(), line.end(), ::isspace) == (int)line.length()))
       continue;
     if (line.length())
     {
+      // Copy std::string line into char* str for strtok() usability
       str = (char*)malloc(line.length() + 1);
-      str[line.length() + 1] = 0;
-      std::strcpy(str, line.c_str()); 
+      str[line.length()] = 0;
+      std::strcpy(str, line.c_str());
     }
     first_word = std::strtok(str, "\t \n;");
-    std::cout << line << std::endl;
-    std::cout << "<<" << first_word << ">>" << std::endl;
     current_word = (char*)first_word.c_str();
+    previous_word = current_word;
     index = checkDirective(first_word);
-std::cout << "index is: " << directive_name[index] << std::endl;
     if (index != LAST && !checkContext(index, context))
       throw std::runtime_error("ConfigFile context error\n");
-    while (current_word != NULL)
+    // tokenization
+// location = VirtualServer::Location();
+    for (int words_count = 1; current_word != NULL; ++words_count)
     {
-      if (current_word[0] == '#')
+      if (*current_word == '#')
         break;
       else if (current_word[0] == '{')
         context = context << 1;
       else if (current_word[0] == '}')
-        context = context >> 1;
+        {
+          context = context >> 1;
+          if (context == SERVER)
+            this->_server_list.push_back(server);
+            // server.clear()
+        }
       else if (index == LAST)
         throw std::runtime_error("Unknown ConfigFile Directive\n");
       if (!context || context > LOCATION)
         throw std::runtime_error("ConfigFile out of context error\n");
-      std::cout << "<" << current_word << "> in context: " << std::bitset<4>(context) << std::endl;
+      // if (index == LISTEN)
+      //   parse_listen(current_word, words_count);
+      (*parsing_functions[index])(previous_word, current_word, words_count, server, location, redirection);
+      previous_word = current_word;
       current_word = strtok( NULL, "\t \n;");
     }
-      // memset(&str[0], 0, line.length());
+    (void)previous_word;
     if (line.length())
       free(str);
   }
-    std::cout << line << std::endl;
   if (context != HTTP)
     throw std::runtime_error("error: ConfigFile do not end in HTTP context");
   _defined = true;
   (void)context_flag;
-std::cout << directive_name[AUTOINDEX] << " - " << std::bitset<4>(context_flag[AUTOINDEX]) << std::endl;
-std::cout << directive_name[CLIENT_MAX_BODY_SIZE] << " - " << std::bitset<4>(context_flag[CLIENT_MAX_BODY_SIZE]) << std::endl;
 }
 
 int Config::checkDirective( std::string first_word )
@@ -174,4 +542,15 @@ const std::vector<VirtualServer>& Config::getServerList()
 bool  Config::isDefined()
 {
   return _defined;
+}
+
+int count_words( std::string line )
+{
+  int count = 0;
+  for (int i = 1; i < (int)line.size(); ++i)
+  {
+    if (std::isspace(line[i]) == std::isspace(line[i - 1]))
+      ++count;
+  }
+    return (count);
 }

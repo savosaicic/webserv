@@ -33,7 +33,7 @@ int	main(int ac, char* av[])
         throw ws_syscall_error("sigaction()");
 
       http.config().parseConfigFile(av[1]);
-      http.start();
+      // http.start();
     }
     catch (const std::exception& e)
     {
