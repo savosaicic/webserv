@@ -39,6 +39,8 @@ class HTTPServer
     void  _setStreamResponse(HTTPStream& stream,
         int status, const std::string& body,
         const std::string& content_type = mime_types::application_octet_stream);
+    void  _setStreamRedirectionResponse(HTTPStream& stream,
+        const VirtualServer::Redirection& redirection);
     int   _openURI(const VirtualServer::Location& location_conf,
         std::string& rooted_uri, std::ifstream* fstream);
 

@@ -93,6 +93,19 @@ int HTTPServer::_openURI(const VirtualServer::Location& location_conf,
   return 0;
 }
 
+void  HTTPServer::_setStreamRedirectionResponse(HTTPStream& stream,
+    const VirtualServer::Redirection& redirection)
+{
+  HTTPResponse response(redirection);
+  response.addHeader(http_headers::server, "webserv 0.1");
+  response.addHeader(http_headers::connection, "close");
+  stream.tcp().setOutMessage(response.raw());
+  _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
+  _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
+  logRequest(stream.tcp().getIPAddr(), stream.getRequest(),
+      redirection.statusCode());
+}
+
 void  HTTPServer::_setStreamResponse(HTTPStream& stream,
     const int status, const std::string& body,
     const std::string& content_type)
@@ -129,14 +142,14 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   stream.setServerConfig(_config.getServer(
         stream.tcp().getHostIPAddr().toStr(),
         stream.tcp().getHostIPAddr().port(),
-        "0.0.0.0"));
+        "0.0.0.0")); // TODO: replace with stream.getHeaderContent("Host")
 
   //If the VirtualServer have a redirection, no need to go further
   // Write something cleaner than this
   if (stream.getVirtualServer().isRedirectionSet())
   {
-    _setStreamResponse(stream, status_code::http_moved_permanently,
-        std::string());
+    _setStreamRedirectionResponse(stream,
+        stream.getVirtualServer().getRedirection());
     return ;
   }
 
@@ -147,8 +160,8 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   //If the Location have a redirection, no need to go further
   if (stream.getLocationConfig().isRedirectionSet())
   {
-    _setStreamResponse(stream, status_code::http_moved_permanently,
-        std::string());
+    _setStreamRedirectionResponse(stream,
+        stream.getLocationConfig().getRedirection());
     return ;
   }
 
