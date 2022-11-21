@@ -91,6 +91,8 @@ void  Config::parseConfigFile(const char* filename)
 const VirtualServer&  Config::getServer(const std::string& listening_addr,
     const std::string& port, const std::string& server_name) const
 {
+  //TODO: if server_name is empty (If no Host: name was sent)
+  // return the default server for that port
   for (std::vector<VirtualServer>::const_iterator it = _server_list.begin();
       it != _server_list.end(); ++it)
   {
@@ -98,7 +100,7 @@ const VirtualServer&  Config::getServer(const std::string& listening_addr,
         it->getListeningPort() == port && it->isServerNameSet(server_name))
       return *it;
   }
-  throw std::runtime_error("");
+  throw std::logic_error("getServer() failed");
 }
 
 const std::vector<VirtualServer>& Config::getServerList()
