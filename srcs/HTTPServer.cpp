@@ -126,22 +126,10 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
     return ;
   }
 
-  //Get the right VirtualServer config block
-  //(If header Host is missing or wrong, use default server)
-  // HTTPRequest::setServerConfigBlock(Config c, HTTPRequest s)
-  try {
-    stream.setServerConfig(_config.getServer(
-          stream.tcp().getHostIPAddr().toStr(),
-          stream.tcp().getHostIPAddr().port(),
-          "0.0.0.0"));
-  } catch (const std::exception& e) {
-    // Server block not found (this is temporary)
-    std::cout << "server block not found\n";
-    _setStreamResponse(stream, status_code::http_internal_error,
-        stream.getVirtualServer().getErrorPage(status_code::http_internal_error),
-        mime_types::text_html);
-    return ;
-  }
+  stream.setServerConfig(_config.getServer(
+        stream.tcp().getHostIPAddr().toStr(),
+        stream.tcp().getHostIPAddr().port(),
+        "0.0.0.0"));
 
   //If the VirtualServer have a redirection, no need to go further
   // Write something cleaner than this
@@ -154,18 +142,7 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
 
   //Get the right Location config block based on URI
   //The VirtualServer server need to be already set
-  try
-  {
-    stream.setLocationConfig(stream.getRequest().getUri());
-  }
-  catch (const std::exception& e)
-  {
-    std::cout << "location block not found\n";
-    _setStreamResponse(stream, status_code::http_internal_error,
-        stream.getVirtualServer().getErrorPage(
-          status_code::http_internal_error), mime_types::text_html);
-    return ;
-  }
+  stream.setLocationConfig(stream.getRequest().getUri());
 
   //If the Location have a redirection, no need to go further
   if (stream.getLocationConfig().isRedirectionSet())
