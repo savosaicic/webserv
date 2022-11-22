@@ -131,6 +131,11 @@ VirtualServer::getLocation(const std::string& uri_src) const
   return location->second;
 }
 
+const std::string& VirtualServer::getCgiProg(const std::string& extension) const
+{
+  return _cgi_list.find(extension)->second;
+}
+
 bool  VirtualServer::isServerNameSet(const std::string& name) const
 {
   return std::find(_server_name_list.begin(), _server_name_list.end(), name)

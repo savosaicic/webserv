@@ -5,10 +5,6 @@
 #include <cstdlib>
 #include <sstream>
 
-HTTPRequest::HTTPRequest()
-{
-}
-
 HTTPRequest::HTTPRequest(std::string raw_request)
 {
 	if (raw_request.find_first_not_of("	 "))
@@ -225,7 +221,6 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
     _uri = rhs._uri;
     _http_version = rhs._http_version;
     _body = rhs._body;
-    _raw_request = rhs._raw_request;
     _header_map = rhs._header_map;
   }
 	return (*this);

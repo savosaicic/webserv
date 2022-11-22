@@ -19,6 +19,7 @@ class HTTPServer
 {
   public:
     HTTPServer();
+    HTTPServer(char **envp);
     HTTPServer(const HTTPServer& src);
     ~HTTPServer();
     
@@ -41,13 +42,15 @@ class HTTPServer
         const std::string& content_type = mime_types::application_octet_stream);
     void  _setStreamRedirectionResponse(HTTPStream& stream,
         const VirtualServer::Redirection& redirection);
-    int   _openURI(const VirtualServer::Location& location_conf,
+    int   _openURI(const VirtualServer& server_conf,
+        const VirtualServer::Location& location_conf,
         std::string& rooted_uri, std::ifstream* fstream);
 
   private:
     TCPListener _listener;
     std::map<int,HTTPStream> _active_client;
     Config      _config;
+    char**      _envp;
     
 };
 

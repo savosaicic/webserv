@@ -2,6 +2,7 @@
 #include "HTTPStream.hpp"
 #include "TCPStream.hpp"
 #include "VirtualServer.hpp"
+#include "http_utils.hpp"
 #include <HTTPServer.hpp>
 #include <default_conf_value.hpp>
 #include <exception>
@@ -25,6 +26,7 @@
 #include <ext/stdio_filebuf.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <CGIRequest.hpp>
 
 #include <stdlib.h>
 
@@ -34,8 +36,11 @@ HTTPServer::HTTPServer()
 {
 }
 
+HTTPServer::HTTPServer(char **envp) : _envp(envp)
+{}
+
 HTTPServer::HTTPServer(const HTTPServer& src) : _listener(src._listener),
-  _config(src._config)
+  _config(src._config), _envp(src._envp)
 {
 }
 
@@ -49,6 +54,7 @@ HTTPServer& HTTPServer::operator=(const HTTPServer& rhs)
   {
     _listener = rhs._listener;
     _config = rhs._config;
+    _envp = rhs._envp;
   }
   return *this;
 }
@@ -80,7 +86,7 @@ std::string  _buildAutoIndexPage(const VirtualServer& server_conf,
 
   std::stringstream html;
 
-  html << "<pre>";
+  html << "<html><body style=\"background-color: #EDE6D9;\"><pre>";
   while ((entry = readdir(directory))) {
     std::string slash = entry->d_type & DT_DIR ? "/" : "";
     html << "<a href=\"" <<
@@ -88,12 +94,13 @@ std::string  _buildAutoIndexPage(const VirtualServer& server_conf,
       "\">" << (location + entry->d_name + slash) <<
       "</a>" << std::endl;
   }
-  html << "</pre>";
+  html << "</body></pre></html>";
   closedir(directory);
   return html.str();
 }
 
-int HTTPServer::_openURI(const VirtualServer::Location& location_conf,
+int HTTPServer::_openURI(const VirtualServer& server_conf,
+    const VirtualServer::Location& location_conf,
     std::string& rooted_uri, std::ifstream* fstream)
 {
   // Search indexes for this location (index directive)
@@ -129,6 +136,9 @@ int HTTPServer::_openURI(const VirtualServer::Location& location_conf,
     if (location_conf.getAutoindex() &&
         statbuf.st_mode & S_IFDIR && statbuf.st_mode & S_IXUSR)
       return 2;
+    if (server_conf.isCgiExtension(
+          rooted_uri.substr(rooted_uri.find_last_of('.'))))
+      return 3;
     if (statbuf.st_mode & S_IFREG && !(statbuf.st_mode & S_IRUSR))
       return -1;
     fstream->open(rooted_uri.c_str(), std::ios::in | std::ios::binary);
@@ -223,21 +233,37 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
       stream.getLocationConfig().getDocroot());
 
   std::ifstream ressource;
-  int ret = _openURI(stream.getLocationConfig(), rooted_uri, &ressource);
-  if (ret == 1) {
+  int ret = _openURI(stream.getVirtualServer(),
+      stream.getLocationConfig(), rooted_uri, &ressource);
+  if (ret == 1) { // Permission denied
     _setStreamResponse(stream, status_code::http_forbidden,
         stream.getVirtualServer().getErrorPage(status_code::http_forbidden),
         mime_types::text_html);
     return ;
   }
-  else if (ret == 2) {
+  else if (ret == 2) { // Autoindex
     _setStreamResponse(stream, status_code::http_ok,
         _buildAutoIndexPage(stream.getVirtualServer(),
           stream.getLocationConfig(), rooted_uri),
         mime_types::text_html);
     return ;
   }
-  else if (!ressource.is_open())
+  else if (ret == 3) { // CGI
+    CGIRequest cgi_request(stream.getRequest(), rooted_uri,
+        stream.getVirtualServer().getCgiProg(
+          rooted_uri.substr(rooted_uri.find_last_of('.'))));
+    if (cgi_request.executeCGI(_envp)) {
+      _setStreamResponse(stream, status_code::http_ok,
+          cgi_request.getOutput());
+    }
+    else {
+      _setStreamResponse(stream, status_code::http_internal_error,
+          stream.getVirtualServer().getErrorPage(
+            status_code::http_internal_error), mime_types::text_html);
+    }
+    return ;
+  }
+  else if (!ressource.is_open()) // Ressource not found
   {
     _setStreamResponse(stream, status_code::http_not_found,
         stream.getVirtualServer().getErrorPage(status_code::http_not_found),

@@ -117,6 +117,7 @@ class VirtualServer
     const std::string   getErrorPage(const uint16_t error_num) const;
     uint64_t            getClientMaxBodySize() const;
     const Location&     getLocation(const std::string& uri_src) const;
+    const std::string&  getCgiProg(const std::string& extension) const;
 
     bool  isServerNameSet(const std::string& name) const;
     bool  isCgiExtension(const std::string& extension) const;

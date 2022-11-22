@@ -82,7 +82,7 @@ void  Config::parseConfigFile(const char* filename)
   server.addServerName("localhost");
   server.addLocation(location);
   server.addLocation(location_two);
-  server.addCgiExtension(".cgi", "");
+  server.addCgiExtension(".cgi", "/bin/echo");
 //  server.setRedirection(redirection);
 
   _server_list.push_back(server);

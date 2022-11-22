@@ -19,9 +19,10 @@ void  sigint_handler(int signal)
     listening = false;
 }
 
-int	main(int argument_count, char **argument_value, char **environement_parameters)
+int	main(__attribute__((unused)) int argc,
+    __attribute__((unused)) char **argv, char **envp)
 {
-	HTTPServer	http;
+	HTTPServer	http(envp);
 
   try
   {
