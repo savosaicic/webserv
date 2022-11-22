@@ -64,7 +64,8 @@ int	main(int argument_count, char **argument_value, char **environement_paramete
 	{
 			//HTTPRequest raw("POST /cgi/form.cgi?key1=value1&key2=value2 HTTP/1.1 \r\nAccept-Language: \r\nContent-Length: 16\r\nBonjour a tousse\r\n\r\n");
 
-			CGIRequest cgi(request, "cgi/", "/bin/perl");
-			cgi.executeCGI(environement_parameters);
+			CGIRequest cgi(request, "cgi/hello.cgi", "/bin/perl");
+			int ret = cgi.executeCGI(environement_parameters);
+			std::cout << ret << " " << cgi.getOutput();
 	}
 }

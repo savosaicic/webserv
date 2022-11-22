@@ -5,15 +5,19 @@
 #include<string>
 #include<map>
 
+#define BUFFER_SIZE 4096
+
 class CGIRequest
 {
 	private:
-		HTTPRequest		_HTTP_request;
-		std::string		_script;
-		std::string		_executable;
-		std::string		_input;
-		std::string		_path_info;
-		std::string		_content_type;
+		HTTPRequest	_HTTP_request;
+		std::string	_script;
+		std::string	_executable;
+		std::string	_input;
+		std::string	_path_info;
+		std::string	_content_type;
+		char*				_path[3];
+		std::string	_output;
 
 	public:
 		CGIRequest();
@@ -22,9 +26,8 @@ class CGIRequest
 		CGIRequest(const CGIRequest &src);
 		CGIRequest& operator=(const CGIRequest &rhs);
 
-		bool isValid();
-		void prepareCGI(char **path);
-		void executeCGI(char **envp);
+		bool executeCGI(char **envp);
+		const std::string& getOutput();
 };
 
 #endif
