@@ -30,30 +30,31 @@ int	main(void)
 //  }
 	HTTPRequest request;
 
-//	request.parseRequestLine("GE");
-//	request.parseRequestLine("T ");
-	request.parseRequestLine("POST");
-	request.parseRequestLine(" ");
-	request.parseRequestLine(" /");
-	request.parseRequestLine("ur");
-	request.parseRequestLine("i ");
-	request.parseRequestLine("HT");
-	request.parseRequestLine("TP");
-	request.parseRequestLine("/1");
-	request.parseRequestLine(".1\r\n");
-	request.parseRequestHeader("Lang:");
-	request.parseRequestHeader(" FR");
-	request.parseRequestHeader(" \r");
-	request.parseRequestHeader("\n");
-	request.parseRequestHeader("Content-ty");
-	request.parseRequestHeader("pe: html\r\n");
-	request.parseRequestHeader("\r\n");
-	//request.parseRequestHeader("\r\n");
-	request.parseRequestHeader("LORAINE IPSUME BLABLA LATIN");
-	request.parseRequestHeader("i\r\n");
-	request.parseRequestHeader("d\r\n");
-	request.parseRequestHeader("\r\n");
-	request.parseRequestHeader("OUT OF BODY");
+//	request.parseRequest("GE");
+//	request.parseRequest("T ");
+	request.parseRequest("POST");
+	request.parseRequest(" ");
+	request.parseRequest(" /");
+	request.parseRequest("ur");
+	request.parseRequest("i ");
+	request.parseRequest("HT");
+	request.parseRequest("TP");
+	request.parseRequest("/1");
+	request.parseRequest(".1\r\n");
+	request.parseRequest("Lang:");
+	request.parseRequest(" FR");
+	request.parseRequest(" \r");
+	request.parseRequest("\n");
+	request.parseRequest("Content-ty");
+	request.parseRequest("pe: html\r\n");
+	request.parseRequest("\r\n");
+	//request.parseRequeer("\r\n");
+	request.parseRequest("LORAINE IPSUME BLABLA LATIN");
+	request.parseRequest("i\r\n");
+	request.parseRequest("d\r\n");
+	request.parseRequest("\r\n");
+	request.parseRequest("OUT OF BODY");
+	
 
 	std::cout << request;
 }

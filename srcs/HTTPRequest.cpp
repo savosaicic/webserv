@@ -34,41 +34,8 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 }
 **/
 
-int HTTPRequest::parseRequestHeader(std::string raw_request)
+HTTPRequest::HTTPRequest(void): _to_parse(METHOD), _is_valid(true), _is_complete(false)
 {
-	std::stringstream ss;
-	std::string line;
-	raw_request = _buffer + raw_request;
-	ss << raw_request;
-	if (raw_request.find_first_of("\n") != std::string::npos)
-	{
-		while (std::getline(ss, line) && _is_complete == false && _is_valid)
-		{
-			switch((int)_to_parse)
-			{
-				case HEADER:
-					if (raw_request == CRLF)
-					{
-						if (_method == POST)
-							_to_parse = BODY;
-						else
-							_is_complete = true;
-						break;
-					}
-					extractHeaderMap(line);
-					eraseCurrentLine(raw_request);
-					break;
-				case BODY:
-					_body += raw_request;
-					if (raw_request == CRLF)
-						_is_complete = true;
-					eraseCurrentLine(raw_request);
-					break;
-			}
-		}
-	}
-	_buffer = raw_request;
-	return (0);
 }
 
 int HTTPRequest::extractHeaderMap(std::string &line)
@@ -87,39 +54,105 @@ int HTTPRequest::extractHeaderMap(std::string &line)
 	return (0);
 }
 
-int HTTPRequest::parseRequestLine(std::string raw_request)
+void HTTPRequest::parseRequestHeader(std::string raw_request)
+{
+	std::stringstream ss;
+	std::string line;
+	raw_request = _buffer + raw_request;
+	ss << raw_request;
+	if (raw_request.find_first_of("\n") != std::string::npos)
+	{
+		while (std::getline(ss, line) && _is_complete == false && _is_valid)
+		{
+			if (raw_request == CRLF)
+			{
+				if (_method == POST)
+				{
+					_to_parse = BODY;
+					eraseCurrentLine(raw_request);
+					break;
+				}
+				else
+					_is_complete = true;
+			}
+			else
+			{
+				extractHeaderMap(line);
+				eraseCurrentLine(raw_request);
+			}
+		}
+	}
+	_buffer = raw_request;
+}
+
+void HTTPRequest::parseRequestBody(std::string raw_request)
+{
+
+	std::stringstream ss;
+	std::string line;
+	raw_request = _buffer + raw_request;
+	ss << raw_request;
+	if (raw_request.find_first_of("\n") != std::string::npos)
+	{
+		while (std::getline(ss, line) && _is_complete == false && _is_valid)
+		{
+			_body += raw_request;
+			if (raw_request == CRLF)
+				_is_complete = true;
+			eraseCurrentLine(raw_request);
+		}
+	}
+	_buffer = raw_request;
+}
+
+void HTTPRequest::parseRequestLine(std::string raw_request)
 {
 	raw_request = _buffer + raw_request;
 	raw_request.erase(0, raw_request.find_first_not_of(" "));
-	while (_is_valid && (raw_request.find_first_of(" ") != std::string::npos || (_to_parse == VERSION && raw_request.find_first_of("\r\n") != std::string::npos)))
+	while (_is_valid
+				&& (raw_request.find_first_of(" ") != std::string::npos
+				|| (_to_parse == VERSION && raw_request.find_first_of("\r\n") != std::string::npos))
+				)
 	{
 		switch((int)_to_parse)
 		{
 			case METHOD:
-					extractMethod(getNextWord(raw_request));
-					eraseFirstWord(raw_request);
-					_to_parse = URI;
-					break;
+				extractMethod(getNextWord(raw_request));
+				eraseFirstWord(raw_request);
+				_to_parse = URI;
+				break;
 			case URI:
-					_uri = getNextWord(raw_request);
-					eraseFirstWord(raw_request);
-					_to_parse = VERSION;
+				_uri = getNextWord(raw_request);
+				eraseFirstWord(raw_request);
+				_to_parse = VERSION;
 				_buffer = raw_request;
 				break;
 			case VERSION:
-					extractVersion(getNextWord(raw_request));
-					eraseFirstWord(raw_request);
-					raw_request = getNextLine(raw_request);
-					_to_parse = HEADER;
+				extractVersion(getNextWord(raw_request));
+				eraseFirstWord(raw_request);
+				raw_request = getNextLine(raw_request);
+				_to_parse = HEADER;
 				break;
 		}
 	}
 	_buffer = raw_request;
-	return (0);
 }
 
-HTTPRequest::HTTPRequest(void): _to_parse(METHOD), _is_valid(true), _is_complete(false)
+void	HTTPRequest::parseRequest(std::string raw_request)
 {
+	switch ((int) _to_parse)
+	{
+		case HEADER:
+			parseRequestHeader(raw_request);
+			break;
+		case BODY:
+			parseRequestBody(raw_request);
+			break;
+		default:
+			parseRequestLine(raw_request);
+			break;
+	}
+	
 }
 
 const std::string HTTPRequest::getNextWord(std::string& line) const
@@ -231,21 +264,6 @@ const std::string& HTTPRequest::getHeaderContent(const std::string& header_title
 	return (it->second);
 }
 
-//bool HTTPRequest::isValid() const
-//{
-//	std::map<std::string, std::string>::const_iterator it;
-//	if (_method == INVALID)
-//		return (false);
-////	if (_http_version.first == -1 || _http_version.second == -1)
-////		return (false);
-//	it = _header_map.find("");
-//	if (it != _header_map.end())
-//		return (false);
-//	if (_uri.empty())
-//		return (false);
-//	return (true);
-//}
-
 HTTPRequest::method_t	HTTPRequest::getMethod(void) const
 {
 		return (_method);
@@ -305,17 +323,16 @@ void HTTPRequest::setHTTPVersion(const int major, const int minor)
 
 void HTTPRequest::addHeader(const std::string& key, const std::string& value)
 {
+	size_t i = 0;
 	if (key.empty())
 		_is_valid = false;
-	else
+	while (_is_valid && i < key.size())
 	{
-		for(size_t i = 0;i < key.size();i++)
-		{
-			if (key[i] < 33 || key[i] > 126 || key[i] == ':')
-				_is_valid = false;
-		}
-		_header_map.insert(std::make_pair(key, value));
+		if (key[i] < 33 || key[i] > 126 || key[i] == ':')
+			_is_valid = false;
+		i++;
 	}
+	_header_map.insert(std::make_pair(key, value));	
 } 
 
 void HTTPRequest::setBody(const std::string& body)

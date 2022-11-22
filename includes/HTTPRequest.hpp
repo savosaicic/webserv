@@ -49,8 +49,10 @@ class HTTPRequest
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);
 
-		int parseRequestLine(std::string raw_request);
-		int parseRequestHeader(std::string raw_request);
+		void parseRequestLine(std::string raw_request);
+		void parseRequestHeader(std::string raw_request);
+		void parseRequestBody(std::string raw_request);
+		void parseRequest(std::string raw_request);
 
 		const std::string&	getHeaderContent(const std::string& header_title) const;
 		bool								isValid()const;
