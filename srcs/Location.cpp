@@ -1,8 +1,12 @@
+#include "HTTPRequest.hpp"
 #include "VirtualServer.hpp"
 #include <algorithm>
 
 VirtualServer::Location::Location() : _redirection_set(false)
 {
+  _allowed_method_list.insert(HTTPRequest::GET);
+  _allowed_method_list.insert(HTTPRequest::POST);
+  _allowed_method_list.insert(HTTPRequest::DELETE);
 }
 
 VirtualServer::Location::Location(const Location& src)
@@ -59,10 +63,9 @@ void  VirtualServer::Location::addIndexFileToList(const std::string& index)
     _index_list.push_back(index);
 }
 
-void  VirtualServer::Location::allowMethod(const HTTPRequest::method_t method)
+void  VirtualServer::Location::forbidMethod(const HTTPRequest::method_t method)
 {
-  if (!isMethodAllowed(method))
-    _allowed_method_list.push_back(method);
+  _allowed_method_list.erase(method);
 }
 
 

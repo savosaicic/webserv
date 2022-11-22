@@ -64,13 +64,13 @@ void  Config::parseConfigFile(const char* filename)
   location.setDocroot("/mnt/nfs/homes/sasaicic/webserv/www");
   location.setAutoindex(true);
 //  location.addIndexFileToList("index.html");
-  location.allowMethod(HTTPRequest::GET);
+  location.forbidMethod(HTTPRequest::DELETE);
   
   location_two.setLocationPath("/foo");
   location_two.setDocroot("/path/to/bonjour");
   location_two.setAutoindex(false);
   location_two.addIndexFileToList("index.html");
-  location_two.allowMethod(HTTPRequest::GET);
+  location_two.forbidMethod(HTTPRequest::DELETE);
   location_two.setRedirection(location_redirection);
 
   server.addErrorPage(403, "www/403.html");
@@ -82,6 +82,7 @@ void  Config::parseConfigFile(const char* filename)
   server.addServerName("localhost");
   server.addLocation(location);
   server.addLocation(location_two);
+  server.addCgiExtension(".cgi", "");
 //  server.setRedirection(redirection);
 
   _server_list.push_back(server);
