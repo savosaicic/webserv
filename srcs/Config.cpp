@@ -6,7 +6,7 @@
 /*   By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/27 16:31:11 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/22 15:34:52 by abiju-du         ###   ########.fr       */
+/*   Updated: 2022/11/22 15:56:35 by abiju-du         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 #include <bitset>
 #include <vector>
 #include <bits/stdc++.h>
-
 #include <algorithm>
 
 #define X(index, name, allowed_context, parse_fun) index,
@@ -39,6 +38,7 @@
     static int context_flag[] = { DIRECTIVES };
 #undef X
 
+int context;
 
 Config::Config() : _defined(false)
 {}
@@ -210,8 +210,7 @@ void parse_cgi( const std::string &previous_word, const std::string &current_wor
   }
   if (words_count == 3 && !ispath(current_word))
     throw std::runtime_error("Wrong path format in cgi directive line\n");
-  // server.addCGI(previous_word, current_word);
-  std::cout << "server.addCGI(\"" << previous_word << "\", \"" << current_word << "\");" << std::endl;
+  server.addCgiExtension(previous_word, current_word);
   
 }
 
@@ -257,12 +256,12 @@ void parse_forbid_method( const std::string &previous_word, const std::string &c
   (void)redirection;
   (void)words_count;  
 
-  if (current_word == "GET") { std::cout << "Forbiden method: " << current_word << " in "<< location.getLocationPath() << std::endl; }
-    // location.forbidMethod(HTTPRequest::GET);
-  else if (current_word == "POST") { std::cout << "Forbiden method: " << current_word << " in "<< location.getLocationPath() << std::endl; }
-    // location.forbidMethod(HTTPRequest::POST);
-  else if (current_word == "DELETE") { std::cout << "Forbiden method: " << current_word << " in "<< location.getLocationPath() << std::endl; }
-    // location.forbidMethod(HTTPRequest::DELETE);
+  if (current_word == "GET")
+    location.forbidMethod(HTTPRequest::GET);
+  else if (current_word == "POST")
+    location.forbidMethod(HTTPRequest::POST);
+  else if (current_word == "DELETE")
+    location.forbidMethod(HTTPRequest::DELETE);
 }
 
 void parse_root( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
@@ -298,7 +297,10 @@ void parse_return( const std::string &previous_word, const std::string &current_
         throw std::runtime_error("Wrong uri format in return directive line");
     }
     redirection.setLocation(current_word);
-    // redirection.setRedirectionOn();
+    if (context == LOCATION)
+      location.setRedirection(redirection);
+    else
+      server.setRedirection(redirection);
   }
   if (words_count == 2) {
     uint digits = std::count_if(current_word.begin(), current_word.end(), isdigit);
@@ -405,8 +407,7 @@ void parse_index( const std::string &previous_word, const std::string &current_w
   else if (words_count == 2) {
     if (!isuri(current_word))
       throw std::runtime_error("Wrong path format in index directive line");
-    // location.setIndex(current_word);
-std::cout << "index is: " << current_word << std::endl;
+    location.addIndexFileToList(current_word);
   }
   else
     throw std::runtime_error("Too much words in index directive line");
@@ -426,81 +427,6 @@ void parse_unknown( const std::string &previous_word, const std::string &current
     static void (*parsing_functions[])(const std::string &,  const std::string &, int, VirtualServer&, VirtualServer::Location&, VirtualServer::Redirection&) = { DIRECTIVES };
 #undef X 
 
-void  Config::parseConfigFile(const char* filename)
-{
-  std::ifstream file(filename);
-  std::string   line;
-  std::string   first_word;
-  char*   previous_word;
-  char*   current_word;
-  int           context = HTTP;
-  int           index;
-  std::vector <std::string> tokens;
-  char*          str;
-  VirtualServer server;
-  VirtualServer::Location location;
-  VirtualServer::Redirection redirection;
-
-  if (!file.is_open())
-  {
-    std::cerr << "Can't open file: " << filename
-      << std::endl << std::strerror(errno) << std::endl;
-    throw std::ifstream::failure("");
-  }
-
-  while (std::getline(file, line))
-  {
-    // Do not take account of empty lines
-    if ((std::count_if(line.begin(), line.end(), ::isspace) == (int)line.length()))
-      continue;
-    if (line.length())
-    {
-      // Copy std::string line into char* str for strtok() usability
-      str = (char*)malloc(line.length() + 1);
-      str[line.length()] = 0;
-      std::strcpy(str, line.c_str());
-    }
-    first_word = std::strtok(str, "\t \n;");
-    current_word = (char*)first_word.c_str();
-    previous_word = current_word;
-    index = checkDirective(first_word);
-    if (index != LAST && !checkContext(index, context))
-      throw std::runtime_error("ConfigFile context error\n");
-    // tokenization
-// location = VirtualServer::Location();
-    for (int words_count = 1; current_word != NULL; ++words_count)
-    {
-      if (*current_word == '#')
-        break;
-      else if (current_word[0] == '{')
-        context = context << 1;
-      else if (current_word[0] == '}')
-        {
-          context = context >> 1;
-          if (context == SERVER)
-            this->_server_list.push_back(server);
-            // server.clear()
-        }
-      else if (index == LAST)
-        throw std::runtime_error("Unknown ConfigFile Directive\n");
-      if (!context || context > LOCATION)
-        throw std::runtime_error("ConfigFile out of context error\n");
-      // if (index == LISTEN)
-      //   parse_listen(current_word, words_count);
-      (*parsing_functions[index])(previous_word, current_word, words_count, server, location, redirection);
-      previous_word = current_word;
-      current_word = strtok( NULL, "\t \n;");
-    }
-    (void)previous_word;
-    if (line.length())
-      free(str);
-  }
-  if (context != HTTP)
-    throw std::runtime_error("error: ConfigFile do not end in HTTP context");
-  _defined = true;
-  (void)context_flag;
-}
-
 int Config::checkDirective( std::string first_word )
 {
   int index = 0;
@@ -512,18 +438,92 @@ int Config::checkDirective( std::string first_word )
   }
   return (index);
 }
-int Config::checkContext( int index, int context )
+
+int Config::checkContext( int index)
 {
   if((context_flag[index] & context) == context)
     return (1);
   return (0);
 }
 
+void Config::parse_line (char* str, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection)
+{
+  std::string   first_word;
+  char*   previous_word;
+  char*   current_word;
+  int           index;
+  
+  first_word = std::strtok(str, "\t \n;");
+  current_word = (char*)first_word.c_str();
+  previous_word = current_word;
+  index = checkDirective(first_word);
+
+  if (index != LAST && !checkContext(index))
+    throw std::runtime_error("ConfigFile context error\n");
+  for (int words_count = 1; current_word != NULL; ++words_count)
+  {
+    if (*current_word == '#')
+      break;
+    else if (current_word[0] == '{')
+      context = context << 1;
+    else if (current_word[0] == '}')
+    {
+      context = context >> 1;
+      if (context == SERVER) {
+        _server_list.push_back(server);
+        server = VirtualServer();
+      }
+    } 
+    else if (index == LAST)
+      throw std::runtime_error("Unknown ConfigFile Directive\n");
+    if (!context || context > LOCATION)
+      throw std::runtime_error("ConfigFile out of context error\n");
+    (*parsing_functions[index])(previous_word, current_word, words_count, server, location, redirection);
+    previous_word = current_word;
+    current_word = strtok( NULL, "\t \n;");
+  }
+}
+
+void  Config::parseConfigFile(const char* filename)
+{
+  std::ifstream file(filename);
+  std::string   line;
+  char*         str;
+  VirtualServer server;
+  VirtualServer::Location location;
+  VirtualServer::Redirection redirection;
+
+  context = HTTP;
+  if (!file.is_open())
+  {
+    std::cerr << "Can't open file: " << filename
+      << std::endl << std::strerror(errno) << std::endl;
+    throw std::ifstream::failure("");
+  }
+
+  while (std::getline(file, line))
+  {
+    if ((std::count_if(line.begin(), line.end(), ::isspace) == (int)line.length()))
+      continue;
+    if (line.length())
+    {
+      str = (char*)malloc(line.length() + 1);
+      str[line.length()] = 0;
+      std::strcpy(str, line.c_str());
+    }
+    parse_line(str, server, location, redirection);
+    if (line.length())
+      free(str);
+  }
+  if (context != HTTP)
+    throw std::runtime_error("error: ConfigFile do not end in HTTP context");
+  _defined = true;
+  (void)context_flag;
+}
+
 const VirtualServer&  Config::getServer(const std::string& listening_addr,
     const std::string& port, const std::string& server_name) const
 {
-  //TODO: if server_name is empty (If no Host: name was sent)
-  // return the default server for that port
   for (std::vector<VirtualServer>::const_iterator it = _server_list.begin();
       it != _server_list.end(); ++it)
   {
@@ -542,15 +542,4 @@ const std::vector<VirtualServer>& Config::getServerList()
 bool  Config::isDefined()
 {
   return _defined;
-}
-
-int count_words( std::string line )
-{
-  int count = 0;
-  for (int i = 1; i < (int)line.size(); ++i)
-  {
-    if (std::isspace(line[i]) == std::isspace(line[i - 1]))
-      ++count;
-  }
-    return (count);
 }

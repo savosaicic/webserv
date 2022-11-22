@@ -41,17 +41,11 @@ class Config
     Config& operator=(const Config& rhs);
 
     void  parseConfigFile(const char* filename);
-    int   checkContext(int index, int context);
+    int   checkContext(int index);
     int   checkDirective( std::string first_word );
-    #define X(index, name, allowed_context) \
-      int parse_directive( std::string, #name ); \
-      DIRECTIVES
-    #undef X
+    void   parse_line (char* str, VirtualServer &, VirtualServer::Location &, VirtualServer::Redirection &);
 
 
-    // This method will return a server with a given :
-    // - Listening address (ip+port)
-    // - a server_name (From http request header `Host`)
     const VirtualServer&  getServer(const std::string& listening_addr,
         const std::string& port, const std::string& server_name) const;
 
