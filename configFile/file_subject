@@ -1,0 +1,49 @@
+server {
+
+	# Execute CGI based on certain file extension (for example .php)
+    cgi .php /bin/php;
+    cgi .py /bin/python;
+
+		# 1) Choose the port and host of each 'server'
+			#one of those only
+		listen       80;
+		listen       127.0.0.1:80;
+
+		# 2) Setup the server_names or not (used to identify virtual hosts)
+		server_name  domain2.com www.domain2.com;
+
+		# 3) Setup default error pages
+		error_page 404	/404.html;
+
+		# 4) Limit client body size
+		client_max_body_size	100B;
+
+
+		# 5) Setup routes with one or multiple of the following rules/configuration			
+			# Define a directory or a file from where the file should be searched
+			location /  {
+				# Define a list of accepted HTTP methods for the route
+				forbid_method GET; #better limit then define what we accept
+				root	/data/www;
+				# Turn on or off directory listing. 
+				autoindex	on;
+				# Set a default file to answer if the request is a directory.
+				index index.html;
+			}
+			location /foobar  {
+				root	/random/directory;
+
+	      # Define a HTTP redirection
+				return 302 http://google.fr
+			}
+	}
+		
+
+	server {
+		location / {
+			root /www/html;
+		}
+		location /cgi {
+			root /path/to/cgi;
+		}
+	}

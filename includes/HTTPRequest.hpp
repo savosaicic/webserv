@@ -51,13 +51,13 @@ class HTTPRequest
 		const std::string&	getHeaderContent(const std::string& header_title) const;
 		bool								isValid()const;
 		bool								isComplete() const;
-
+		method_t	getMethod(void) const; 
 		std::string	getMethodString(void) const;
-		method_t		getMethod(void) const; 
-		const				std::string&	getUri(void) const; 
-		const 			std::pair<int, int>&	getHTTPVersion(void) const; 
-		const 			std::string&	getBody(void) const; 
-		const 			headerMap_t&	getHeaderMap(void) const; 
+		const std::string&	getUri(void) const; 
+		const std::pair<int, int>&	getHTTPVersion(void) const; 
+		const std::string&	getBody(void) const; 
+		const std::string&	getRawRequest(void) const; 
+		const headerMap_t&	getHeaderMap(void) const; 
 
 		int		addHeader(const std::string& key, const std::string& value);
 		void	setBody(const std::string& body);

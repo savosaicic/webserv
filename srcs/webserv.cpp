@@ -33,7 +33,7 @@ int	main(__attribute__((unused)) int argc,
     if (sigaction(SIGINT, &sa, NULL) != 0)
       throw ws_syscall_error("sigaction()");
 
-    http.config().parseConfigFile("Makefile");
+    http.config().parseConfigFile(argv[1]);
     http.start();
   }
   catch (const std::exception& e)
