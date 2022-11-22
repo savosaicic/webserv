@@ -137,6 +137,11 @@ bool  VirtualServer::isServerNameSet(const std::string& name) const
     != _server_name_list.end();
 }
 
+bool  VirtualServer::isCgiExtension(const std::string& extension) const
+{
+  return _cgi_list.count(extension) > 0;
+}
+
 void  VirtualServer::setListeningHost(const std::string& host)
 {
   _host = host;
@@ -173,6 +178,12 @@ void  VirtualServer::addErrorPage(const uint16_t error_num,
 void  VirtualServer::setClientMaxBodySize(const uint64_t size)
 {
   _client_max_body_size = size;
+}
+
+void  VirtualServer::addCgiExtension(const std::string& extension,
+    const std::string& cgi_prog)
+{
+  _cgi_list[extension] = cgi_prog;
 }
 
 const std::string

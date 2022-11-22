@@ -118,6 +118,7 @@ class VirtualServer
     const Location&     getLocation(const std::string& uri_src) const;
 
     bool  isServerNameSet(const std::string& name) const;
+    bool  isCgiExtension(const std::string& extension) const;
 
     void  setListeningHost(const std::string& host);
     void  setListeningPort(const std::string& port);
@@ -126,6 +127,8 @@ class VirtualServer
     void  addServerName(const std::string& name);
     void  addErrorPage(const uint16_t error_num, const std::string& filename);
     void  setClientMaxBodySize(const uint64_t size);
+    void  addCgiExtension(const std::string& extension,
+        const std::string& cgi_prog);
 
    private:
     static const std::string _createErrorPage(const uint16_t code,
