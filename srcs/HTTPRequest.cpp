@@ -110,8 +110,8 @@ void HTTPRequest::parseRequestLine(std::string raw_request)
 	raw_request = _buffer + raw_request;
 	raw_request.erase(0, raw_request.find_first_not_of(" "));
 	while (_is_valid
-				&& (raw_request.find_first_of(" ") != std::string::npos
-				|| (_to_parse == VERSION && raw_request.find_first_of("\r\n") != std::string::npos))
+				&& ((_to_parse == VERSION && raw_request.find_first_of("\r\n") != std::string::npos)
+					|| (raw_request.find_first_of(" ") != std::string::npos && _to_parse != VERSION))
 				)
 	{
 		switch((int)_to_parse)
@@ -347,6 +347,8 @@ void HTTPRequest::setHTTPVersion(const std::string& http_version)
 
 std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 {
+	if (stream.isValid() == false)
+		out << "Invalid Request" << '\n';
 	if (stream.isComplete())
 	{
 		out << "method: " << stream.getMethod() << std::endl;
@@ -359,6 +361,8 @@ std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 			out << "- " << it->first << ":" << it->second << std::endl;
 		out << "Body:" <<  stream.getBody() << std::endl;
 	}
+	else
+		out << "Incomplete Request" << '\n';
 	return out;
 }
 
