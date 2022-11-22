@@ -8,6 +8,7 @@
 #include <fstream>
 #include <ios>
 #include <iostream>
+#include <istream>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -19,9 +20,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 #include <ws_syscall_error.hpp>
 #include <ext/stdio_filebuf.h>
 #include <fcntl.h>
+#include <dirent.h>
 
 #include <stdlib.h>
 
@@ -62,9 +65,38 @@ std::string getRootedURI(std::string uri, const std::string& location,
   return docroot + "/" + uri.erase(0, location.size());
 }
 
+std::string  _buildAutoIndexPage(const VirtualServer& server_conf,
+    const VirtualServer::Location& location_conf,
+    const std::string& rooted_uri)
+{
+  DIR* directory = opendir(rooted_uri.c_str());
+  if (!directory)
+    return server_conf.getErrorPage(404); //TODO: or 403
+
+  struct dirent *entry;
+
+  //erase first '/'
+  std::string location(location_conf.getLocationPath().substr(1));
+
+  std::stringstream html;
+
+  html << "<pre>";
+  while ((entry = readdir(directory))) {
+    std::string slash = entry->d_type & DT_DIR ? "/" : "";
+    html << "<a href=\"" <<
+      (location + entry->d_name + slash) <<
+      "\">" << (location + entry->d_name + slash) <<
+      "</a>" << std::endl;
+  }
+  html << "</pre>";
+  closedir(directory);
+  return html.str();
+}
+
 int HTTPServer::_openURI(const VirtualServer::Location& location_conf,
     std::string& rooted_uri, std::ifstream* fstream)
 {
+  // Search indexes for this location (index directive)
   if (*rooted_uri.rbegin() == '/') {
     struct stat statbuf;
     VirtualServer::Location::index_list_t::const_iterator it;
@@ -73,19 +105,30 @@ int HTTPServer::_openURI(const VirtualServer::Location& location_conf,
       if (stat((rooted_uri + *it).c_str(), &statbuf) == -1)
         continue;
       if (statbuf.st_mode & S_IFREG && !(statbuf.st_mode & S_IRUSR))
-        return -1;
+        return 1;
       else if (statbuf.st_mode & S_IFREG && statbuf.st_mode & S_IRUSR) {
         rooted_uri.append(*it);
         fstream->open(rooted_uri.c_str(),
             std::ios::in | std::ios::binary);
-        break ;
+        return 0;
+      }
+    }
+    if (location_conf.getAutoindex()) {
+      if (stat((rooted_uri).c_str(), &statbuf) != -1) {
+        if (statbuf.st_mode & S_IFDIR && statbuf.st_mode & S_IXUSR) {
+          return 2;
+        }
+        return 0;
       }
     }
   }
-  else {
+  else { // open normal file
     struct stat statbuf;
     if (stat(rooted_uri.c_str(), &statbuf) == -1)
       return 0;
+    if (location_conf.getAutoindex() &&
+        statbuf.st_mode & S_IFDIR && statbuf.st_mode & S_IXUSR)
+      return 2;
     if (statbuf.st_mode & S_IFREG && !(statbuf.st_mode & S_IRUSR))
       return -1;
     fstream->open(rooted_uri.c_str(), std::ios::in | std::ios::binary);
@@ -180,10 +223,17 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
       stream.getLocationConfig().getDocroot());
 
   std::ifstream ressource;
-  if (_openURI(stream.getLocationConfig(), rooted_uri, &ressource) == -1)
-  {
+  int ret = _openURI(stream.getLocationConfig(), rooted_uri, &ressource);
+  if (ret == 1) {
     _setStreamResponse(stream, status_code::http_forbidden,
         stream.getVirtualServer().getErrorPage(status_code::http_forbidden),
+        mime_types::text_html);
+    return ;
+  }
+  else if (ret == 2) {
+    _setStreamResponse(stream, status_code::http_ok,
+        _buildAutoIndexPage(stream.getVirtualServer(),
+          stream.getLocationConfig(), rooted_uri),
         mime_types::text_html);
     return ;
   }
