@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <set>
 #include "HTTPRequest.hpp"
 
 class VirtualServer
@@ -48,7 +49,7 @@ class VirtualServer
 
         index_list_t  _index_list;
 
-        std::vector<HTTPRequest::method_t>     _allowed_method_list;
+        std::set<HTTPRequest::method_t>     _allowed_method_list;
 
       public:
         Location();
@@ -62,7 +63,7 @@ class VirtualServer
         void  setAutoindex(const bool autoindex);
         void  setRedirection(const Redirection& redirection);
         void  addIndexFileToList(const std::string& index);
-        void  allowMethod(const HTTPRequest::method_t method);
+        void  forbidMethod(const HTTPRequest::method_t method);
 
         const std::string&  getLocationPath() const;
         const std::string&  getDocroot() const;
