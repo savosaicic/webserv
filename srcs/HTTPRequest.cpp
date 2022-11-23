@@ -66,7 +66,7 @@ bool	HTTPRequest::headerParsable(const std::string& raw_request) const
 
 bool	HTTPRequest::bodyParsable(void) const
 {
- return _body.size() >= _max_body_size && _to_parse == BODY;
+ return _body.size() >= _content_length && _to_parse == BODY;
 }
 
 void HTTPRequest::parseRequestHeader(std::string& raw_request)
@@ -107,10 +107,10 @@ void HTTPRequest::parseRequestBody(std::string& raw_request)
 	while (std::getline(ss, line) && _is_complete == false && _is_valid && !line.empty())
 	{
 		_body += raw_request;
-		if (_body.size() >= _max_body_size)
+		if (_body.size() >= _content_length)
 		{
 			_is_complete = true;
-			_body.erase(_max_body_size, _body.size());
+			_body.erase(_content_length, _body.size());
 		}
 		eraseCurrentLine(raw_request);
 	}
@@ -159,11 +159,14 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 				parseRequestHeader(raw_request);
 				break;
 			case BODY:
-				_max_body_size = atoi(getHeaderContent("Content-Length").c_str());
-				if (_max_body_size > MAX_BODY_SIZE)
-					_max_body_size = MAX_BODY_SIZE;
-				if (_max_body_size == 0)
+				_content_length = atoi(getHeaderContent("Content-Length").c_str());
+				if (_content_length == 0)
 					_is_complete = true;
+				else if (_content_length > MAX_BODY_SIZE)
+				{
+					_is_valid = false;
+					_error_code = 413;
+				}
 				parseRequestBody(raw_request);
 				break;
 			default:
@@ -172,6 +175,13 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 		}
 	}
 	_buffer = raw_request;
+}
+
+int HTTPRequest::errorCode() const
+{
+	if (_error_code == 200)
+		throw std::logic_error("No error");
+	return (_error_code);
 }
 
 const std::string HTTPRequest::getNextWord(std::string& line) const
@@ -215,7 +225,10 @@ void HTTPRequest::extractMethod(const std::string& method)
 	else if (method == "DELETE")
 		_method = DELETE;
 	else
+	{
 		_is_valid = false;
+		_error_code = 501;
+	}
 }
 
 void HTTPRequest::extractVersion(std::string http_version)
@@ -243,7 +256,10 @@ void HTTPRequest::extractVersion(std::string http_version)
 		}
 	}
 	if (major == -1 || minor == -1)
+	{
 		_is_valid = false;
+		_error_code = 505;
+	}
 	else
 		_http_version = HTTPVersion(major, minor);
 }
@@ -351,6 +367,8 @@ void HTTPRequest::addHeader(const std::string& key, const std::string& value)
 			_is_valid = false;
 		i++;
 	}
+	if (_is_valid == false)
+		_error_code = 400;
 	_header_map.insert(std::make_pair(key, value));	
 } 
 
@@ -367,7 +385,10 @@ void HTTPRequest::setHTTPVersion(const std::string& http_version)
 std::ostream &operator<<(std::ostream &out, const HTTPRequest &stream)
 {
 	if (stream.isValid() == false)
-		out << "Invalid Request" << '\n';
+	{
+		out << "Invalid Request: " << stream.errorCode() << '\n';
+
+	}
 	if (stream.isComplete())
 	{
 		out << "method: " << stream.getMethod() << std::endl;
