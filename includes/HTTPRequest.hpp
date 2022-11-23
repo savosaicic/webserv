@@ -43,15 +43,19 @@ class HTTPRequest
 		void	extractVersion(std::string httpVersion);
 		int		extractHeaderMap(std::string &request);
 
+		void parseRequestLine(std::string& raw_request);
+		void parseRequestHeader(std::string& raw_request);
+		void parseRequestBody(std::string& raw_request);
+
+		bool	requestLineParsable(const std::string& raw_request) const;
+		bool	headerBodyParsable(const std::string& raw_request) const;
+
 	public:
 		HTTPRequest(void);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);
 
-		void parseRequestLine(std::string raw_request);
-		void parseRequestHeader(std::string raw_request);
-		void parseRequestBody(std::string raw_request);
 		void parseRequest(std::string raw_request);
 
 		const std::string&	getHeaderContent(const std::string& header_title) const;

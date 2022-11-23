@@ -54,17 +54,26 @@ int HTTPRequest::extractHeaderMap(std::string &line)
 	return (0);
 }
 
-void HTTPRequest::parseRequestHeader(std::string raw_request)
+bool	HTTPRequest::requestLineParsable(const std::string& raw_request) const
+{
+ return (_to_parse == METHOD || _to_parse == URI) && raw_request.find_first_of(" ") != std::string::npos;
+}
+
+bool	HTTPRequest::headerBodyParsable(const std::string& raw_request) const
+{
+ return (_to_parse == VERSION || _to_parse == HEADER || _to_parse == BODY) && raw_request.find_first_of("\n") != std::string::npos;
+}
+
+void HTTPRequest::parseRequestHeader(std::string& raw_request)
 {
 	std::stringstream ss;
 	std::string line;
-	raw_request = _buffer + raw_request;
 	ss << raw_request;
 	if (raw_request.find_first_of("\n") != std::string::npos)
 	{
-		while (std::getline(ss, line) && _is_complete == false && _is_valid)
+		while (std::getline(ss, line) && _is_complete == false && _is_valid && !line.empty())
 		{
-			if (raw_request == CRLF)
+			if (line == "\r")
 			{
 				if (_method == POST)
 				{
@@ -82,36 +91,31 @@ void HTTPRequest::parseRequestHeader(std::string raw_request)
 			}
 		}
 	}
-	_buffer = raw_request;
 }
 
-void HTTPRequest::parseRequestBody(std::string raw_request)
+void HTTPRequest::parseRequestBody(std::string& raw_request)
 {
 
 	std::stringstream ss;
 	std::string line;
-	raw_request = _buffer + raw_request;
 	ss << raw_request;
 	if (raw_request.find_first_of("\n") != std::string::npos)
 	{
-		while (std::getline(ss, line) && _is_complete == false && _is_valid)
+		while (std::getline(ss, line) && _is_complete == false && _is_valid && !line.empty())
 		{
 			_body += raw_request;
-			if (raw_request == CRLF)
+			if (line == "\r")
 				_is_complete = true;
 			eraseCurrentLine(raw_request);
 		}
 	}
-	_buffer = raw_request;
 }
 
-void HTTPRequest::parseRequestLine(std::string raw_request)
+void HTTPRequest::parseRequestLine(std::string& raw_request)
 {
-	raw_request = _buffer + raw_request;
 	raw_request.erase(0, raw_request.find_first_not_of(" "));
-	while (_is_valid
-				&& ((_to_parse == VERSION && raw_request.find_first_of("\r\n") != std::string::npos)
-					|| (raw_request.find_first_of(" ") != std::string::npos && _to_parse != VERSION))
+	while (_is_valid && _to_parse != HEADER && !raw_request.empty()
+				&& (requestLineParsable(raw_request) || headerBodyParsable(raw_request))
 				)
 	{
 		switch((int)_to_parse)
@@ -135,39 +139,44 @@ void HTTPRequest::parseRequestLine(std::string raw_request)
 				break;
 		}
 	}
-	_buffer = raw_request;
 }
 
 void	HTTPRequest::parseRequest(std::string raw_request)
 {
-	switch ((int) _to_parse)
+	raw_request = _buffer + raw_request;
+	while (_is_valid && !_is_complete
+			&& (requestLineParsable(raw_request) || headerBodyParsable(raw_request))
+			&& !raw_request.empty())
 	{
-		case HEADER:
-			parseRequestHeader(raw_request);
-			break;
-		case BODY:
-			parseRequestBody(raw_request);
-			break;
-		default:
-			parseRequestLine(raw_request);
-			break;
+		switch ((int) _to_parse)
+		{
+			case HEADER:
+				parseRequestHeader(raw_request);
+				break;
+			case BODY:
+				parseRequestBody(raw_request);
+				break;
+			default:
+				parseRequestLine(raw_request);
+				break;
+		}
 	}
-	
+	_buffer = raw_request;
 }
 
 const std::string HTTPRequest::getNextWord(std::string& line) const
 {
 	std::string word;
 	line.erase(0, line.find_first_not_of(" "));
-	if (line.find_first_of(" "))
-		word = line.substr(0, line.find_first_of(" "));
+//	if (line.find_first_of(" "))
+	word = line.substr(0, line.find_first_of(" "));
 	return word;
 }
 
 const std::string HTTPRequest::getNextLine(std::string& line) const 
 {
 	std::string next_line;
-	if (line.find_first_of("\r\n"))
+	if (line.find_first_of("\r\n") != std::string::npos)
 		next_line = line.substr(line.find_first_of("\r\n")+2);
 	return next_line;
 }
