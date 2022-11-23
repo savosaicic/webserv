@@ -56,9 +56,9 @@ int	main(void)
 //	request.parseRequest("OUT OF BODY");
 
 //	request.parseRequest("GET /uri HTTP/1.1 \r\nLang:FR\r\nContent-type: html\r\n\r\n");
-	request.parseRequest("POST /uri HTTP/1.1 \r\nLang:FR\r\nContent-type: html\r\n\r\nBONJOUR A TOUSSE LOREM IP SUM");
-	request.parseRequest("\r\n");
-	request.parseRequest("\r\n");
+	request.parseRequest("POST /uri HTTP/1.1 \r\nLang:FR\r\nContent-type: html\r\nContent-Length: 29\r\n\r\nBONJOUR A TOUSSE LOREM IP SUM");
+//	request.parseRequest("\r\n");
+//	request.parseRequest("\r\n");
 	
 
 	std::cout << request;

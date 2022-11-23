@@ -59,9 +59,14 @@ bool	HTTPRequest::requestLineParsable(const std::string& raw_request) const
  return (_to_parse == METHOD || _to_parse == URI) && raw_request.find_first_of(" ") != std::string::npos;
 }
 
-bool	HTTPRequest::headerBodyParsable(const std::string& raw_request) const
+bool	HTTPRequest::headerParsable(const std::string& raw_request) const
 {
- return (_to_parse == VERSION || _to_parse == HEADER || _to_parse == BODY) && raw_request.find_first_of("\n") != std::string::npos;
+ return (_to_parse == VERSION || _to_parse == HEADER) && raw_request.find_first_of("\n") != std::string::npos;
+}
+
+bool	HTTPRequest::bodyParsable(void) const
+{
+ return _body.size() >= _max_body_size && _to_parse == BODY;
 }
 
 void HTTPRequest::parseRequestHeader(std::string& raw_request)
@@ -99,15 +104,15 @@ void HTTPRequest::parseRequestBody(std::string& raw_request)
 	std::stringstream ss;
 	std::string line;
 	ss << raw_request;
-	if (raw_request.find_first_of("\n") != std::string::npos)
+	while (std::getline(ss, line) && _is_complete == false && _is_valid && !line.empty())
 	{
-		while (std::getline(ss, line) && _is_complete == false && _is_valid && !line.empty())
+		_body += raw_request;
+		if (_body.size() >= _max_body_size)
 		{
-			_body += raw_request;
-			if (line == "\r")
-				_is_complete = true;
-			eraseCurrentLine(raw_request);
+			_is_complete = true;
+			_body.erase(_max_body_size, _body.size());
 		}
+		eraseCurrentLine(raw_request);
 	}
 }
 
@@ -115,7 +120,7 @@ void HTTPRequest::parseRequestLine(std::string& raw_request)
 {
 	raw_request.erase(0, raw_request.find_first_not_of(" "));
 	while (_is_valid && _to_parse != HEADER && !raw_request.empty()
-				&& (requestLineParsable(raw_request) || headerBodyParsable(raw_request))
+				&& (requestLineParsable(raw_request) || headerParsable(raw_request) || bodyParsable())
 				)
 	{
 		switch((int)_to_parse)
@@ -145,7 +150,7 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 {
 	raw_request = _buffer + raw_request;
 	while (_is_valid && !_is_complete
-			&& (requestLineParsable(raw_request) || headerBodyParsable(raw_request))
+			&& (requestLineParsable(raw_request) || headerParsable(raw_request) || bodyParsable())
 			&& !raw_request.empty())
 	{
 		switch ((int) _to_parse)
@@ -154,6 +159,11 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 				parseRequestHeader(raw_request);
 				break;
 			case BODY:
+				_max_body_size = atoi(getHeaderContent("Content-Length").c_str());
+				if (_max_body_size > MAX_BODY_SIZE)
+					_max_body_size = MAX_BODY_SIZE;
+				if (_max_body_size == 0)
+					_is_complete = true;
 				parseRequestBody(raw_request);
 				break;
 			default:

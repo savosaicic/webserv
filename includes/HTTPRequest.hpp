@@ -12,6 +12,8 @@
 
 #define CRLF "\r\n"
 
+#define MAX_BODY_SIZE 4096
+
 typedef std::map<std::string, std::string> headerMap_t;
 static const std::string Empty = "";
 
@@ -34,6 +36,7 @@ class HTTPRequest
 		std::string	_buffer;
 		bool				_is_valid;
 		bool				_is_complete;
+		size_t			_max_body_size;
 
 		void	extractMethod(const std::string& method);
 		const	std::string getNextWord(std::string& line) const;
@@ -48,7 +51,8 @@ class HTTPRequest
 		void parseRequestBody(std::string& raw_request);
 
 		bool	requestLineParsable(const std::string& raw_request) const;
-		bool	headerBodyParsable(const std::string& raw_request) const;
+		bool	headerParsable(const std::string& raw_request) const;
+		bool	bodyParsable(void) const;
 
 	public:
 		HTTPRequest(void);
