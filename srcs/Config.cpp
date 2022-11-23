@@ -13,6 +13,7 @@
 #include <vector>
 #include <bits/stdc++.h>
 #include <algorithm>
+#include <http_utils.hpp>
 
 #define X(index, name, allowed_context, parse_fun) index,
     enum Directive { DIRECTIVES };
@@ -474,39 +475,33 @@ void Config::parse_line (char* str, VirtualServer &server, VirtualServer::Locati
 
 void  Config::parseConfigFile(const char* filename)
 {
-  std::ifstream file(filename);
-  std::string   line;
-  char*         str;
+  (void)filename;
   VirtualServer server;
   VirtualServer::Location location;
   VirtualServer::Redirection redirection;
 
-  context = HTTP;
-  if (!file.is_open())
-  {
-    std::cerr << "Can't open file: " << filename
-      << std::endl << std::strerror(errno) << std::endl;
-    throw std::ifstream::failure("");
-  }
+  server.addCgiExtension(".b", "/bin/bash");
+  server.addCgiExtension(".cgi", "/bin/perl");
+  server.setListeningHost("0.0.0.0");
+  server.setListeningPort("9090");
+  server.addServerName("localhost:9090");
 
-  while (std::getline(file, line))
-  {
-    if ((std::count_if(line.begin(), line.end(), ::isspace) == (int)line.length()))
-      continue;
-    if (line.length())
-    {
-      str = (char*)malloc(line.length() + 1);
-      str[line.length()] = 0;
-      std::strcpy(str, line.c_str());
-    }
-    parse_line(str, server, location, redirection);
-    if (line.length())
-      free(str);
-  }
-  if (context != HTTP)
-    throw std::runtime_error("error: ConfigFile do not end in HTTP context");
+  server.addErrorPage(status_code::http_not_found, "www/404.html");
+  server.addErrorPage(status_code::http_forbidden, "www/403.html");
+  server.addErrorPage(status_code::http_internal_error, "www/500.html");
+
+  server.setClientMaxBodySize(10);
+
+  location.setLocationPath("/");
+  location.setDocroot("/mnt/nfs/homes/sasaicic/webserv/www");
+  location.setAutoindex(true);
+  location.addIndexFileToList("index.html");
+
+  server.addLocation(location);
+
+  _server_list.push_back(server);
+  
   _defined = true;
-  (void)context_flag;
 }
 
 const VirtualServer&  Config::getServer(const std::string& listening_addr,
