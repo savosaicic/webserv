@@ -23,6 +23,10 @@ int	main(__attribute__((unused)) int argc,
     __attribute__((unused)) char **argv, char **envp)
 {
 	HTTPServer	http(envp);
+  if (argc != 2) {
+    std::cerr << "Please add a config file" << std::endl;
+    return (1);
+  }
 
   try
   {

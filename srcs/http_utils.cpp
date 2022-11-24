@@ -37,6 +37,7 @@ const char* http_headers::connection = "Connection";
 const char* http_headers::location = "Location";
 const char* http_headers::content_type = "Content-Type";
 const char* http_headers::content_length = "Content-Length";
+const char* http_headers::host = "Host";
 
 const char* mime_types::application_octet_stream = "application/octet-stream";
 const char* mime_types::application_javascript = "application/javascript";

@@ -12,6 +12,7 @@ class http_headers
     static const char* location;
     static const char* content_type;
     static const char* content_length;
+    static const char* host;
 };
 
 class status_code
