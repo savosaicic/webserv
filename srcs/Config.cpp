@@ -54,7 +54,7 @@ bool check_ip( std::string ip )
   int dot;
   std::vector<int> octet_list;
   std::string octet;
-  int i;
+  int i = 0;
 
   dot = std::count(ip.begin(), ip.end(), '.');
   if (dot != 3)
@@ -499,12 +499,13 @@ void  Config::parseConfigFile(const char* filename)
   {
     if ((std::count_if(line.begin(), line.end(), ::isspace) == (int)line.length()))
       continue;
-    if (line.length())
-    {
-      str = (char*)malloc(line.length() + 1);
-      str[line.length()] = 0;
-      std::strcpy(str, line.c_str());
-    }
+    // if (line.length())
+    // {
+    //   str = (char*)malloc(line.length() + 1);
+    //   str[line.length()] = 0;
+    //   std::strcpy(str, line.c_str());
+    // }
+    str = strdup(line.c_str());
     parse_line(str, server, location, redirection);
     if (line.length())
       free(str);
