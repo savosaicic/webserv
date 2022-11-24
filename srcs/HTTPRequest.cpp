@@ -4,6 +4,7 @@
 #include <map>
 #include <cstdlib>
 #include <sstream>
+#include <sys/types.h>
 #include <HTTPVersion.hpp>
 
 /** DEPRECATED
@@ -36,6 +37,11 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 
 HTTPRequest::HTTPRequest(void) : _is_valid(true), _is_complete(false),
   _to_parse(METHOD)
+{
+}
+
+HTTPRequest::HTTPRequest(unsigned int max_body_size) : _is_valid(true), _is_complete(false),
+  _to_parse(METHOD), _max_body_size(max_body_size)
 {
 }
 
@@ -163,7 +169,7 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 				_content_length = atoi(getHeaderContent("Content-Length").c_str());
 				if (_content_length == 0)
 					_is_complete = true;
-				else if (_content_length > MAX_BODY_SIZE)
+				else if (_content_length > _max_body_size)
 				{
 					_is_valid = false;
 					_error_code = 413;
@@ -278,7 +284,8 @@ HTTPRequest::HTTPRequest(const HTTPRequest& src)
     _body(src._body), _header_map(src._header_map), _is_valid(src._is_valid),
     _is_complete(src._is_complete), _to_parse(src._to_parse),
 		_buffer(src._buffer), _content_length(src._content_length),
-		_error_code(src._error_code)
+		_error_code(src._error_code),
+		_max_body_size(src._max_body_size)
 {}
 
 HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
@@ -296,6 +303,7 @@ HTTPRequest& HTTPRequest::operator=(const HTTPRequest& rhs)
 		_buffer = rhs._buffer;
 		_content_length = rhs._content_length;
 		_error_code = rhs._error_code;
+		_max_body_size = rhs._max_body_size;
   }
 	return (*this);
 }

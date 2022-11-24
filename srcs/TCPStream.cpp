@@ -130,7 +130,7 @@ int TCPStream::read()
 
   memset(&buffer, 0, sizeof(buffer));
   bytes_read = recv(_fd, &buffer, sizeof(buffer), 0);
-  _in_msg.append(buffer);
+  _in_msg = buffer;
   _triggered_events &= ~EPOLLIN;
   return bytes_read;
 }
