@@ -232,6 +232,12 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
       stream.getLocationConfig().getLocationPath(),
       stream.getLocationConfig().getDocroot());
 
+  if (stream.getRequest().getMethod() == HTTPRequest::DELETE) {
+    unlink(rooted_uri.c_str());
+    _setStreamResponse(stream, status_code::http_ok, Empty);
+    return ;
+  }
+
   std::ifstream ressource;
   int ret = _openURI(stream.getVirtualServer(),
       stream.getLocationConfig(), rooted_uri, &ressource);
