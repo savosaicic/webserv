@@ -71,8 +71,10 @@ bool CGIRequest::executeCGI()
 	pipe(pipe_input);
 	pipe(pipe_output);
 
-	write(pipe_input[1], _HTTP_request.getBody().data(),
+	ret = write(pipe_input[1], _HTTP_request.getBody().data(),
 			atoi(_HTTP_request.getHeaderContent("Content-Length").c_str()));
+	if (ret == -1)
+		return false;
 	id = fork();
 	if (!id)
 	{
@@ -91,10 +93,12 @@ bool CGIRequest::executeCGI()
 	close(pipe_input[0]);
 	while ((ret = read(pipe_output[0], &buffer, BUFFER_SIZE)) > 0)
 	  _output.append(buffer, ret);
+	if (ret == -1)
+		return false;
 	waitpid(id, &status, 0);
 	if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
-		return (false); 
+		return false; 
   close(pipe_output[0]); 
-	return (true);
+	return true;
 }
 
