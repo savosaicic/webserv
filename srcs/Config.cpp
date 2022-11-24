@@ -235,7 +235,6 @@ void parse_server_name( const std::string &previous_word, const std::string &cur
   
   // if (alnum + dot == current_word.size() && words_count > 1)
     server.addServerName(current_word);
-std::cout << "SERVER NAME ADDED!!! ---- " << current_word << std::endl;
 }
 
 void parse_forbid_method( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
@@ -522,6 +521,7 @@ const VirtualServer&  Config::getServer(const std::string& listening_addr,
   for (std::vector<VirtualServer>::const_iterator it = _server_list.begin();
       it != _server_list.end(); ++it)
   {
+std::cerr << "Host = " << listening_addr << "getlistenHost() = " << it->getListeningHost() << "Port = " << it->getListeningPort() << std::endl;
     if (it->getListeningHost() == listening_addr &&
         it->getListeningPort() == port && it->isServerNameSet(server_name))
       return *it;

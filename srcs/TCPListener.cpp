@@ -12,6 +12,7 @@
 #include <vector>
 #include <ws_syscall_error.hpp>
 
+
 TCPListener::TCPListener() : _epfd(-1), _streams_manager(_epfd, *this)
 {
 }
@@ -133,7 +134,7 @@ std::vector<TCPStreamManager::iterator>  TCPListener::incoming()
 		{
 			memset(&client_addr, 0, sizeof(client_addr));
       addrlen = sizeof(client_addr);
-			int client = accept(fd, &client_addr, &addrlen);
+			int client = accept4(fd, &client_addr, &addrlen, SOCK_NONBLOCK);
 
       struct epoll_event  event;
 			memset(&event, 0, sizeof(event));
