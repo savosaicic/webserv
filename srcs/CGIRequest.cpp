@@ -99,6 +99,7 @@ bool CGIRequest::executeCGI()
 	if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
 		return false; 
   close(pipe_output[0]); 
+	_output = "Status-code: 200 OK" + _output;
 	return true;
 }
 
