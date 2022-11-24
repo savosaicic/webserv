@@ -195,7 +195,7 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   stream.setServerConfig(_config.getServer(
         stream.tcp().getHostIPAddr().toStr(),
         stream.tcp().getHostIPAddr().port(),
-        "0.0.0.0")); // TODO: replace with stream.getHeaderContent("Host")
+        "localhost:9090")); // TODO: replace with stream.getHeaderContent("Host")
 
   //If the VirtualServer have a redirection, no need to go further
   // Write something cleaner than this

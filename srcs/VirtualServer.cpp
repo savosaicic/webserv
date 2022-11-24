@@ -114,7 +114,7 @@ VirtualServer::getLocation(const std::string& uri_src) const
   std::map<std::string, Location>::const_iterator
     location(_location_list.begin());
 	if (location == _location_list.end())
-    throw std::runtime_error("");
+    throw std::runtime_error("getLocation() fatal error");
 
   for (; !uri.empty(); ++location)
   {
@@ -138,6 +138,8 @@ const std::string& VirtualServer::getCgiProg(const std::string& extension) const
 
 bool  VirtualServer::isServerNameSet(const std::string& name) const
 {
+
+std::cout << "searching for server name \'" << name << "\'" << std::endl;
   return std::find(_server_name_list.begin(), _server_name_list.end(), name)
     != _server_name_list.end();
 }

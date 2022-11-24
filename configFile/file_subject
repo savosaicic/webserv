@@ -24,7 +24,7 @@ server {
 			location /  {
 				# Define a list of accepted HTTP methods for the route
 				forbid_method GET; #better limit then define what we accept
-				root	/data/www;
+				root	/mnt/nfs/homes/abiju-du/Desktop/42cursus/webserv/webserv/www;
 				# Turn on or off directory listing. 
 				autoindex	on;
 				# Set a default file to answer if the request is a directory.

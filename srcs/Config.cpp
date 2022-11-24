@@ -102,8 +102,8 @@ bool isuri(const std::string &current_word)
   alnum = std::count_if(current_word.begin(), current_word.end(),isalnum);
   hyphen = std::count(current_word.begin(), current_word.end(),'-');
   dot = std::count(current_word.begin(), current_word.end(),'.');
-  underscore = std::count(current_word.begin(), current_word.end(),'-');
-
+  underscore = std::count(current_word.begin(), current_word.end(),'_');
+std::cout << underscore << " == " << current_word.size() << std::endl;
   if (slash + alnum + underscore + hyphen + dot != current_word.size())
     return (false);
   return (true);
@@ -217,7 +217,6 @@ void parse_location( const std::string &previous_word, const std::string &curren
     throw std::runtime_error("Error while parsing locafion directive line\n");
   if (words_count == 2) {
     location.setLocationPath(current_word);
-    server.addLocation(location);
   }
 }
 
@@ -231,11 +230,12 @@ void parse_server_name( const std::string &previous_word, const std::string &cur
   if (words_count == 1)
     return ;
 
-  uint alnum = std::count_if(current_word.begin(), current_word.end(), isalnum);
-  uint dot = std::count_if(current_word.begin(), current_word.end(), ispunct);
+  // uint alnum = std::count_if(current_word.begin(), current_word.end(), isalnum);
+  // uint dot = std::count_if(current_word.begin(), current_word.end(), ispunct);
   
-  if (alnum + dot == current_word.size() && words_count > 1)
+  // if (alnum + dot == current_word.size() && words_count > 1)
     server.addServerName(current_word);
+std::cout << "SERVER NAME ADDED!!! ---- " << current_word << std::endl;
 }
 
 void parse_forbid_method( const std::string &previous_word, const std::string &current_word, int words_count, VirtualServer &server, VirtualServer::Location &location, VirtualServer::Redirection &redirection )
@@ -258,7 +258,7 @@ void parse_root( const std::string &previous_word, const std::string &current_wo
   (void)previous_word;
   (void)server;
   (void)redirection;
-
+std::cout << current_word << std::endl;
   if (words_count > 2)
     throw std::runtime_error("Too much words in root directive line");
   if (words_count == 2 ) {
@@ -461,14 +461,18 @@ void Config::parse_line (char* str, VirtualServer &server, VirtualServer::Locati
       if (context == HTTP) {
         _server_list.push_back(server);
         server = VirtualServer();
+      } 
+      if (context == SERVER) {
+        server.addLocation(location);
+        location = VirtualServer::Location();
       }
     } 
     else if (index == LAST)
       throw std::runtime_error("Unknown ConfigFile Directive\n");
     if (!context || context > LOCATION)
       throw std::runtime_error("ConfigFile out of context error\n");
-    (*parsing_functions[index])(previous_word, current_word, words_count, server, location, redirection);
 std::cout << current_word << " in " << std::bitset<4>(context) << std::endl;
+    (*parsing_functions[index])(previous_word, current_word, words_count, server, location, redirection);
     previous_word = current_word;
     current_word = strtok( NULL, "\t \n;");
   }
