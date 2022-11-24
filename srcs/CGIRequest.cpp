@@ -22,18 +22,18 @@ CGIRequest::CGIRequest(const HTTPRequest& HTTP_request, const std::string& scrip
 {
 	_script = "." + _HTTP_request.getUri().substr(0, _HTTP_request.getUri().find_first_of("?"));
 	_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
-	std::string path_info;
-	
-	path_info = _script.substr(_script.find_first_of("/", _script.find("/cgi/") + 5), );
-	std::cout << path_info << "\n";
-	_script.erase(_script.find(path_info), _script.size());
 
-  setenv("REQUEST_METHOD", HTTP_request.getMethodString().c_str(), 1);
-  setenv("QUERY_STRING", _input.c_str(), 1);
-  setenv("SERVER_NAME", HTTP_request.getMethodString().c_str(), 1);
   setenv("CONTENT_LENGTH", HTTP_request.getHeaderContent("Content-Length").c_str(), 1);
+  setenv("PATH_INFO", " ", 1);
+  setenv("QUERY_STRING", _input.c_str(), 1);
+  setenv("REQUEST_METHOD", HTTP_request.getMethodString().c_str(), 1);
+  setenv("SCRIPT_NAME", _script.substr(_script.find_last_of("/")).c_str(), 1);
+//	setenv("REMOTE_ADDR", HTTP_request.getMethodString().c_str(), 1);
+//  setenv("REQUEST_METHOD", , 1);
+//  setenv("REQUEST_HOST", , 1);
+//  setenv("SERVER_NAME", HTTP_request.getMethodString().c_str(), 1);
   setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
-  setenv("PATH_INFO", path_info.c_str(), 1);
+//	setenv("SERVER_SOFTWARE", "webserv/0.1", 1);
 	_path[0] = (char *)_executable.c_str();
 	_path[1] = (char *)_script.c_str();
 	_path[2] = NULL;
@@ -73,7 +73,6 @@ bool CGIRequest::executeCGI()
 
 	write(pipe_input[1], _HTTP_request.getBody().data(),
 			atoi(_HTTP_request.getHeaderContent("Content-Length").c_str()));
-//	chdir("/mnt/nfs/homes/lefendie/webserv/github/www");
 	id = fork();
 	if (!id)
 	{
