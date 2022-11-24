@@ -177,7 +177,7 @@ void  HTTPServer::_setStreamResponse(HTTPStream& stream,
 void  HTTPServer::_handleRequest(HTTPStream& stream)
 {
   // This is temporary (waiting for HTTPRequest to be finished)
-  stream._request = HTTPRequest(stream.tcp().getInMessage());
+  stream._request.parseRequest(stream.tcp().getInMessage());
 
   // If request is not complete, wait for more data
   if (!stream.getRequest().isComplete())
@@ -356,6 +356,6 @@ void  HTTPServer::logRequest(const IPAddress& remote,
     "[" << getTimeToStr() << "] \"" <<
     request.getMethod() << " " <<
     request.getUri() << " " << "HTTP/" <<
-    request.getHTTPVersion().first << "." <<
-    request.getHTTPVersion().second << "\" " << status << std::endl;
+    request.getHTTPVersion().getMajor() << "." <<
+    request.getHTTPVersion().getMinor() << "\" " << status << std::endl;
 }

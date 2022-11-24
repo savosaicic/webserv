@@ -7,6 +7,7 @@
 #include <utility>
 #include <list>
 #include <map>
+#include <sys/types.h>
 #include <HTTPVersion.hpp>
 
 
@@ -27,17 +28,18 @@ class HTTPRequest
 		enum method_t {GET = 0, POST, DELETE};
 
 	private:
-		HTTPVersion	_http_version;
-		headerMap_t	_header_map;
-		std::string	_uri;
-		std::string	_body;
 		method_t		_method;
-		status_t		_to_parse;
-		std::string	_buffer;
+		std::string	_uri;
+		HTTPVersion	_http_version;
+		std::string	_body;
+		headerMap_t	_header_map;
 		bool				_is_valid;
 		bool				_is_complete;
-		size_t			_content_length;
+		status_t		_to_parse;
+		std::string	_buffer;
+		unsigned int			_content_length;
 		int					_error_code;
+    unsigned int         _max_body_size;
 
 		void	extractMethod(const std::string& method);
 		const	std::string getNextWord(std::string& line) const;
@@ -57,6 +59,7 @@ class HTTPRequest
 
 	public:
 		HTTPRequest(void);
+		HTTPRequest(unsigned int _max_body_size);
 		~HTTPRequest(void);
 		HTTPRequest(const HTTPRequest& src);
 		HTTPRequest& operator=(const HTTPRequest& rhs);
