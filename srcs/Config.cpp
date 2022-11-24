@@ -482,6 +482,7 @@ void  Config::parseConfigFile(const char* filename)
 
   server.addCgiExtension(".b", "/bin/bash");
   server.addCgiExtension(".cgi", "/bin/perl");
+  server.addCgiExtension(".php", "/bin/php-cgi");
   server.setListeningHost("0.0.0.0");
   server.setListeningPort("9090");
   server.addServerName("localhost:9090");
@@ -493,7 +494,7 @@ void  Config::parseConfigFile(const char* filename)
   server.setClientMaxBodySize(10);
 
   location.setLocationPath("/");
-  location.setDocroot("/mnt/nfs/homes/sasaicic/webserv/www");
+  location.setDocroot("/mnt/nfs/homes/lefendie/webserv/github/www");
   location.setAutoindex(true);
   location.addIndexFileToList("index.html");
 

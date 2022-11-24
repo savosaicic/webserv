@@ -252,7 +252,7 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
     CGIRequest cgi_request(stream.getRequest(), rooted_uri,
         stream.getVirtualServer().getCgiProg(
           rooted_uri.substr(rooted_uri.find_last_of('.'))));
-    if (cgi_request.executeCGI(_envp)) {
+    if (cgi_request.executeCGI()) {
       _setStreamResponse(stream, status_code::http_ok,
           cgi_request.getOutput());
     }

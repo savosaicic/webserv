@@ -22,8 +22,18 @@ CGIRequest::CGIRequest(const HTTPRequest& HTTP_request, const std::string& scrip
 {
 	_script = "." + _HTTP_request.getUri().substr(0, _HTTP_request.getUri().find_first_of("?"));
 	_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
+	std::string path_info;
 	
+	path_info = _script.substr(_script.find_first_of("/", _script.find("/cgi/") + 5), );
+	std::cout << path_info << "\n";
+	_script.erase(_script.find(path_info), _script.size());
+
+  setenv("REQUEST_METHOD", HTTP_request.getMethodString().c_str(), 1);
   setenv("QUERY_STRING", _input.c_str(), 1);
+  setenv("SERVER_NAME", HTTP_request.getMethodString().c_str(), 1);
+  setenv("CONTENT_LENGTH", HTTP_request.getHeaderContent("Content-Length").c_str(), 1);
+  setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
+  setenv("PATH_INFO", path_info.c_str(), 1);
 	_path[0] = (char *)_executable.c_str();
 	_path[1] = (char *)_script.c_str();
 	_path[2] = NULL;
@@ -49,7 +59,7 @@ const std::string& CGIRequest::getOutput()
 	return (_output);
 }
 
-bool CGIRequest::executeCGI(char **envp)
+bool CGIRequest::executeCGI()
 {
 	char buffer[BUFFER_SIZE];
 	int id;
@@ -63,6 +73,7 @@ bool CGIRequest::executeCGI(char **envp)
 
 	write(pipe_input[1], _HTTP_request.getBody().data(),
 			atoi(_HTTP_request.getHeaderContent("Content-Length").c_str()));
+//	chdir("/mnt/nfs/homes/lefendie/webserv/github/www");
 	id = fork();
 	if (!id)
 	{
@@ -72,17 +83,18 @@ bool CGIRequest::executeCGI(char **envp)
 		dup2(pipe_input[0], 0);
 		close(pipe_output[1]);
 		close(pipe_input[0]);
-		execve(_path[0], _path, envp);
+		extern char **environ;
+		execve(_path[1], &_path[1], environ);
 		exit(1);
 	}
 	close(pipe_input[1]);
 	close(pipe_output[1]);
 	close(pipe_input[0]);
+	while ((ret = read(pipe_output[0], &buffer, BUFFER_SIZE)) > 0)
+	  _output.append(buffer, ret);
 	waitpid(id, &status, 0);
 	if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
 		return (false); 
-	while ((ret = read(pipe_output[0], &buffer, BUFFER_SIZE)) > 0)
-	  _output.append(buffer, ret);
   close(pipe_output[0]); 
 	return (true);
 }
