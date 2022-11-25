@@ -5,35 +5,8 @@
 #include <cstdlib>
 #include <sstream>
 #include <sys/types.h>
+#include <http_utils.hpp>
 #include <HTTPVersion.hpp>
-
-/** DEPRECATED
-HTTPRequest::HTTPRequest(std::string raw_request)
-{
-	if (raw_request.find_first_not_of("	 "))
-		_method = INVALID;
-	else
-		_method = extractMethod(getNextWord(raw_request));
-	if (_method != INVALID)
-	{
-		eraseFirstWord(raw_request);
-		_uri = getNextWord(raw_request);
-		eraseFirstWord(raw_request);
-		extractVersion(getNextWord(raw_request));
-		if (raw_request.size() > 1 && raw_request.find_first_of("\r\n") != std::string::npos)
-		{
-			if (!raw_request.compare(raw_request.find_first_of("\r\n"), 2, "\r\n"))
-			{
-				raw_request = getNextLine(raw_request);
-				extractHeaderMap(raw_request);
-			}
-			if (_method == POST)
-				_body = raw_request;
-		}
-	}
-	return ;
-}
-**/
 
 HTTPRequest::HTTPRequest(void) : _is_valid(true), _is_complete(false),
   _to_parse(METHOD), _content_length(0)
@@ -165,7 +138,7 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 				else if (_content_length > _max_body_size)
 				{
 					_is_valid = false;
-					_error_code = 413;
+					_error_code = status_code::http_payload_too_large;
 				}
 				parseRequestBody(raw_request);
 				break;
@@ -179,7 +152,7 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 
 int HTTPRequest::errorCode() const
 {
-	if (_error_code == 200)
+	if (_error_code == status_code::http_ok)
 		throw std::logic_error("No error");
 	return (_error_code);
 }
@@ -188,7 +161,6 @@ const std::string HTTPRequest::getNextWord(std::string& line) const
 {
 	std::string word;
 	line.erase(0, line.find_first_not_of(" \r\n"));
-//	if (line.find_first_of(" "))
 	word = line.substr(0, line.find_first_of(" \r\n"));
 	return word;
 }
@@ -230,7 +202,7 @@ void HTTPRequest::extractMethod(const std::string& method)
 	else
 	{
 		_is_valid = false;
-		_error_code = 501;
+		_error_code = status_code::http_not_implemented;
 	}
 }
 
@@ -261,7 +233,7 @@ void HTTPRequest::extractVersion(std::string http_version)
 	if (major == -1 || minor == -1)
 	{
 		_is_valid = false;
-		_error_code = 505;
+		_error_code = status_code::http_version_not_supported;
 	}
 	else
 		_http_version = HTTPVersion(major, minor);
@@ -378,7 +350,7 @@ void HTTPRequest::addHeader(const std::string& key, const std::string& value)
 		i++;
 	}
 	if (_is_valid == false)
-		_error_code = 400;
+		_error_code = status_code::http_bad_request;
 	_header_map.insert(std::make_pair(key, value));	
 } 
 
