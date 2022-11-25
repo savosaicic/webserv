@@ -138,8 +138,8 @@ const std::string& VirtualServer::getCgiProg(const std::string& extension) const
 
 bool  VirtualServer::isServerNameSet(const std::string& name) const
 {
-
-std::cout << "searching for server name \'" << name << "\'" << std::endl;
+  if (name == Empty)
+    return (true);
   return std::find(_server_name_list.begin(), _server_name_list.end(), name)
     != _server_name_list.end();
 }
