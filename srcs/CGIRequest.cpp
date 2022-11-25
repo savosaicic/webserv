@@ -1,5 +1,6 @@
 #include"CGIRequest.hpp"
 #include"HTTPRequest.hpp"
+#include <iostream>
 #include<string>
 #include<map>
 #include<sys/types.h>
@@ -83,6 +84,7 @@ bool CGIRequest::executeCGI(char **envp)
 		return (false); 
 	while ((ret = read(pipe_output[0], &buffer, BUFFER_SIZE)) > 0)
 	  _output.append(buffer, ret);
+  std::cerr << "...fddfs\n";
   close(pipe_output[0]); 
 	return (true);
 }
