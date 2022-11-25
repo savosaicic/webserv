@@ -136,11 +136,12 @@ int HTTPServer::_openURI(const VirtualServer& server_conf,
     if (location_conf.getAutoindex() &&
         statbuf.st_mode & S_IFDIR && statbuf.st_mode & S_IXUSR)
       return 2;
-    if (server_conf.isCgiExtension(
-          rooted_uri.substr(rooted_uri.find_last_of('.'))))
+    if (rooted_uri.find_last_of('.') != std::string::npos 
+        && server_conf.isCgiExtension(rooted_uri.substr(
+            rooted_uri.find_last_of('.'))))
       return 3;
     if (statbuf.st_mode & S_IFREG && !(statbuf.st_mode & S_IRUSR))
-      return -1;
+      return 1;
     fstream->open(rooted_uri.c_str(), std::ios::in | std::ios::binary);
   }
   return 0;
