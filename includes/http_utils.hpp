@@ -26,7 +26,10 @@ class status_code
     static const int http_forbidden;
     static const int http_not_found;
     static const int http_not_allowed;
+		static const int http_payload_too_large;
     static const int http_internal_error;
+		static const int http_version_not_supported;
+		static const int http_not_implemented;
 };
 
 class mime_types

@@ -60,4 +60,7 @@ const int status_code::http_bad_request = 400;
 const int status_code::http_forbidden = 403;
 const int status_code::http_not_found = 404;
 const int status_code::http_not_allowed = 405;
+const int status_code::http_payload_too_large = 413;
 const int status_code::http_internal_error = 500;
+const int status_code::http_version_not_supported = 505;
+const int status_code::http_not_implemented = 501;
