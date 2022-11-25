@@ -40,6 +40,7 @@ class TCPListener
     void  dropClient(const TCPStream& client);
     void  registerClientEvent(TCPStream& client, const uint32_t event);
     void  unRegisterClientEvent(TCPStream& client, const uint32_t event);
+    void  clear();
 
 };
 

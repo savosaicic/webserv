@@ -9,6 +9,7 @@
 #include <vector>
 #include "CGIRequest.hpp"
 #include "Config.hpp"
+#include "default_conf_value.hpp"
 #include <HTTPServer.hpp>
 #include <signal.h>
 #include <ws_syscall_error.hpp>
@@ -23,11 +24,6 @@ int	main(__attribute__((unused)) int argc,
     __attribute__((unused)) char **argv, char **envp)
 {
 	HTTPServer	http(envp);
-  if (argc != 2) {
-    std::cerr << "Please add a config file" << std::endl;
-    return (1);
-  }
-
   try
   {
     struct sigaction  sa;
@@ -37,7 +33,10 @@ int	main(__attribute__((unused)) int argc,
     if (sigaction(SIGINT, &sa, NULL) != 0)
       throw ws_syscall_error("sigaction()");
 
-    http.config().parseConfigFile(argv[1]);
+    if (argc < 2)
+      http.config().parseConfigFile(DEFAULT_CONFIG_FILE);
+    else
+      http.config().parseConfigFile(argv[1]);
     http.start();
   }
   catch (const std::exception& e)

@@ -27,6 +27,11 @@ HTTPStream& HTTPStream::operator=(const HTTPStream& rhs)
   return *this;
 }
 
+TCPStream&  HTTPStream::tcp() const
+{
+  return _tcp;
+}
+
 TCPStream&  HTTPStream::tcp()
 {
   return _tcp;

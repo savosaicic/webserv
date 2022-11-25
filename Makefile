@@ -19,6 +19,7 @@ SRCS := webserv.cpp \
 		Redirection.cpp \
 		HTTPResponse.cpp \
 		http_utils.cpp \
+		CGIResponse.cpp \
 
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 

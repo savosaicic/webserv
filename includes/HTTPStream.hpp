@@ -24,6 +24,7 @@ class HTTPStream
 
     HTTPStream& operator=(const HTTPStream& rhs);
 
+    TCPStream&  tcp() const;
     TCPStream&  tcp();
     const HTTPRequest&  getRequest() const;
     const VirtualServer&  getVirtualServer() const;

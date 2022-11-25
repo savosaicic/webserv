@@ -8,11 +8,12 @@
 #include <string>
 #include <utility>
 
-std::pair<unsigned short, std::string> VirtualServer::map_data[5] = {
+std::pair<unsigned short, std::string> VirtualServer::map_data[6] = {
   std::make_pair(400, VirtualServer::_createErrorPage(400, "Forbidden")),
   std::make_pair(403, VirtualServer::_createErrorPage(403, "Forbidden")),
   std::make_pair(404, VirtualServer::_createErrorPage(404, "Not Found")),
   std::make_pair(405, VirtualServer::_createErrorPage(405, "Method Not Allowed")),
+  std::make_pair(413, VirtualServer::_createErrorPage(413, "Payload too large")),
   std::make_pair(500, VirtualServer::_createErrorPage(500, "Internal Server Error"))
 };
 

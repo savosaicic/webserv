@@ -2,15 +2,15 @@
 # define CGI_REQUEST_HPP
 
 #include "HTTPRequest.hpp"
-#include<string>
-#include<map>
+#include "HTTPStream.hpp"
+#include <string>
+#include <map>
 
 #define BUFFER_SIZE 4096
 
 class CGIRequest
 {
 	private:
-		HTTPRequest	_HTTP_request;
 		std::string	_script;
 		std::string	_executable;
 		std::string	_input;
@@ -22,11 +22,12 @@ class CGIRequest
 	public:
 		CGIRequest();
 		~CGIRequest();
-		CGIRequest(const HTTPRequest& HTTP_request, const std::string& script, const std::string& executable);
+		CGIRequest(const HTTPStream& stream, const std::string& rooted_script,
+        const std::string& executable);
 		CGIRequest(const CGIRequest &src);
 		CGIRequest& operator=(const CGIRequest &rhs);
 
-		bool executeCGI();
+    bool executeCGI(const HTTPRequest& request);
 		const std::string& getOutput();
 };
 

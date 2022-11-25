@@ -1,6 +1,7 @@
 #ifndef HTTP_SERVER_HPP
 #define HTTP_SERVER_HPP
 
+#include "HTTPRequest.hpp"
 #include "IPAddress.hpp"
 #include "TCPStream.hpp"
 #include "VirtualServer.hpp"
@@ -42,6 +43,8 @@ class HTTPServer
         const std::string& content_type = mime_types::application_octet_stream);
     void  _setStreamRedirectionResponse(HTTPStream& stream,
         const VirtualServer::Redirection& redirection);
+    void  _setStreamCgiResponse(HTTPStream& stream,
+        const std::string& cgi_output, int status = status_code::http_ok);
     int   _openURI(const VirtualServer& server_conf,
         const VirtualServer::Location& location_conf,
         std::string& rooted_uri, std::ifstream* fstream);

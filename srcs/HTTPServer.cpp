@@ -18,6 +18,7 @@
 #include <ctime>
 #include <utils.hpp>
 #include <HTTPResponse.hpp>
+#include <CGIResponse.hpp>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -90,8 +91,8 @@ std::string  _buildAutoIndexPage(const VirtualServer& server_conf,
   while ((entry = readdir(directory))) {
     std::string slash = entry->d_type & DT_DIR ? "/" : "";
     html << "<a href=\"" <<
-      (location + entry->d_name + slash) <<
-      "\">" << (location + entry->d_name + slash) <<
+      (entry->d_name + slash) <<
+      "\">" << (entry->d_name + slash) <<
       "</a>" << std::endl;
   }
   html << "</body></pre></html>";
@@ -147,6 +148,17 @@ int HTTPServer::_openURI(const VirtualServer& server_conf,
   return 0;
 }
 
+void  HTTPServer::_setStreamCgiResponse(HTTPStream& stream,
+    const std::string& cgi_output, int status)
+{
+  CGIResponse response(cgi_output);
+
+  stream.tcp().setOutMessage(response.raw());
+  _listener.unRegisterClientEvent(stream.tcp(), EPOLLIN);
+  _listener.registerClientEvent(stream.tcp(), EPOLLOUT);
+  logRequest(stream.tcp().getIPAddr(), stream.getRequest(), status);
+}
+
 void  HTTPServer::_setStreamRedirectionResponse(HTTPStream& stream,
     const VirtualServer::Redirection& redirection)
 {
@@ -181,7 +193,7 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
   stream._request.parseRequest(stream.tcp().getInMessage());
 
   // If request is not complete, wait for more data
-  if (!stream.getRequest().isComplete())
+  if (!stream.getRequest().isComplete() && stream.getRequest().isValid())
     return ;
 
   if (!stream.getRequest().isValid())
@@ -197,6 +209,15 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
         stream.tcp().getHostIPAddr().toStr(),
         stream.tcp().getHostIPAddr().port(),
         stream.getRequest().getHeaderContent(http_headers::host)));
+
+  if (stream.getRequest().getBody().size() >
+      stream.getVirtualServer().getClientMaxBodySize())
+  {
+    _setStreamResponse(stream, status_code::http_payload_too_large,
+        stream.getVirtualServer().getErrorPage(status_code::http_payload_too_large),
+        mime_types::text_html);
+    return ;
+  }
 
   //If the VirtualServer have a redirection, no need to go further
   // Write something cleaner than this
@@ -256,12 +277,11 @@ void  HTTPServer::_handleRequest(HTTPStream& stream)
     return ;
   }
   else if (ret == 3) { // CGI
-    CGIRequest cgi_request(stream.getRequest(), rooted_uri,
+    CGIRequest cgi_request(stream, rooted_uri,
         stream.getVirtualServer().getCgiProg(
           rooted_uri.substr(rooted_uri.find_last_of('.'))));
-    if (cgi_request.executeCGI()) {
-      _setStreamResponse(stream, status_code::http_ok,
-          cgi_request.getOutput());
+    if (cgi_request.executeCGI(stream.getRequest())) {
+      _setStreamCgiResponse(stream, cgi_request.getOutput());
     }
     else {
       _setStreamResponse(stream, status_code::http_internal_error,
@@ -290,7 +310,7 @@ void  HTTPServer::_handleConnection(TCPStream& stream)
 {
   if (stream.canRead())
   {
-    if (stream.read() == 0)
+    if (stream.read() <= 0)
     {
       std::cout << "connection reset by peer: " <<
         stream.getIPAddr().toStr() << std::endl;
@@ -348,6 +368,12 @@ void HTTPServer::start()
       _handleConnection((*stream)->second);
     }
   }
+  for (std::map<int,HTTPStream>::iterator it = _active_client.begin();
+      it != _active_client.end(); ++it) {
+    _active_client.erase(it->first);
+    _listener.dropClient(it->second.tcp());
+  }
+  _listener.clear();
 }
 
 void  HTTPServer::logRequest(const IPAddress& remote,

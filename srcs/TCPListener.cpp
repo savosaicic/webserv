@@ -1,5 +1,6 @@
 #include <TCPListener.hpp>
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -44,7 +45,13 @@ void TCPListener::bind(const char* ip, const char* port)
 	int yes = 1;
 
 	if (!ip || !port)
-		throw std::invalid_argument("TCPListener::bind: ip or port is NULL");
+    throw std::invalid_argument("TCPListener::bind: ip or port is NULL");
+
+  std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin();
+  for (; it != _fd_port_list.end(); ++it) {
+    if (std::strcmp(it->second, port) == 0)
+      return ;
+  }
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_UNSPEC;
@@ -175,4 +182,15 @@ void  TCPListener::unRegisterClientEvent(TCPStream& client,
     const uint32_t event)
 {
   _streams_manager.unRegisterClientEvent(client, event);
+}
+
+void  TCPListener::clear()
+{
+  for (std::vector<std::pair<int, const char*> >::iterator
+      it = _fd_port_list.begin(); it != _fd_port_list.end(); ++it) {
+    close(it->first);
+  }
+  if (_epfd > -1) {
+    close(_epfd);
+  }
 }

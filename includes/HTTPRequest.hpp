@@ -76,6 +76,7 @@ class HTTPRequest
 		const				std::string&	getUri(void) const; 
 		const 			HTTPVersion&	getHTTPVersion(void) const; 
 		const 			std::string&	getBody(void) const; 
+		std::string&	body(void); 
 		const 			headerMap_t&	getHeaderMap(void) const; 
 
 		void		addHeader(const std::string& key, const std::string& value);

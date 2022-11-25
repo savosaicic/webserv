@@ -81,8 +81,8 @@ void HTTPRequest::parseRequestHeader(std::string& raw_request)
 
 void HTTPRequest::parseRequestBody(std::string& raw_request)
 {
-
 	_body += raw_request;
+  raw_request.clear();
 	if (_body.size() >= _content_length)
 	{
 		_is_complete = true;
@@ -135,10 +135,11 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 			case BODY:
 				if (_content_length == 0)
 					_is_complete = true;
-				else if (_content_length > _max_body_size)
+				else if (_content_length > _max_body_size && _max_body_size != 0)
 				{
 					_is_valid = false;
 					_error_code = status_code::http_payload_too_large;
+          return ;
 				}
 				parseRequestBody(raw_request);
 				break;
@@ -308,6 +309,11 @@ const HTTPVersion&	HTTPRequest::getHTTPVersion(void) const
 }
 
 const std::string&	HTTPRequest::getBody(void) const
+{
+		return (_body);
+}
+
+std::string&	HTTPRequest::body(void)
 {
 		return (_body);
 }

@@ -24,7 +24,8 @@ const  std::map<std::string, std::string>  mime_types::_init_tree()
 
 const char*  mime_types::content_type(const std::string& rooted_uri)
 {
-  if (_mime_tree.find( rooted_uri.substr(rooted_uri.find_last_of('.')))
+  if (rooted_uri.find_last_of('.') != std::string::npos &&
+      _mime_tree.find(rooted_uri.substr(rooted_uri.find_last_of('.')))
       != _mime_tree.end()) {
     return _mime_tree.find(rooted_uri.substr(
           rooted_uri.find_last_of('.')))->second.c_str();

@@ -86,7 +86,7 @@ class VirtualServer
     std::string _port;
 
     // <error_code, error_page>
-    static std::pair<unsigned short, std::string> map_data[5];
+    static std::pair<unsigned short, std::string> map_data[6];
     static const std::map<unsigned short, std::string>  _default_error_page_list;
 
     Redirection _redirection;

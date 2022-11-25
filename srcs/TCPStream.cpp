@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstring>
+#include <ws_syscall_error.hpp>
 
 TCPStream::TCPStream(): _fd(-1), _events(0), _triggered_events(0)
 {
@@ -139,13 +140,17 @@ int TCPStream::write(const std::string& str)
 {
   const char  *buffer;
   int len;
+  int ret;
   int bytes_sent = 0;
 
   buffer = str.data();
   len = str.size();
   while (bytes_sent < len)
   {
-    bytes_sent += send(_fd, buffer + bytes_sent, len - bytes_sent, 0);
+    if ((ret = send(_fd, buffer + bytes_sent, len - bytes_sent, 0)) == -1) {
+      return -1;
+    }
+    bytes_sent += ret;
   }
   _triggered_events &= ~EPOLLOUT;
   return bytes_sent;

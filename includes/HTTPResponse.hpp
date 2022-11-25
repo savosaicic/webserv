@@ -12,6 +12,7 @@ class HTTPResponse
   public:
     HTTPResponse();
     HTTPResponse(const HTTPResponse& src);
+    HTTPResponse(const std::string& cgi_output);
     HTTPResponse(const VirtualServer::Redirection& redirection,
         const HTTPVersion& version = HTTPVersion(1, 1));
     HTTPResponse(const int status, const std::string& body,

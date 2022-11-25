@@ -1,6 +1,7 @@
 #include "Config.hpp"
 #include "VirtualServer.hpp"
 #include "HTTPRequest.hpp"
+#include <exception>
 #include <iostream>
 #include <fstream>
 #include <cerrno>
@@ -103,7 +104,6 @@ bool isuri(const std::string &current_word)
   hyphen = std::count(current_word.begin(), current_word.end(),'-');
   dot = std::count(current_word.begin(), current_word.end(),'.');
   underscore = std::count(current_word.begin(), current_word.end(),'_');
-std::cout << underscore << " == " << current_word.size() << std::endl;
   if (slash + alnum + underscore + hyphen + dot != current_word.size())
     return (false);
   return (true);
@@ -127,7 +127,6 @@ void parse_listen( const std::string &previous_word, const std::string &current_
   std::string ip;
   std::string host;
   std::string port;
-std::cout << "current_word is " << current_word << std::endl;
   if (words_count == 1)
     return ;
   else if (words_count > 2)
@@ -257,7 +256,6 @@ void parse_root( const std::string &previous_word, const std::string &current_wo
   (void)previous_word;
   (void)server;
   (void)redirection;
-std::cout << current_word << std::endl;
   if (words_count > 2)
     throw std::runtime_error("Too much words in root directive line");
   if (words_count == 2 ) {
@@ -318,10 +316,12 @@ void parse_client_max_body_size( const std::string &previous_word, const std::st
   if (std::isalpha(*current_word.rbegin())) {
     if (*current_word.rbegin() == 'B' || *current_word.rbegin() == 'b')
       mult = 1;
-    else if (*current_word.rbegin() == 'M' || *current_word.rbegin() == 'm')
+    else if (*current_word.rbegin() == 'K' || *current_word.rbegin() == 'k')
       mult = 1000;
-    else if (*current_word.rbegin() == 'G' || *current_word.rbegin() == 'g')
+    else if (*current_word.rbegin() == 'M' || *current_word.rbegin() == 'm')
       mult = 1000000;
+    else if (*current_word.rbegin() == 'G' || *current_word.rbegin() == 'g')
+      mult = 1000000000;
     else
       throw std::runtime_error("The mesure unit of the client max body size must be \'B\' for bytes, \'M\' for mega bytes or \'G\' for giga bytes");
     for (std::string::reverse_iterator it = copy.rbegin() + 1; it != copy.rend(); ++it) {
@@ -470,7 +470,6 @@ void Config::parse_line (char* str, VirtualServer &server, VirtualServer::Locati
       throw std::runtime_error("Unknown ConfigFile Directive\n");
     if (!context || context > LOCATION)
       throw std::runtime_error("ConfigFile out of context error\n");
-std::cout << current_word << " in " << std::bitset<4>(context) << std::endl;
     (*parsing_functions[index])(previous_word, current_word, words_count, server, location, redirection);
     previous_word = current_word;
     current_word = strtok( NULL, "\t \n;");
@@ -498,14 +497,15 @@ void  Config::parseConfigFile(const char* filename)
   {
     if ((std::count_if(line.begin(), line.end(), ::isspace) == (int)line.length()))
       continue;
-    // if (line.length())
-    // {
-    //   str = (char*)malloc(line.length() + 1);
-    //   str[line.length()] = 0;
-    //   std::strcpy(str, line.c_str());
-    // }
     str = strdup(line.c_str());
-    parse_line(str, server, location, redirection);
+    try {
+      parse_line(str, server, location, redirection);
+    } catch (const std::exception& e) {
+      std::cerr << e.what() << std::endl;
+      if (line.length())
+        free(str);
+      return ;
+    }
     if (line.length())
       free(str);
   }
@@ -521,7 +521,6 @@ const VirtualServer&  Config::getServer(const std::string& listening_addr,
   for (std::vector<VirtualServer>::const_iterator it = _server_list.begin();
       it != _server_list.end(); ++it)
   {
-std::cerr << "Host = " << listening_addr << "getlistenHost() = " << it->getListeningHost() << "Port = " << it->getListeningPort() << std::endl;
     if (it->getListeningHost() == listening_addr &&
         it->getListeningPort() == port && it->isServerNameSet(server_name))
       return *it;
