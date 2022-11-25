@@ -36,7 +36,7 @@ HTTPRequest::HTTPRequest(std::string raw_request)
 **/
 
 HTTPRequest::HTTPRequest(void) : _is_valid(true), _is_complete(false),
-  _to_parse(METHOD)
+  _to_parse(METHOD), _content_length(0)
 {
 }
 
@@ -73,7 +73,7 @@ bool	HTTPRequest::headerParsable(const std::string& raw_request) const
 
 bool	HTTPRequest::bodyParsable(void) const
 {
- return _body.size() >= _content_length && _to_parse == BODY;
+ return _body.size() <= _content_length && _to_parse == BODY;
 }
 
 void HTTPRequest::parseRequestHeader(std::string& raw_request)
@@ -90,6 +90,7 @@ void HTTPRequest::parseRequestHeader(std::string& raw_request)
 				if (_method == POST)
 				{
 					_to_parse = BODY;
+					_content_length = atoi(getHeaderContent("Content-Length").c_str());
 					eraseCurrentLine(raw_request);
 					break;
 				}
@@ -108,18 +109,11 @@ void HTTPRequest::parseRequestHeader(std::string& raw_request)
 void HTTPRequest::parseRequestBody(std::string& raw_request)
 {
 
-	std::stringstream ss;
-	std::string line;
-	ss << raw_request;
-	while (std::getline(ss, line) && _is_complete == false && _is_valid && !line.empty())
+	_body += raw_request;
+	if (_body.size() >= _content_length)
 	{
-		_body += raw_request;
-		if (_body.size() >= _content_length)
-		{
-			_is_complete = true;
-			_body.erase(_content_length, _body.size());
-		}
-		eraseCurrentLine(raw_request);
+		_is_complete = true;
+		_body.erase(_content_length, std::string::npos);
 	}
 }
 
@@ -166,7 +160,6 @@ void	HTTPRequest::parseRequest(std::string raw_request)
 				parseRequestHeader(raw_request);
 				break;
 			case BODY:
-				_content_length = atoi(getHeaderContent("Content-Length").c_str());
 				if (_content_length == 0)
 					_is_complete = true;
 				else if (_content_length > _max_body_size)
