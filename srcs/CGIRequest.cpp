@@ -1,6 +1,5 @@
 #include"CGIRequest.hpp"
 #include"HTTPRequest.hpp"
-#include <iostream>
 #include<string>
 #include<map>
 #include<sys/types.h>
@@ -23,8 +22,18 @@ CGIRequest::CGIRequest(const HTTPRequest& HTTP_request, const std::string& scrip
 {
 	_script = "." + _HTTP_request.getUri().substr(0, _HTTP_request.getUri().find_first_of("?"));
 	_input = _HTTP_request.getUri().substr(_HTTP_request.getUri().find_first_of("?")+1);
-	
+
+  setenv("CONTENT_LENGTH", HTTP_request.getHeaderContent("Content-Length").c_str(), 1);
+  setenv("PATH_INFO", " ", 1);
   setenv("QUERY_STRING", _input.c_str(), 1);
+  setenv("REQUEST_METHOD", HTTP_request.getMethodString().c_str(), 1);
+  setenv("SCRIPT_NAME", _script.substr(_script.find_last_of("/")).c_str(), 1);
+//	setenv("REMOTE_ADDR", HTTP_request.getMethodString().c_str(), 1);
+//  setenv("REQUEST_METHOD", , 1);
+//  setenv("REQUEST_HOST", , 1);
+//  setenv("SERVER_NAME", HTTP_request.getMethodString().c_str(), 1);
+  setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
+//	setenv("SERVER_SOFTWARE", "webserv/0.1", 1);
 	_path[0] = (char *)_executable.c_str();
 	_path[1] = (char *)_script.c_str();
 	_path[2] = NULL;
@@ -50,7 +59,7 @@ const std::string& CGIRequest::getOutput()
 	return (_output);
 }
 
-bool CGIRequest::executeCGI(char **envp)
+bool CGIRequest::executeCGI()
 {
 	char buffer[BUFFER_SIZE];
 	int id;
@@ -62,8 +71,10 @@ bool CGIRequest::executeCGI(char **envp)
 	pipe(pipe_input);
 	pipe(pipe_output);
 
-	write(pipe_input[1], _HTTP_request.getBody().data(),
+	ret = write(pipe_input[1], _HTTP_request.getBody().data(),
 			atoi(_HTTP_request.getHeaderContent("Content-Length").c_str()));
+	if (ret == -1)
+		return false;
 	id = fork();
 	if (!id)
 	{
@@ -73,19 +84,21 @@ bool CGIRequest::executeCGI(char **envp)
 		dup2(pipe_input[0], 0);
 		close(pipe_output[1]);
 		close(pipe_input[0]);
-		execve(_path[0], _path, envp);
+		extern char **environ;
+		execve(_path[1], &_path[1], environ);
 		exit(1);
 	}
 	close(pipe_input[1]);
 	close(pipe_output[1]);
 	close(pipe_input[0]);
-	waitpid(id, &status, 0);
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
-		return (false); 
 	while ((ret = read(pipe_output[0], &buffer, BUFFER_SIZE)) > 0)
 	  _output.append(buffer, ret);
-  std::cerr << "...fddfs\n";
+	if (ret == -1)
+		return false;
+	waitpid(id, &status, 0);
+	if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
+		return false; 
   close(pipe_output[0]); 
-	return (true);
+	return true;
 }
 

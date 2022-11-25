@@ -26,7 +26,7 @@ class CGIRequest
 		CGIRequest(const CGIRequest &src);
 		CGIRequest& operator=(const CGIRequest &rhs);
 
-		bool executeCGI(char **envp);
+		bool executeCGI();
 		const std::string& getOutput();
 };
 
