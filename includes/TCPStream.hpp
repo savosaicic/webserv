@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   TCPStream.hpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/28 10:58:44 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/05 08:43:21 by savosaicic       ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef TCPSTREAM_H
 # define TCPSTREAM_H
 
@@ -23,17 +11,18 @@ class TCPStream
 {
 	private:
 		int _fd;
-		IPAddress _ip;
+		IPAddress _host_addr;
+		IPAddress _remote_addr;
 		uint32_t _events;
 		uint32_t _triggered_events;
 		std::string _in_msg;
 		std::string _out_msg;
-		int _port;
 	
 	public:
 		TCPStream();
-		TCPStream(const int fd, struct sockaddr addr,
-				const socklen_t addrlen, const uint32_t events);
+    TCPStream(const int fd, const struct sockaddr remote_addr,
+		  const socklen_t remote_addrlen, const struct sockaddr host_addr,
+		  const socklen_t host_addrlen, const uint32_t events);
 		~TCPStream();
 		TCPStream& operator=(const TCPStream& rhs);
 		TCPStream(const TCPStream& src);
@@ -45,11 +34,14 @@ class TCPStream
 
 		int getFd() const;
 		const IPAddress& getIPAddr() const;
-		uint32_t triggeredEvents() const;
+		const IPAddress& getHostIPAddr() const;
+		bool  canRead() const;
+    bool  canWrite() const;
     uint32_t getRegisteredEvents() const;
 		const std::string& getInMessage() const;
 		const std::string& getOutMessage() const;
 
+    void  setOutMessage(const std::string& str);
     void  clearInMessage();
     void  clearOutMessage();
 

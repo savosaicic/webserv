@@ -1,17 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   TCPStream.cpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lefendie <lefendie@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/28 10:58:26 by lefendie          #+#    #+#             */
-/*   Updated: 2022/11/05 07:49:43 by savosaicic       ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <TCPStream.hpp>
-
 #include <sys/epoll.h>
 #include <netinet/ip.h>
 #include <string>
@@ -25,9 +12,12 @@ TCPStream::TCPStream(): _fd(-1), _events(0), _triggered_events(0)
 {
 }
 
-TCPStream::TCPStream(const int fd, const struct sockaddr addr,
-		const socklen_t addrlen, const uint32_t events)
-  : _fd(fd), _ip(addr, addrlen), _events(events), _triggered_events(0)
+TCPStream::TCPStream(const int fd, const struct sockaddr remote_addr,
+		const socklen_t remote_addrlen, const struct sockaddr host_addr,
+		const socklen_t host_addrlen, const uint32_t events)
+  : _fd(fd), _host_addr(host_addr, host_addrlen),
+  _remote_addr(remote_addr, remote_addrlen), _events(events),
+  _triggered_events(0)
 {
 }
 
@@ -40,7 +30,8 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	if (this != &rhs)
 	{
 		_fd = rhs._fd;
-		_ip = rhs._ip;
+    _host_addr = rhs._host_addr;
+		_remote_addr = rhs._remote_addr;
 		_events = rhs._events;
 		_triggered_events = rhs._triggered_events;
 		_in_msg = rhs._in_msg;
@@ -50,7 +41,8 @@ TCPStream &TCPStream::operator=(const TCPStream &rhs)
 	return (*this);
 }
 
-TCPStream::TCPStream(const TCPStream &src): _fd(src._fd), _ip(src._ip),
+TCPStream::TCPStream(const TCPStream &src): _fd(src._fd),
+  _host_addr(src._host_addr), _remote_addr(src._remote_addr),
   _events(src._events), _triggered_events(src._triggered_events),
   _in_msg(src._in_msg), _out_msg(src._out_msg)
 {
@@ -78,17 +70,27 @@ void  TCPStream::setTriggeredEvents(const uint32_t events)
 
 int TCPStream::getFd() const
 {
-	return (_fd);
+	return _fd;
 }
 
 const IPAddress& TCPStream::getIPAddr() const
 {
-	return (_ip);
+	return _remote_addr;
 }
 
-uint32_t TCPStream::triggeredEvents() const
+const IPAddress& TCPStream::getHostIPAddr() const
 {
-	return _triggered_events;
+	return _host_addr;
+}
+
+bool TCPStream::canRead() const
+{
+	return _triggered_events & EPOLLIN;
+}
+
+bool TCPStream::canWrite() const
+{
+	return _triggered_events & EPOLLOUT;
 }
 
 uint32_t TCPStream::getRegisteredEvents() const
@@ -99,6 +101,11 @@ uint32_t TCPStream::getRegisteredEvents() const
 const std::string& TCPStream::getInMessage() const
 {
 	return _in_msg;
+}
+
+void  TCPStream::setOutMessage(const std::string &str)
+{
+  _out_msg = str;
 }
 
 void  TCPStream::clearInMessage()
@@ -153,10 +160,10 @@ std::ostream &operator<<(std::ostream &out, const TCPStream &stream)
 {
 	out << "Client fd: " << stream.getFd()
     << ", IPAddress: " << stream.getIPAddr().toStr() << ", Event: ";
-	if (stream.triggeredEvents() & EPOLLIN)
-		out << " EPOLLIN ";
-	if (stream.triggeredEvents() & EPOLLOUT)
-		out << " EPOLLOUT ";
+	if (stream.canRead())
+		out << " can read ";
+	if (stream.canWrite())
+		out << " can write ";
 //	out << ", Data: \n- Port: " << (uint16_t)ntohs((stream.getData()).sin_port);
 //	out << "\n- Address: " << inet_ntoa(stream.getData().sin_addr) << '\n';
 	return (out);

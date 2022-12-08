@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <TCPStream.hpp>
 #include <vector>
+#include <ws_syscall_error.hpp>
 
 TCPListener::TCPListener() : _epfd(-1), _streams_manager(_epfd, *this)
 {
@@ -84,10 +85,14 @@ void TCPListener::listen()
 	if (_epfd == -1)
 		throw std::runtime_error("epoll_create1() failed");
 
-	for (std::vector<std::pair<int, const char*> >::iterator it = _fd_port_list.begin(); it != _fd_port_list.end(); ++it)
+	for (std::vector<std::pair<int, const char*> >::iterator it
+      = _fd_port_list.begin(); it != _fd_port_list.end(); ++it)
 	{
 		if (::listen(it->first, 10) == -1)
 			throw std::runtime_error("listen() failed");
+#ifdef WS_DEBUG
+    std::cerr << "Listening on port: " << it->second << std::endl;
+#endif
 		events.data.fd = it->first;
 		events.events = EPOLLIN;
 		if (epoll_ctl(_epfd, EPOLL_CTL_ADD, it->first, &events) == -1)
@@ -136,7 +141,14 @@ std::vector<TCPStreamManager::iterator>  TCPListener::incoming()
       event.events = EPOLLIN;
       epoll_ctl(_epfd, EPOLL_CTL_ADD, client, &event);
 
-      _streams_manager.addClient(TCPStream(client, client_addr, addrlen, EPOLLIN));
+      struct sockaddr our_addr;
+      socklen_t our_addrlen = sizeof(our_addr);
+      if (getsockname(fd, &our_addr, &our_addrlen) < 0)
+        throw ws_syscall_error("getsockname()");
+
+      _streams_manager.addClient(
+          TCPStream(client, client_addr, addrlen, our_addr, our_addrlen, EPOLLIN)
+      );
 		}
 		else
 		{

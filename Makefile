@@ -1,17 +1,5 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: abiju-du <abiju-du@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/08/05 16:48:12 by sasaicic          #+#    #+#              #
-#    Updated: 2022/11/03 14:15:59 by sasaicic         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 NAME := webserv
-CXX := c++
+CXX := g++
 CPPFLAGS := -Iincludes
 CXXFLAGS := -std=c++98 -Wall -Wextra -Werror
 SRCS := webserv.cpp \
@@ -21,7 +9,10 @@ SRCS := webserv.cpp \
 		Location.cpp \
 		IPAdress.cpp \
 		TCPStream.cpp \
-		TCPStreamManager.cpp
+		HTTPRequest.cpp \
+		TCPStreamManager.cpp \
+		HTTPStream.cpp \
+		HTTPVersion.cpp
 OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d) 
 OBJDIR := obj
@@ -51,7 +42,7 @@ ifneq "$(MAKECMDGOALS)" "clean"
  -include $(addprefix $(DEPDIR)/, $(DEPS))
 endif
 
-debug: CXXFLAGS += -g -DDEBUG=1
+debug: CXXFLAGS += -g -DDEBUG=1 -DWS_DEBUG=1
 debug: $(NAME)
 
 end_to_end: $(NAME)

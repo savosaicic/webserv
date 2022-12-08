@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   IPAdress.cpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/01 15:16:57 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/05 08:45:22 by savosaicic       ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "IPAddress.hpp"
 #include <cerrno>
 #include <cstring>
@@ -25,32 +13,14 @@ IPAddress::IPAddress() : _defined(false)
 {
 }
 
-IPAddress::IPAddress(const IPAddress& src) : _addr(src._addr),
-	_addrlen(src._addrlen), _defined(src._defined)
+IPAddress::IPAddress(const IPAddress& src) : _ip_str(src._ip_str),
+  _port_str(src._port_str), _addr(src._addr), _addrlen(src._addrlen),
+  _defined(src._defined)
 {
 }
 
 IPAddress::IPAddress(const struct sockaddr addr, const socklen_t addrlen)
   : _addr(addr), _addrlen(addrlen), _defined(true)
-{
-}
-
-IPAddress::~IPAddress()
-{
-}
-
-IPAddress&  IPAddress::operator=(const IPAddress& rhs)
-{
-  if (this != &rhs)
-  {
-    _addr = rhs._addr;
-    _addrlen = rhs._addrlen;
-    _defined = rhs._defined;
-  }
-  return *this;
-}
-
-const std::string IPAddress::toStr() const
 {
   char host[NI_MAXHOST];
   char service[NI_MAXSERV];
@@ -65,7 +35,35 @@ const std::string IPAddress::toStr() const
     printf("error %s\n", gai_strerror(ret));
     throw std::runtime_error("getnameinfo() failed");
   }
-  return std::string(host); 
+  _ip_str = host;
+  _port_str = service;
+}
+
+IPAddress::~IPAddress()
+{
+}
+
+IPAddress&  IPAddress::operator=(const IPAddress& rhs)
+{
+  if (this != &rhs)
+  {
+    _ip_str = rhs._ip_str;
+    _port_str = rhs._port_str;
+    _addr = rhs._addr;
+    _addrlen = rhs._addrlen;
+    _defined = rhs._defined;
+  }
+  return *this;
+}
+
+const std::string& IPAddress::port() const
+{
+  return _port_str;
+}
+
+const std::string& IPAddress::toStr() const
+{
+  return _ip_str;
 }
 
 const sockaddr    IPAddress::addr() const
@@ -76,4 +74,9 @@ const sockaddr    IPAddress::addr() const
 socklen_t    IPAddress::addrlen() const
 {
   return _addrlen;
+}
+
+bool  IPAddress::operator==(const IPAddress& rhs)
+{
+  return _ip_str == rhs._ip_str && _port_str == rhs._port_str;
 }

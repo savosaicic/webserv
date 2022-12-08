@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   VirtualServer.hpp                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sasaicic <sasaicic@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/27 16:27:03 by sasaicic          #+#    #+#             */
-/*   Updated: 2022/11/01 11:28:11 by sasaicic         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef VIRTUAL_SERVER_HPP
 #define VIRTUAL_SERVER_HPP
 
@@ -17,16 +5,21 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "HTTPRequest.hpp"
 
 class VirtualServer
 {
+  public:
+    class Location;
+
   private:
     //Not sure about those types
     std::string _host;
     std::string _port;
 
     // <error_code, error_page>
-    std::map<uint16_t, std::string>  _default_error_page_list;
+    static std::pair<unsigned short, std::string> map_data[5];
+    static const std::map<unsigned short, std::string>  _default_error_page_list;
     
     // <error_code, error_page_filename>
     std::map<uint16_t, std::string>  _error_page_file_list;
@@ -38,8 +31,7 @@ class VirtualServer
 
     std::vector<std::string>  _server_name_list;
   
-    class Location;
-    std::vector<Location>  _location_list;
+    std::map<std::string, Location>  _location_list;
 
    public:
     VirtualServer();
@@ -52,14 +44,18 @@ class VirtualServer
     const std::string&  getListeningPort() const;
     const std::string   getErrorPage(const uint16_t error_num) const;
     uint64_t            getClientMaxBodySize() const;
+    const Location&     getLocation(const std::string& uri_src) const;
 
+    bool  isServerNameSet(const std::string& name) const;
 
     void  setListeningHost(const std::string& host);
     void  setListeningPort(const std::string& port);
+    void  addLocation(const Location& location);
+    void  addServerName(const std::string& name);
     void  addErrorPage(const uint16_t error_num, const std::string& filename);
     void  setClientMaxBodySize(const uint64_t size);
 
-   private:
+   public:
     class Location
     {
       private:
@@ -69,8 +65,7 @@ class VirtualServer
 
         std::vector<std::string>  _index_list;
 
-        enum method_t {GET = 0, POST, DELETE};
-        std::vector<method_t>     _allowed_method_list;
+        std::vector<HTTPRequest::method_t>     _allowed_method_list;
 
       public:
         Location();
@@ -83,13 +78,13 @@ class VirtualServer
         void  setDocroot(const std::string& docroot);
         void  setAutoindex(const bool autoindex);
         void  addIndexFileToList(const std::string& index);
-        void  allowMethod(const method_t method);
+        void  allowMethod(const HTTPRequest::method_t method);
 
         const std::string&  getLocationPath() const;
         const std::string&  getDocroot() const;
         bool	getAutoindex() const;
         bool	isIndexInList(const std::string& index) const;
-        bool	isMethodAllowed(const method_t method) const;
+        bool	isMethodAllowed(const HTTPRequest::method_t method) const;
     };
 
 
@@ -118,7 +113,7 @@ class VirtualServer
     };
 
    private:
-    const std::string _createErrorPage(const uint16_t code,
+    static const std::string _createErrorPage(const uint16_t code,
         const std::string& msg);
   
 };
